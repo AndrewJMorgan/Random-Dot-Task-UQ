@@ -49,8 +49,9 @@
 			"<p> On each trial, half the dots will be moving in a coherent direction (left or right) and the other half will move randomly.</p>" + 
 			"<p> Before the end of the trial, determine if the dots are moving left or right.</p>" + 
 			"<p> If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.</p>" +
-			"<p> There are 4 trials and each trial will last 1000ms.</p>" +
-			"<p> After all 4 trials have ended, the data will be displayed on the screen and a copy will be saved locally in a .csv file.</p>"  +
+			"<p> There are 40 trials and each trial will last 10000ms.</p>" +
+			"<p> There will be a 1000ms between each trial.</p>" +
+			"<p> After all 40 trials have ended, the data will be displayed on the screen and a copy will be saved locally in a .csv file.</p>"  +
 			"<p> Press any key to continue.</p>"			
 		}
 		
@@ -71,27 +72,46 @@
 		];
 		
 		//Multiply based on how many trials you need and randomize the trial order
-		var all_trials = jsPsych.randomization.repeat(RDK_trial,2); //Double the number of trials and shuffle them
+		var all_trials = jsPsych.randomization.repeat(RDK_trial,10); //Double the number of trials and shuffle them
 		
 		//The test block where all the trials are nested. The properties here will trickle down to all trials in the timeline unless they have their own properties defined		
 		var test_block = {
+			
 			type: "RDK", 
-			timing_post_trial: 0, //The Inter Trial Interval. You can either have no ITI, or change the display element to be the same color as the stimuli background to prevent flashing between trials
+			timing_post_trial: 1000, //The Inter Trial Interval. You can either have no ITI, or change the display element to be the same color as the stimuli background to prevent flashing between trials
 			number_of_dots: 200, //Total number of dots in the aperture
 			RDK_type: 3, //The type of RDK used
 			choices: ["a", "l"], //Choices available to be keyed in by participant
-			trial_duration: 1000, //Duration of each trial in ms
+			trial_duration: 10000, //Duration of each trial in ms
 			timeline: all_trials //The timeline of all the trials
+			
 		}
+		//Timer, hopefully
 		
+		function timer() {
+			console.log("test");
+			var countDownTime = new Date().getTime() + (1000 * 61);
+			var x = setInterval(function() {
+		var now = new Date().getTime();
+		var distance = countDownTime - now;
+		var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+		if (distance <= 0) {
+			clearInterval(x);
+			window.alert("Trial Complete");
+		}
+	}, 1000);
+}
 		
+
 		
 		//---------Prepare the main timeline---------
 		
 		//The main timeline to be fed into jsPsych.init
 		var main_timeline = [];
 		main_timeline.push(instructions_block);
-		main_timeline.push(test_block);
+		main_timeline.push(test_block, timer());
+			
+		
 		
 		
 		

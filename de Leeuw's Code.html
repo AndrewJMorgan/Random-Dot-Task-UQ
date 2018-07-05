@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="jsPsych/jspsych.js"></script>
+  <script src="jsPsych/plugins/jspsych-serial-reaction-time.js"></script>
+  <script src="jsPsych/plugins/jspsych-text.js"></script>
+  <script src="jsPsych/plugins/jspsych-button-response.js"></script>
+  <script src="jsPsych/plugins/jspsych-survey-text.js"></script>
+  <script src="jsPsych/plugins/jspsych-call-function.js"></script>
+  <script src="js/serverComm.js"></script>
+  <link rel="stylesheet" href="jsPsych/css/jspsych.css"></link>
+  <style>
+    html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
+    #jspsych-target { width: 100%; height: 100%;}
+    #srt-score { position: absolute; width: 100%; border-bottom: 1px solid #ddd; background-color: #fafafa; margin:0; text-align: center; display: none;}
+    #srt-score progress { width: 500px; }
+    #srt-score .srt-top { padding: 10px 75px; display: inline-block; font-family: 'Open Sans', 'Arial'; font-size: 16px; color: #333;}
+  </style>
+</head>
+
+<body>
+  <div id="srt-score">
+    <span class="srt-top">Correct responses: <span id="srt-correct-count">0</span></span>
+    <span class="srt-top">Time: <progress max="100" value="0" id="srt-timer"></progress></span>
+  </div>
+  <div id="jspsych-target"></div>
+</body>
+
+<script>
+// experiment parameters
+var break_after_each_square = 200;
+var break_before_block = 500;
+var block_length = 90000; // milliseconds
+var n_blocks = 8;
+var target_color = '#aaa';
+// subject registration
+var id = jsPsych.data.getURLVariable('prolific_pid');
+var session_id = jsPsych.data.getURLVariable('session_id');
+var subject_id = jsPsych.randomization.randomID(20);
+var assigned_condition = null;
+jsPsych.data.addProperties({session_id: session_id, subject_id: subject_id});
+serverComm.register_subject(id,
+  function(){
+    serverComm.assign_condition(subject_id, 3,
+      function(response){
+        assigned_condition = response.assignedCondition;
+        start_experiment();
+      },
+      function(){
+        technical_failure();
+      }
+    );
+  },
+  function(){
+    document.querySelector('body').innerHTML = '<p>Our records indicate that you have already started this experiment. Due to the nature of the experiment, restarting is not permitted.</p><p>If you believe this message is in error, you can contact the researchers at jdeleeuw@vassar.edu. Our apologies for the trouble.</p>';
+  },
+  function(){
+    technical_failure();
+  }
+);
+function technical_failure(){
+  document.querySelector('body').innerHTML = '<p>Our apologies. There was a technical error on our end while loading the experiment.</p><p>You will not be able to complete the experiment. We are sorry for the trouble.</p>';
+}
+function start_experiment(){
+  var practice_grid = {
+    gridtype: [[1,1,1,1]],
+  	target: [[0,0],[0,1],[0,2],[0,3]],
+  	choices: [['3','5','7','9']],
+  	boxes: 4
+  }
+  var grids = [
+    {
+      gridtype: [
+        [1,1,0,1,1],
+        [1,1,0,1,1]
+      ],
+      target: [[0,0],[0,1],[0,3],[0,4],[1,0],[1,1],[1,3],[1,4]],
+  		choices: [
+        ['e','r','','y','u'],
+        ['d','f','','h','j']
+      ],
+  		boxes: 8
+    },
+    {
+      gridtype: [
+        [1,1,1,0,1,1,1],
+        [1,1,1,0,1,1,1]
+      ],
+  		target: [[0,0],[0,1],[0,2],[0,4],[0,5],[0,6],[1,0],[1,1],[1,2],[1,4],[1,5],[1,6]],
+      choices: [
+        ['w','e','r','', 'y', 'u','i'],
+        ['s','d','f','','h','j','k']
+      ],
+  		boxes: 12
+    },
+    {
+      gridtype: [
+        [1,1,1,1,0,1,1,1,1],
+        [1,1,1,1,0,1,1,1,1]
+      ],
+      target: [[0,0],[0,1],[0,2],[0,3],[0,5],[0,6],[0,7],[0,8],[1,0],[1,1], [1,2], [1,3], [1,5], [1,6],[1,7],[1,8]],
+      choices: [
+        ['q','w','e','r','', 'y','u','i','o'],
+        ['a','s','d','f','','h','j','k','l']
+      ],
+  		boxes: 16
+    },
+  ];
+  var which_grid = grids[assigned_condition];
+  var locations = jsPsych.randomization.shuffle(which_grid.target);
+  var t_variables = [];
+  while(locations.length != 0){
+    t_variables.push({
+      target1: locations.pop(),
+      target2: locations.pop()
+    });
+  }
+  var timeline = [];
+  var consent_form = {
+  	type: 'button-response',
+  	stimulus: "<p>This is a research project conducted at Vassar College. In this experiment, you will play a simple computer game in which you try to quickly press keys on your keyboard that correspond to particular locations or symbols on the screen. Our experiment investigates how different factors related to this game change how quickly people play. The experiment will take approximately 20 minutes to complete. You will receive a payment of £2.00 (about $2.50) upon completion of the experiment. The data we collect during the experiment are not linked to potentially identifying information, including your account information on Prolific. These data will solely be used for research purposes. You are free to stop the experiment by closing your browser window at any time. If you have any questions, you can contact Dr. Joshua de Leeuw at jdeleeuw@vassar.edu.</p>" +
+    "<p>By clicking “I agree”, you affirm that you are at least 18 years of age, which is the minimum age to participate in this study, and that you understand the nature of your participation in this research. If you do not wish to participate, please close this window.</p",
+  	choices: ['I agree.'],
+  	is_html: true
+  }
+  timeline.push(consent_form);
+  var welcome_block = {
+  	type: "text",
+  	text: "Hi there! Welcome to the experiment. There are sounds throughout this experiment, so take a moment to adjust your volume if needed. Press B to begin.",
+    choices: ['b']
+  }
+  timeline.push(welcome_block);
+  //INSERT VOLUME CHECK TRIAL.
+  var all_practice = [];
+  var instructions_general = {
+  	type: 'text',
+  	text: "<p>This experiment involves playing a simple game. You’ll see a grid of squares where each square is mapped to a corresponding key on your keyboard. Your job is simple: press the correct key when the corresponding square changes colors.</p>" +
+  	"<p>For instance, for the following grid: </p>" +
+  	jsPsych.plugins['serial-reaction-time'].stimulus([[1,1,1,1]], 80, [0,1], target_color, [['3','5','7','9']]) +
+  	"<p>You would press the '5' key.</p> " +
+  	"<p>The goal of the game is to go as quickly as possible without making a mistake.</p>"+
+  	"<p>Press spacebar to begin when you're ready.</p>",
+  	choices: ['spacebar']
+  }
+  all_practice.push(instructions_general);
+  var instructions_practice = {
+  	type: 'text',
+  	text: "<p><b>Practice:</b></p>" +
+  	"<p>Here's a quick practice round to get you used to the game. You will see four squares like these mapped to the following keys: </p>" +
+  	jsPsych.plugins['serial-reaction-time'].stimulus([[1,1,1,1]], 80, [0,2], '', [['3','5','7','9']]) +
+  	"<p>The above numbers <b>will not</b> appear in the squares during the practice round, " +
+  	"so prepare accordingly by placing your fingers over the correct keys now.</p>" +
+  	"<p>Press spacebar to begin when you are ready.</p>",
+  	choices: ['spacebar'],
+  	timing_post_trial: break_before_block
+  }
+  all_practice.push(instructions_practice);
+  var practice_timeline = {
+    timeline: [
+      {
+        type: 'serial-reaction-time',
+        target: jsPsych.timelineVariable('target'),
+        grid_square_size: 80,
+        grid: practice_grid.gridtype,
+        choices: practice_grid.choices,
+        target_color: target_color,
+        data: {'sequence_type': 'practice'},
+  		  timing_pre_target: break_after_each_square,
+        play_audio_feedback: true,
+        show_response_feedback: true,
+        feedback_duration: 1000,
+        audio_correct: 'audio/correct_250.mp3',
+        audio_incorrect: 'audio/wrong_250.mp3',
+        response_ends_trial: false
+      }
+    ],
+    timeline_variables: [
+  	  {target: practice_grid.target[0]},
+  	  {target: practice_grid.target[1]},
+  	  {target: practice_grid.target[2]},
+  	  {target: practice_grid.target[3]}
+    ],
+    randomize_order: true,
+  	repetitions: 3,
+  };
+  all_practice.push(practice_timeline);
+  var practice_debrief = {
+    type: 'button-response',
+    choices: ['Start Game', 'Read Instructions Again'],
+    is_html: true,
+    stimulus: function(){
+  	  var data = jsPsych.data.get().filter({'sequence_type': 'practice'}).last(12);
+  	  //var rt = Math.floor(data.filter({correct: true}).select('rt').mean());
+  	  var accuracy = Math.floor(data.filter({correct: true}).count() / data.count() * 100);
+      var msg = "<p>You responded correctly <strong>"+accuracy+"%</strong> of "+
+          "the time.</p>";
+      if(accuracy > 75){
+        msg += "<p>Great job! Looks like you are ready to continue to the real thing.</p>"
+      } else {
+        msg += "<p>You might want to read through the instructions again to make sure that you understand what you need to do.</p>"
+      }
+      msg += "<p>If you understand the instructions and are ready to play, press the 'Start Game' button below. If you'd like to read the instructions again, press the 'Read Instructions Again' button.</p>"
+      return msg;
+    },
+  }
+  all_practice.push(practice_debrief);
+  var repeat_practice = {
+  	timeline: all_practice,
+  	loop_function: function(data){
+  		return data.last(1).values()[0].button_pressed == 1;
+  	}
+  }
+  timeline.push(repeat_practice);
+  var instructions_test = {
+  	type: 'text',
+  	text:
+  	jsPsych.plugins['serial-reaction-time'].stimulus(which_grid.gridtype, 80, [0,0],'', which_grid.choices) +
+    "<p>This time, the grid will have more boxes.</p>"+
+    "<p>Please take a moment to find the appropriate keys on the keyboard.</p>"+
+  	"<p>Press <b>spacebar</b> when you have found the appropriate keys.</p>",
+  	choices: ['spacebar'],
+  	timing_post_trial: 0
+  }
+  var show_timer = {
+    type: 'call-function',
+    func: function(){
+      document.querySelector('#srt-score').style.display = 'block';
+    }
+  }
+  var instructions_test_part_2 = {
+  	type: 'text',
+  	text:
+  	jsPsych.plugins['serial-reaction-time'].stimulus(which_grid.gridtype, 80, [0,0],'', which_grid.choices) +
+    "<p>The next part of the experiment will be broken up into "+n_blocks+" rounds. Each round will last "+(block_length/1000)+" seconds.</p>" +
+    "<p>The counter at the top of your screen will keep track of your correct responses, and you will also be able to see how well you did after each section.</p>" +
+    "<p>The section will end after the time bar completely fills up - so try to get as many correct responses as you can before it does!</p>" +
+  	"<p>Take one last look at the keys, and then press <b>spacebar</b> to begin when you are ready.</p>",
+  	choices: ['spacebar'],
+  	timing_post_trial: break_before_block
+  }
+  timeline.push(instructions_test, show_timer, instructions_test_part_2);
+  var block_start_time;
+  var current_order;
+  var order_index;
+  var which_target;
+  var data_predictable;
+  var timer_ticks;
+  var count_correct;
+  var high_score = 0;
+  for(var i=0; i<n_blocks; i++){
+    var timer_start = {
+      type: 'call-function',
+      func: function(){
+        current_order = jsPsych.randomization.shuffle(t_variables);
+        order_index = 0;
+        which_target = 'target1';
+        data_predictable = 'unpredictable';
+        count_correct = 0;
+        document.querySelector('#srt-correct-count').innerHTML = count_correct;
+        block_start_time = Date.now();
+        timer_ticks = setInterval(function(){
+          var proportion_time_elapsed = Math.floor((Date.now() - block_start_time) / block_length * 100);
+          document.querySelector('#srt-timer').value = proportion_time_elapsed;
+        }, 100)
+      }
+    }
+    var test_timeline = {
+      data: {block: i},
+      timeline: [
+        {
+          type: 'serial-reaction-time',
+          target: function() {
+            var to_show;
+            if(order_index >= current_order.length){
+              order_index = 0;
+              which_target = 'target1';
+              current_order = jsPsych.randomization.shuffle(t_variables);
+            }
+            var to_show = current_order[order_index][which_target];
+            which_target = which_target == 'target1' ? 'target2' : 'target1';
+            if(which_target == 'target1'){
+              order_index++;
+            }
+            return to_show;
+          },
+    		  grid_square_size: 80,
+    		  grid: which_grid.gridtype,
+    		  choices: which_grid.choices,
+    		  data: {block: i},
+    		  target_color: target_color,
+    		  timing_pre_target: break_after_each_square,
+          play_audio_feedback: true,
+          show_response_feedback: true,
+          feedback_duration: 1000,
+          audio_correct: 'audio/correct_250.mp3',
+          audio_incorrect: 'audio/wrong_250.mp3',
+          response_ends_trial: false,
+          on_finish: function(data){
+            data.sequence_type = data_predictable;
+            data_predictable = data_predictable == 'unpredictable' ? 'predictable' : 'unpredictable';
+            if(data.correct) { count_correct++; document.querySelector('#srt-correct-count').innerHTML = count_correct; }
+          }
+        }
+      ],
+      loop_function: function(){
+        if(Date.now() - block_start_time < block_length){
+          return true;
+        } else {
+          return false;
+        }
+      }
+    };
+    var test_debrief = {
+      type: 'text',
+      choices: ['spacebar'],
+      text: function(){
+        clearInterval(timer_ticks);
+        var which_block = jsPsych.data.get().last(1).values()[0].block;
+        var data = jsPsych.data.get().filter({block: which_block});
+        var count = data.filter({correct: true}).count();
+        var msg = "<p>You got <b>"+count+" blocks</b> that round.</p>";
+        if(which_block === 0){
+          msg += jsPsych.plugins['serial-reaction-time'].stimulus(which_grid.gridtype, 80, [0,0],'', which_grid.choices) +
+  		"<p>That's a good start. See if you can get more next round.</p>";
+          msg += "<p>There are " + (n_blocks - 1 - which_block) + " rounds remaining in the experiment.</p>"
+          high_score = count;
+          msg += "<p>Take a break if you need to, and press <b>spacebar</b> to continue when you are ready.</p>"
+        } else if(which_block !== (n_blocks - 1)) {
+          if(count >= high_score){
+            msg += jsPsych.plugins['serial-reaction-time'].stimulus(which_grid.gridtype, 80, [0,0],'', which_grid.choices) +
+  		  "<p>That's your best score yet!</p>";
+            if((n_blocks - 1 - which_block) == 1){
+              msg += "<p>The next round will be the final round in the experiment.</p>"
+            } else {
+              msg += "<p>There are " + (n_blocks - 1 - which_block) + " rounds remaining in the experiment.</p>"
+            }
+            high_score = count;
+          } else {
+            msg += jsPsych.plugins['serial-reaction-time'].stimulus(which_grid.gridtype, 80, [0,0],'', which_grid.choices) +
+  		   "<p>That's <b>"+(high_score-count)+ "</b> away from your best round.</p>";
+          }
+          msg+="<p>Nice job, but can you top your high score next round?</p>";
+          msg += "<p>Take a break if you need to, and press <b>spacebar</b> to continue when you are ready.</p>"
+        } else {
+          if(count >= high_score){
+            msg += jsPsych.plugins['serial-reaction-time'].stimulus(which_grid.gridtype, 80, [0,0],'', which_grid.choices) +
+  		  "<p>That's your best score yet!</p>"
+            high_score = count;
+          } else {
+            msg += jsPsych.plugins['serial-reaction-time'].stimulus(which_grid.gridtype, 80, [0,0],'', which_grid.choices) +
+  		   "<p>That's <b>"+(high_score-count)+ "</b> away from your best round.</p>";
+          }
+          msg+="<p>Nice job, that was the last round!</p>";
+          msg += "<p>Press <b>spacebar</b> to continue.</p>"
+        }
+        return msg;
+      },
+      timing_post_trial: break_before_block
+    }
+    timeline.push(timer_start, test_timeline, test_debrief);
+  }
+  var questionnare = {
+  	type: 'survey-text',
+  	preamble: "<p>The game is now over, but we have a short set of questions to ask you as the last part of the experiment.</p>",
+  	questions: ["What do you think the purpose of the experiment was?"],
+    data: {survey_part: 'purpose'},
+    rows: [5],
+    columns: [60]
+  };
+  var questionnare_2 = {
+  	type: 'survey-text',
+  	questions: ["During the experiment, did you notice any sequences or patterns between the squares? For instance, if you noticed that one of the keys below tended to come before another one in the grid, can you please describe which ones?" +
+      jsPsych.plugins['serial-reaction-time'].stimulus(which_grid.gridtype, 80, [0,0],'', which_grid.choices)],
+    rows: [5],
+    columns: [60],
+    data: {survey_part: 'patterns'}
+  };
+  var questionnare_3 = {
+  	type: 'survey-text',
+  	questions: ["Do you have any additional comments for the researchers?"],
+    rows: [5],
+    columns: [60],
+    data: {survey_part: 'misc'}
+  };
+  timeline.push(questionnare, questionnare_2, questionnare_3);
+  var save = {
+    type: 'call-function',
+    func: function(){
+      serverComm.save_data(jsPsych.data.get().values());
+    }
+  }
+  timeline.push(save);
+  var final_debrief = {
+  	type: 'text',
+  	text: "<p>Thanks! In this experiment, we are studying how people learn new sequential patterns (like melodies in music or phrases in language). "+
+    "We’ll analyze your pattern of responses - particularly how fast you responded - to figure out if and when you learned different parts of the sequential "+
+    "patterns that you saw. If you felt like there wasn’t much of a pattern, don’t fret: different people saw different kinds of patterns in this experiment. "+
+    "Some people saw sequences with lots of repeating patterns, and others saw sequences with only a few repeating patterns. This variation will allow us to "+
+    "learn something about how the human mind uses different kinds of information to discover patterns. Keep this variation in difficulty in mind as you evaluate "+
+    "your performance on the task.</p>" +
+  	"<p>We really appreciate your participation and contribution to this research. If you have any questions, you can contact the researcher at jdeleeuw@vassar.edu.</p>"+
+    "<p><a href='https://prolific.ac/submissions/complete?cc=5LAGRK1O'>Click here to complete the experiment and return to Prolific.</a></p>",
+    choices: jsPsych.NO_KEYS
+  }
+  timeline.push(final_debrief);
+  jsPsych.init({
+    display_element: 'jspsych-target',
+    timeline: timeline,
+    default_iti: 0
+  });
+}
+</script>
+
+</html>
