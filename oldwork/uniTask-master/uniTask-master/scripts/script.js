@@ -828,6 +828,10 @@ function runTest() {
 				}
 			}
 }
+
+
+
+
 var totalgoal = 20;
 var leftpress = 0;
 var rightpress = 0;

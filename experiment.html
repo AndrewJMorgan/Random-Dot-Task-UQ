@@ -32,7 +32,7 @@
 		<title> RDK Experiment</title>
 		 <script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 		 <script src = "jspsych-5.0.3/jspsych.js"></script>
-		 <script src = "jspsych-5.0.3/plugins/jspsych-RDK.js"></script> <!--Include the script for the RDK plugin-->
+		 <script src = "jspsych-5.0.3/plugins/jspsych-RDK-goal.js"></script> <!--Include the script for the RDK *goal* plugin-->
 		 <script src = "jspsych-5.0.3/plugins/jspsych-text.js"></script>
 		 <link href = "jspsych-5.0.3/css/jspsych.css" rel = "stylesheet" type = "text/css"></link>
 	</head>
@@ -72,7 +72,7 @@
 		];
 		
 		//Multiply based on how many trials you need and randomize the trial order
-		var all_trials = jsPsych.randomization.repeat(RDK_trial,10); //Double the number of trials and shuffle them
+		var all_trials = jsPsych.randomization.repeat(RDK_trial,1); //Double the number of trials and shuffle them
 		
 		//The test block where all the trials are nested. The properties here will trickle down to all trials in the timeline unless they have their own properties defined		
 		var test_block = {
@@ -82,7 +82,7 @@
 			number_of_dots: 200, //Total number of dots in the aperture
 			RDK_type: 3, //The type of RDK used
 			choices: ["a", "l"], //Choices available to be keyed in by participant
-			trial_duration: 10000, //Duration of each trial in ms
+			trial_duration: 100000, //Duration of each trial in ms
 			timeline: all_trials //The timeline of all the trials
 			
 		}
