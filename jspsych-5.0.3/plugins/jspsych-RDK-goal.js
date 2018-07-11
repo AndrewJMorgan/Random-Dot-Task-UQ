@@ -222,10 +222,11 @@ function runTest(trial) {
 
 		//--------Set up Canvas end-------
 		
-		
-	//------Set up canvas begin---------
+	
+			//------Set up canvas begin---------
 
 	//Initialize the canvas variable so that it can be used in code below.
+	
 	var canvas = document.getElementById("canvas");
 	var ctx = canvas.getContext("2d");
 
@@ -235,8 +236,10 @@ function runTest(trial) {
 
 	//Set the canvas background color
 	canvas.style.backgroundColor = backgroundColor;
-
+		
 	//------Set up canvas end---------
+	
+
 
 		
 	//--------RDK variables and function calls begin--------
