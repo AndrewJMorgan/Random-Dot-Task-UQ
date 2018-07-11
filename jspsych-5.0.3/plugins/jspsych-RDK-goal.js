@@ -1,48 +1,48 @@
 /*
-		
+
 	RDK plugin for JsPsych
 	----------------------
-	
-	This code was created in the Consciousness and Metacognition Lab at UCLA, 
+
+	This code was created in the Consciousness and Metacognition Lab at UCLA,
 	under the supervision of Brian Odegaard and Hakwan Lau
-	
+
 	----------------------
-	
+
 	Copyright (C) 2017  Sivananda Rajananda
-	
+
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
-	
+
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
-	
+
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-		
+
 */
-		
-		
+
+
 jsPsych.plugins["RDK"] = (function() {
 
 	var plugin = {};
 
-	//BEGINNING OF TRIAL 
+	//BEGINNING OF TRIAL
 	plugin.trial = function(display_element, trial) {
 
 		//--------------------------------------
 		//---------SET PARAMETERS BEGIN---------
 		//--------------------------------------
-		
+
 		//If any of the parameters are functions, evaluate them now
 		trial = jsPsych.pluginAPI.evaluateFunctionParameters(trial);
-		
+
 		//Note on '||' logical operator: If the first option is 'undefined', it evalutes to 'false' and the second option is returned as the assignment
 		//trial.choices = trial.choices || [];
-		trial.correct_choice = trial.correct_choice; 
+		trial.correct_choice = trial.correct_choice;
 		trial.trial_duration = trial.trial_duration || 500;
 		trial.number_of_dots = trial.number_of_dots || 300;
 		trial.number_of_sets = trial.number_of_sets || 1;
@@ -52,26 +52,26 @@ jsPsych.plugins["RDK"] = (function() {
 		trial.move_distance = trial.move_distance || 1;
 		trial.aperture_width = trial.aperture_width || 600;
 		trial.aperture_height = trial.aperture_height || 400;
-		trial.dot_color = trial.dot_color || "white"; 
+		trial.dot_color = trial.dot_color || "white";
 		trial.background_color = trial.background_color || "gray";
 		trial.RDK_type = trial.RDK_type || 3;
 		trial.aperture_type = trial.aperture_type || 2;
 		trial.reinsert_type = trial.reinsert_type || 2;
 		trial.aperture_center_x = trial.aperture_center_x || window.innerWidth/2;
 		trial.aperture_center_y = trial.aperture_center_y || window.innerHeight/2;
-		trial.fixation_cross = trial.fixation_cross || false; 
-		trial.fixation_cross_width = trial.fixation_cross_width || 20; 
-		trial.fixation_cross_height = trial.fixation_cross_height || 20; 
+		trial.fixation_cross = trial.fixation_cross || false;
+		trial.fixation_cross_width = trial.fixation_cross_width || 20;
+		trial.fixation_cross_height = trial.fixation_cross_height || 20;
 		trial.fixation_cross_color = trial.fixation_cross_color || "black";
-		trial.fixation_cross_thickness = trial.fixation_cross_thickness || 1; 
+		trial.fixation_cross_thickness = trial.fixation_cross_thickness || 1;
 
 		//added parameters
 		trial.nApertures = trial.n_apertures || 1; //The number of apertures
 		trial.coherence = trial.coherence || 0.3;
 		trial.opposite_coherence = trial.opposite_coherence || 0;
 		trial.totalgoal = trial.total_goal || 20;
-		trial.timelimit = trial.time_limit || 60;  
-		
+		trial.timelimit = trial.time_limit || 60;
+
 		//Constants
 		//Constant variables
 		const apertureShape = {
@@ -94,12 +94,12 @@ jsPsych.plugins["RDK"] = (function() {
 
 
 
-        
+
 
 function runTest(trial) {
 
 		//Output to console (Testing purposes only)
-        console.log(trial);
+		trial.coherent_direction = getRandomDirection();
 
 		//Coherence can be zero, but logical operators evaluate it to false. So we do it manually
 		if(typeof trial.coherence === 'undefined'){
@@ -110,7 +110,7 @@ function runTest(trial) {
 		if (typeof trial.response_ends_trial === 'undefined') {
 			trial.response_ends_trial = true;
 		}
-		
+
 		//For square and circle, set the aperture height == aperture width
 		if (apertureType == 1 || apertureType == 3) {
 			trial.aperture_height = trial.aperture_width;
@@ -133,7 +133,7 @@ function runTest(trial) {
 		var backgroundColor = trial.background_color; //Color of the background
 		var apertureCenterX = trial.aperture_center_x; // The x-coordinate of center of the aperture on the screen, in pixels
 		var apertureCenterY = trial.aperture_center_y; // The y-coordinate of center of the aperture on the screen, in pixels
-		
+
 
 		/* RDK type parameter
 		** See Fig. 1 in Scase, Braddick, and Raymond (1996) for a visual depiction of these different signal selection rules and noise types
@@ -162,7 +162,7 @@ function runTest(trial) {
 		var RDK = trial.RDK_type;
 
 
-		/* 
+		/*
 		Shape of aperture
 		 1 - Circle
 		 2 - Ellipse
@@ -178,7 +178,7 @@ function runTest(trial) {
 		2 - Appear on the opposite edge of the aperture (Random if square or rectangle, reflected about origin in circle and ellipse)
 		*/
 		var reinsertType = trial.reinsert_type;
-		
+
 		//Fixation Cross Parameters
 		var fixationCross = trial.fixation_cross; true; //To display or not to display the cross
 		var fixationCrossWidth = trial.fixation_cross_width;  //The width of the fixation cross in pixels
@@ -186,59 +186,46 @@ function runTest(trial) {
 		var fixationCrossColor = trial.fixation_cross_color; //The color of the fixation cross
 		var fixationCrossThickness = trial.fixation_cross_thickness; //The thickness of the fixation cross, must be positive number above 1
 
-		
+
 
 		//--------------------------------------
 		//----------SET PARAMETERS END----------
 		//--------------------------------------
 
 		//--------Set up Canvas begin-------
-		
-		//Create a canvas element and append it to the DOM
-		// var canvas = document.createElement("canvas");
-		// display_element.append(canvas); //'append' is the jQuery equivalent of 'appendChild' in the DOM method
-		
-		
-		// //The document body IS 'display_element' (i.e. <body class="jspsych-display-element"> .... </body> )
-		// var body = document.getElementsByClassName("jspsych-display-element")[0];
-		// //Remove the margins and paddings of the display_element
-		// body.style.margin = 0;
-		// body.style.padding = 0;
-		// body.style.backgroundColor = backgroundColor; //Match the background of the display element to the background color of the canvas so that the removal of the canvas at the end of the trial is not noticed
+		//Create/or find a canvas element and append it to the DOM
+		var canvas = null;
+		if (document.getElementById("trialCanvas") != null) {
+			canvas = document.getElementById("trialCanvas");
+		} else {
+			canvas = document.createElement("canvas");
+			canvas.setAttribute("id", "trialCanvas");
+			display_element.append(canvas); //'append' is the jQuery equivalent of 'appendChild' in the DOM method
+		}
 
-		// //Remove the margins and padding of the canvas
-		// canvas.style.margin = 0;
-		// canvas.style.padding = 0;		
-		
-		// //Get the context of the canvas so that it can be painted on.
-		// var ctx = canvas.getContext("2d");
+		//The document body IS 'display_element' (i.e. <body class="jspsych-display-element"> .... </body> )
+		var body = document.getElementsByClassName("jspsych-display-element")[0];
+		//Remove the margins and paddings of the display_element
+		body.style.margin = 0;
+		body.style.padding = 0;
+		body.style.backgroundColor = backgroundColor; //Match the background of the display element to the background color of the canvas so that the removal of the canvas at the end of the trial is not noticed
 
-		// //Declare variables for width and height, and also set the canvas width and height to the window width and height
-		// var width = canvas.width = window.innerWidth;
-		// var height = canvas.height = window.innerHeight;
+		//Remove the margins and padding of the canvas
+		canvas.style.margin = 0;
+		canvas.style.padding = 0;
 
-		// //Set the canvas background color
-		// canvas.style.backgroundColor = backgroundColor;
+		//Get the context of the canvas so that it can be painted on.
+		var ctx = canvas.getContext("2d");
+
+		//Declare variables for width and height, and also set the canvas width and height to the window width and height
+		var width = canvas.width = window.innerWidth;
+		var height = canvas.height = window.innerHeight;
+
+		//Set the canvas background color
+		canvas.style.backgroundColor = backgroundColor;
 
 		//--------Set up Canvas end-------
-		
-		
-	//------Set up canvas begin---------
 
-	//Initialize the canvas variable so that it can be used in code below.
-	var canvas = document.getElementById("canvas");
-	var ctx = canvas.getContext("2d");
-
-	//Declare variables for width and height, and also set the canvas width and height to the window width and height
-	var width = canvas.width = window.innerWidth;
-	var height = canvas.height = window.innerHeight;
-
-	//Set the canvas background color
-	canvas.style.backgroundColor = backgroundColor;
-
-	//------Set up canvas end---------
-
-		
 	//--------RDK variables and function calls begin--------
 
 	// [This is the main part of RDK that makes everything run]
@@ -294,7 +281,7 @@ function runTest(trial) {
 
 	//This runs the dot motion simulation, updating it according to the frame refresh rate of the screen.
 	animateDotMotion();
-		
+
 		//--------RDK variables and function calls end--------
 
 
@@ -419,7 +406,7 @@ function runTest(trial) {
 
 			}// End of initializeCurrentApertureParameters
 
-		
+
 		//Function to start the keyboard listener
 		// function startKeyboardListener(){
 		// 	//Start the response listener if there are choices for keys
@@ -437,16 +424,16 @@ function runTest(trial) {
 
 		//Function to end the trial proper
 		function end_trial() {
-			
+
 			//Stop the dot motion animation
 			stopDotMotion = true;
-			
+
 			//Store the number of frames
 			numberOfFrames = frameRate.length;
-			
+
 			//Variable to store the frame rate array
 			var frameRateArray = frameRate;
-			
+
 			//Calculate the average frame rate
 			if(frameRate.length > 0){//Check to make sure that the array is not empty
 				frameRate = frameRate.reduce((total,current) => total + current)/frameRate.length; //Sum up all the elements in the array
@@ -460,13 +447,13 @@ function runTest(trial) {
 			}
 
 			//Place all the data to be saved from this trial in one data object
-			var trial_data = { 
+			var trial_data = {
 				"rt": response.rt, //The response time
 				"key_press": response.key, //The key that the subject pressed
 				"correct": correctOrNot(), //If the subject response was correct
 				"choices": trial.choices, //The set of valid keys
 				"correct_choice": trial.correct_choice, //The correct choice
-				"trial_duration": trial.trial_duration, //The trial duration 
+				"trial_duration": trial.trial_duration, //The trial duration
 				"response_ends_trial": trial.response_ends_trial, //If the response ends the trial
 				"number_of_dots": trial.number_of_dots,
 				"number_of_sets": trial.number_of_sets,
@@ -486,21 +473,21 @@ function runTest(trial) {
 				"frame_rate_array": JSON.stringify(frameRateArray), //The array of ms per frame in this trial, in the form of a JSON string
 				"number_of_frames": numberOfFrames //The number of frames in this trial
 			}
-			
+
 			//Remove the canvas as the child of the display_element element
 			display_element.empty();
-			
+
 			//Restore the margin to JsPsych defaults
 			body.style.margin = "50px auto 50px auto";
 
 			//End this trial and move on to the next trial
 			jsPsych.finishTrial(trial_data);
-			
+
 		} //End of end_trial
 
 		//Function to record the first response by the subject
 		function after_response(info) {
-			
+
 			//Kill the timeout if the subject has responded within the time given
 			window.clearTimeout(timeoutID);
 
@@ -515,10 +502,10 @@ function runTest(trial) {
 			}
 
 		}; //End of after_response
-		
+
 		//Function that determines if the response is correct
 		function correctOrNot(){
-						
+
 			//Check that the correct_choice has been defined
 			if(typeof trial.correct_choice !== 'undefined'){
 				//Check if the correct_choice variable holds an array
@@ -1006,7 +993,7 @@ function runTest(trial) {
 		//Calculate the POSITIVE y value of a point on the edge of the ellipse given an x-value
 		function yValuePositive(x) {
 			var x = x - (apertureCenterX); //Bring it back to the (0,0) center to calculate accurately (ignore the y-coordinate because it is not necessary for calculation)
-			return verticalAxis * Math.sqrt(1 - (Math.pow(x, 2) / Math.pow(horizontalAxis, 2))) + apertureCenterY; //Calculated the positive y value and added apertureCenterY to recenter it on the screen 
+			return verticalAxis * Math.sqrt(1 - (Math.pow(x, 2) / Math.pow(horizontalAxis, 2))) + apertureCenterY; //Calculated the positive y value and added apertureCenterY to recenter it on the screen
 		}
 
 		//Calculate the NEGATIVE y value of a point on the edge of the ellipse given an x-value
@@ -1053,18 +1040,18 @@ function runTest(trial) {
 		function randomNumberBetween(lowerBound, upperBound) {
 			return lowerBound + Math.random() * (upperBound - lowerBound);
 		}
-		
+
 		//Function to make the dots move on the canvas
 		// function animateDotMotion() {
 		// 	//frameRequestID saves a long integer that is the ID of this frame request. The ID is then used to terminate the request below.
 		// 	var frameRequestID = window.requestAnimationFrame(animate);
-			
+
 		// 	//Start to listen to subject's key responses
-		// 	startKeyboardListener(); 
-									
+		// 	startKeyboardListener();
+
 		// 	//Delare a timestamp
 		// 	var previousTimestamp;
-			
+
 		// 	function animate() {
 		// 		//If stopping condition has been reached, then stop the animation
 		// 		if (stopDotMotion) {
@@ -1073,7 +1060,7 @@ function runTest(trial) {
 		// 		//Else continue with another frame request
 		// 		else {
 		// 			frameRequestID = window.requestAnimationFrame(animate); //Calls for another frame request
-					
+
 		// 			//If the timer has not been started and it is set, then start the timer
 		// 			if ( (!timerHasStarted) && (trial.trial_duration > 0) ){
 		// 				//If the trial duration is set, then set a timer to count down and call the end_trial function when the time is up
@@ -1082,10 +1069,10 @@ function runTest(trial) {
 		// 				//The timer has started, so we set the variable to true so it does not start more timers
 		// 				timerHasStarted = true;
 		// 			}
-					
+
 		// 			updateDots(); //Update the dots to their new positions
 		// 			draw(); //Draw the dots on the canvas
-					
+
 		// 			//If this is before the first frame, then start the timestamp
 		// 			if(previousTimestamp === undefined){
 		// 				previousTimestamp = performance.now();
@@ -1131,12 +1118,12 @@ function runTest(trial) {
 	    var border = false; //To display or not to display the border
 		var borderWidth = 1; //The width of the border in pixels
 	    var borderColor = "black"; //The color of the border
-	
+
 	//Create a canvas element and append it to the DOM
 		var canvas = document.createElement("canvas");
 		display_element.append(canvas); //'append' is the jQuery equivalent of 'appendChild' in the DOM method
-		
-		
+
+
 		// //The document body IS 'display_element' (i.e. <body class="jspsych-display-element"> .... </body> )
 		var body = document.getElementsByClassName("jspsych-display-element")[0];
 		//Remove the margins and paddings of the display_element
@@ -1146,7 +1133,7 @@ function runTest(trial) {
 
 		//Remove the margins and padding of the canvas
 		canvas.style.margin = 0;
-		canvas.style.padding = 0;	
+		canvas.style.padding = 0;
 
 	//---Start goal pursuit episode
 	var leftpress = 0;
@@ -1158,44 +1145,33 @@ function runTest(trial) {
 	var frameRequestID = null;
 	var speedms = 0;
 	var trialtime = 0;
-
+	const aKey = 65;
+	const lKey = 76;
 	runTest(trial);
 document.addEventListener('keydown', function(event) {
-    if(event.keyCode == 65) {
+    if(event.keyCode == aKey) {
 		speedms = new Date().getTime() - trialtime;
 		leftpress = leftpress + 1;
-		if (coherentDirection == 180) {
-			console.log("correct");
-			console.log(trialtime);
-			console.log(speedms);
-				goal = goal + 1;
-				//moveProgress();
-		} else {
-			console.log("bad");
-			console.log(trialtime);
-			console.log(speedms);
-				misses = misses + 1;
-		}
-		stopDotMotion = true;
-		runTest(trial,canvas);
-    }
-    else if(event.keyCode == 76) {
-		speedms = new Date().getTime() - trialtime;
-		rightpress = rightpress + 1;
-		if (coherentDirection == 0) {
-			console.log("correct");
-			console.log(trialtime);
-			console.log(speedms);
+		if (trial.coherent_direction == 180) {
 			goal = goal + 1;
 			//moveProgress();
 		} else {
-			console.log("bad");
-			console.log(trialtime);
-			console.log(speedms);
-				misses = misses + 1;
+			misses = misses + 1;
 		}
 		stopDotMotion = true;
-		runTest(trial,canvas);
+		runTest(trial);
+    }
+    else if(event.keyCode == lKey) {
+		speedms = new Date().getTime() - trialtime;
+		rightpress = rightpress + 1;
+		if (trial.coherent_direction == 0) {
+			goal = goal + 1;
+			//moveProgress();
+		} else {
+			misses = misses + 1;
+		}
+		stopDotMotion = true;
+		runTest(trial);
     }
 });
 
@@ -1223,7 +1199,7 @@ document.addEventListener('keydown', function(event) {
 // 	var elem = document.getElementById("myBar2");
 // 	var width = 100;
 // 	var distance = totalgoal - goal;
-		
+
 // 	width = (goal / totalgoal) * 100;
 // 	elem.style.width = width + '%'; //setting the width
 // 	elem.innerHTML = width  + '%'; //setting the text
