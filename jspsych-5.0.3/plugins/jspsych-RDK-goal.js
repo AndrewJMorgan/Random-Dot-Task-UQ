@@ -25,7 +25,6 @@
 
 */
 
-
 jsPsych.plugins["RDK"] = (function() {
 
 	var plugin = {};
@@ -50,15 +49,15 @@ jsPsych.plugins["RDK"] = (function() {
 		trial.dot_radius = trial.dot_radius || 2;
 		trial.dot_life = trial.dot_life || -1;
 		trial.move_distance = trial.move_distance || 1;
-		trial.aperture_width = trial.aperture_width || 600;
-		trial.aperture_height = trial.aperture_height || 400;
+		trial.aperture_width = trial.aperture_width || window.innerWidth/3; //changed from 400px
+		trial.aperture_height = trial.aperture_height || window.innerHeight/3; //changed from 600px
 		trial.dot_color = trial.dot_color || "white";
 		trial.background_color = trial.background_color || "gray";
 		trial.RDK_type = trial.RDK_type || 3;
-		trial.aperture_type = trial.aperture_type || 2;
+		trial.aperture_type = trial.aperture_type || 1;
 		trial.reinsert_type = trial.reinsert_type || 2;
 		trial.aperture_center_x = trial.aperture_center_x || window.innerWidth/2;
-		trial.aperture_center_y = trial.aperture_center_y || window.innerHeight/2;
+		trial.aperture_center_y = trial.aperture_center_y || window.innerHeight/3; //changed from /2 to put the aperture in the centre
 		trial.fixation_cross = trial.fixation_cross || false;
 		trial.fixation_cross_width = trial.fixation_cross_width || 20;
 		trial.fixation_cross_height = trial.fixation_cross_height || 20;
@@ -97,7 +96,14 @@ jsPsych.plugins["RDK"] = (function() {
 
 
 function runTest(trial) {
+	trialTime = new Date().getTime();
+trial.total_goal = 20;
 
+	if (alreadyTimed != 1) { 
+		alreadyTimed = 1; //do not question the code, the timer runs once
+		move();
+	
+};
 		//Output to console (Testing purposes only)
 		trial.coherent_direction = getRandomDirection();
 
@@ -203,17 +209,6 @@ function runTest(trial) {
 			display_element.append(canvas); //'append' is the jQuery equivalent of 'appendChild' in the DOM method
 		}
 
-<<<<<<< HEAD
-		//--------Set up Canvas end-------
-		
-	
-			//------Set up canvas begin---------
-
-	//Initialize the canvas variable so that it can be used in code below.
-	
-	var canvas = document.getElementById("canvas");
-	var ctx = canvas.getContext("2d");
-=======
 		//The document body IS 'display_element' (i.e. <body class="jspsych-display-element"> .... </body> )
 		var body = document.getElementsByClassName("jspsych-display-element")[0];
 		//Remove the margins and paddings of the display_element
@@ -221,31 +216,25 @@ function runTest(trial) {
 		body.style.padding = 0;
 		body.style.backgroundColor = backgroundColor; //Match the background of the display element to the background color of the canvas so that the removal of the canvas at the end of the trial is not noticed
 
+
 		//Remove the margins and padding of the canvas
 		canvas.style.margin = 0;
 		canvas.style.padding = 0;
->>>>>>> 199fda7d9d3c0353cd53c75a202926d66323dba5
+		body.style.overflowY = "hidden"; //disables scroll bar
+		body.style.overflowX = "hidden"; //disables scroll bar
 
 		//Get the context of the canvas so that it can be painted on.
 		var ctx = canvas.getContext("2d");
 
-<<<<<<< HEAD
-	//Set the canvas background color
-	canvas.style.backgroundColor = backgroundColor;
-		
-	//------Set up canvas end---------
-	
-
-=======
 		//Declare variables for width and height, and also set the canvas width and height to the window width and height
 		var width = canvas.width = window.innerWidth;
 		var height = canvas.height = window.innerHeight;
+	
 
 		//Set the canvas background color
 		canvas.style.backgroundColor = backgroundColor;
 
 		//--------Set up Canvas end-------
->>>>>>> 199fda7d9d3c0353cd53c75a202926d66323dba5
 
 	//--------RDK variables and function calls begin--------
 
@@ -1165,70 +1154,92 @@ function runTest(trial) {
 	var coherentDirection = null; //The direction of the coherentDots in degrees. Starts at 3 o'clock and goes counterclockwise (0 == rightwards, 90 == upwards, 180 == leftwards, 270 == downwards), range 0 - 360
 	var frameRequestID = null;
 	var speedms = 0;
-	var trialtime = 0;
+	var trialTime = 0;
 	const aKey = 65;
 	const lKey = 76;
+	var down = false;
 	runTest(trial);
 document.addEventListener('keydown', function(event) {
+	if(down) return; //prevents holding down key
+	down = true;
     if(event.keyCode == aKey) {
-		speedms = new Date().getTime() - trialtime;
+		speedms = new Date().getTime() - trialTime; 
 		leftpress = leftpress + 1;
 		if (trial.coherent_direction == 180) {
 			goal = goal + 1;
-			//moveProgress();
+			console.log(speedms);
+			console.log(goal);
+			moveProgress();
 		} else {
+			goal = goal - 1;
 			misses = misses + 1;
+			console.log(speedms);
+			console.log(goal);
 		}
 		stopDotMotion = true;
 		runTest(trial);
     }
     else if(event.keyCode == lKey) {
-		speedms = new Date().getTime() - trialtime;
+		speedms = new Date().getTime() - trialTime;
 		rightpress = rightpress + 1;
 		if (trial.coherent_direction == 0) {
 			goal = goal + 1;
-			//moveProgress();
+			console.log(speedms);
+			console.log(goal);
+			moveProgress();
 		} else {
+			goal = goal - 1;
 			misses = misses + 1;
+			console.log(speedms);
+			console.log(goal);
 		}
 		stopDotMotion = true;
 		runTest(trial);
     }
-});
+}, false);
 
+document.addEventListener('keyup', function() { //prevents holding down key
+	down = false;
+}, false);
 
-// function move() {
-// 	var countDownTime = new Date().getTime() + (1000 * 61);
+var alreadyTimed = 1; //do not question the code, the timer runs once
+
+ function move() {
+	
+		console.log("timertest");
+		
+		
+	var countDownTime = new Date().getTime() + (1000 * 61);
 // 	var elem = document.getElementById("myBar");
 // 	var width = 100;
-// 	var x = setInterval(function() {
-// 		var now = new Date().getTime();
-// 		var distance = countDownTime - now;
+ 	var x = setInterval(function() {
+ 		var now = new Date().getTime();
+ 		var distance = countDownTime - now;
 // 		var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 // 		width = (seconds / 60) * 100;
 // 		elem.style.width = width + '%'; //setting the width
 // 		elem.innerHTML = seconds  + 's'; //setting the text
 
-// 		if (distance <= 0) {
-// 			clearInterval(x);
-// 			window.alert("Trial Complete");
-// 		}
-// 	}, 1000);
-// }
-
-// function moveProgress() {
+ 		if (distance <= 0) {
+ 			clearInterval(x);
+ 			window.alert("Trial Complete");
+ 		}
+ 	}, 1000);
+ }
+ 
+ function moveProgress() {
 // 	var elem = document.getElementById("myBar2");
 // 	var width = 100;
-// 	var distance = totalgoal - goal;
+ 	var distance = trial.total_goal - goal;
 
 // 	width = (goal / totalgoal) * 100;
 // 	elem.style.width = width + '%'; //setting the width
 // 	elem.innerHTML = width  + '%'; //setting the text
 
-// 	if (distance <= 0) {
-// 		window.alert("Trial Complete");
-// 	}
-// }
+ 	if (distance <= 0) {
+ 		window.alert("Trial Complete");
+ 	}
+ }
 
 	}; // END OF TRIAL
 
