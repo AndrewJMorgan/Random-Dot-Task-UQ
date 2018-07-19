@@ -1158,6 +1158,10 @@ trial.total_goal = 20;
 	const aKey = 65;
 	const lKey = 76;
 	var down = false;
+	var timeX = 60; //updating timer
+	var deadlineX = 0;
+	var goalAchieved = null;
+
 	runTest(trial);
 document.addEventListener('keydown', function(event) {
 	if(down) return; //prevents holding down key
@@ -1167,14 +1171,17 @@ document.addEventListener('keydown', function(event) {
 		leftpress = leftpress + 1;
 		if (trial.coherent_direction == 180) {
 			goal = goal + 1;
+			deadlineX = deadlineX - 1000;
 			console.log(speedms);
 			console.log(goal);
 			moveProgress();
 		} else {
 			goal = goal - 1;
 			misses = misses + 1;
+			deadlineX = deadlineX - 1000;
 			console.log(speedms);
 			console.log(goal);
+			moveProgress();
 		}
 		stopDotMotion = true;
 		runTest(trial);
@@ -1184,14 +1191,17 @@ document.addEventListener('keydown', function(event) {
 		rightpress = rightpress + 1;
 		if (trial.coherent_direction == 0) {
 			goal = goal + 1;
+			deadlineX = deadlineX - 1000;
 			console.log(speedms);
 			console.log(goal);
 			moveProgress();
 		} else {
 			goal = goal - 1;
 			misses = misses + 1;
+			deadlineX = deadlineX - 1000;
 			console.log(speedms);
 			console.log(goal);
+			moveProgress();
 		}
 		stopDotMotion = true;
 		runTest(trial);
@@ -1202,6 +1212,10 @@ document.addEventListener('keyup', function() { //prevents holding down key
 	down = false;
 }, false);
 
+function end() {
+	console.log ("End");
+}
+
 var alreadyTimed = 1; //do not question the code, the timer runs once
 
  function move() {
@@ -1209,7 +1223,7 @@ var alreadyTimed = 1; //do not question the code, the timer runs once
 		console.log("timertest");
 		
 		
-	var countDownTime = new Date().getTime() + (1000 * 61);
+	var countDownTime = new Date().getTime() + (1000 * (timeX));
 // 	var elem = document.getElementById("myBar");
 // 	var width = 100;
  	var x = setInterval(function() {
@@ -1220,9 +1234,10 @@ var alreadyTimed = 1; //do not question the code, the timer runs once
 // 		elem.style.width = width + '%'; //setting the width
 // 		elem.innerHTML = seconds  + 's'; //setting the text
 
- 		if (distance <= 0) {
+ 		if (distance <= deadlineX) {
+			 goalAchieved = false;
  			clearInterval(x);
- 			window.alert("Trial Complete");
+ 			end();
  		}
  	}, 1000);
  }
@@ -1237,7 +1252,8 @@ var alreadyTimed = 1; //do not question the code, the timer runs once
 // 	elem.innerHTML = width  + '%'; //setting the text
 
  	if (distance <= 0) {
- 		window.alert("Trial Complete");
+		 goalAchieved = true;
+		end();
  	}
  }
 
@@ -1246,3 +1262,4 @@ var alreadyTimed = 1; //do not question the code, the timer runs once
 	//Return the plugin object which contains the trial
 	return plugin;
 })();
+
