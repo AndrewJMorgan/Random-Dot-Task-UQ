@@ -1,5 +1,25 @@
 var score = 1;
 var scoreGoal = 5;
+var timeLimit = 10;
+
+
+// var countDownTime = new Date().getTime() + (1000 * (timeLimit));
+
+// var x = setInterval(function() {
+//   var now = new Date().getTime();
+//   var distance = countDownTime - now;
+
+//   if (distance <= deadlineX) {
+//     clearInterval(x);
+//     end();//todo
+//   }
+// }, 1000);
+
+// setTimeout(clockTick, 1000);
+// var timeRemaining = timeLimit;
+
+
+
 
 /**
  * jspsych.js
@@ -27,6 +47,7 @@ var jsPsych = (function() {
   var DOM_target;
   // time that the experiment began
   var exp_start_time;
+  var timeRemaining = null;
 
   //
   // public methods
@@ -150,7 +171,25 @@ var jsPsych = (function() {
       }
     }
 
+    function clockTick() {
+      console.log(timeRemaining);
+      if (timeRemaining == null) {
+      } else if (timeRemaining > 0) {
+        timeRemaining--;
+        setTimeout(clockTick, 1000);
+      } else {
+        console.log('End clock');
+        finishExperiment(); //Todo
+        return;
+      }
+    }
+
     function next_trial() {
+      console.log('next trial');
+      if (timeRemaining == null) {
+        timeRemaining = timeLimit;
+        setTimeout(clockTick, 1000);
+      }
       global_trial_index++;
 
       // advance timeline

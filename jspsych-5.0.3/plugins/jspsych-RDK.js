@@ -67,7 +67,7 @@ jsPsych.plugins["RDK"] = (function() {
 		
 		//Coherence can be zero, but logical operators evaluate it to false. So we do it manually
 		if(typeof trial.coherence === 'undefined'){
-			trial.coherence = 0.5;
+			trial.coherence = 0.3;
 		}
 		//Logical operators won't work for boolean parameters like they do for non-boolean parameters above, so we do it manually
 		if (typeof trial.response_ends_trial === 'undefined') {
