@@ -1,3 +1,6 @@
+var score = 1;
+var scoreGoal = 5;
+
 /**
  * jspsych.js
  * Josh de Leeuw
@@ -116,13 +119,17 @@ var jsPsych = (function() {
     // write the data from the trial
     data = typeof data == 'undefined' ? {} : data;
     jsPsych.data.write(data);
-
+    if (data.correct) {
+      score++;
+    } else {
+      score--;
+    }
     // get back the data with all of the defaults in
     var trial_data = jsPsych.data.getDataByTrialIndex(global_trial_index);
 
     // handle callback at plugin level
     if (typeof current_trial.on_finish === 'function') {
-      current_trial.on_finish(trial_data);
+      current_trial.on_finish(trial_data); //todo
     }
 
     // handle callback at whole-experiment level
@@ -147,7 +154,14 @@ var jsPsych = (function() {
       global_trial_index++;
 
       // advance timeline
-      var complete = timeline.advance();
+      //done_flag = true;
+      var complete;
+      if (score == scoreGoal) {
+        complete = true;
+      } else {
+        complete = timeline.advance(); //todo: ending
+      }
+      
 
       // update progress bar if shown
       if (opts.show_progress_bar === true) {
@@ -298,6 +312,9 @@ var jsPsych = (function() {
         if (current_location >= timeline.length) {
           return null;
         } else {
+          //timeline.push(jsPsych.randomization.repeat(RDK_trial,1)[0]);
+          //timeline = jsPsych.randomization.repeat(RDK_trial,1);
+          //return timeline.trial();
           return timeline[current_location].trial();
         }
       }
@@ -542,7 +559,7 @@ var jsPsych = (function() {
   }
 
   function finishExperiment() {
-    opts.on_finish(jsPsych.data.getData());
+    opts.on_finish(jsPsych.data.getData()); //todo
 
     if(typeof timeline.end_message !== 'undefined'){
       DOM_target.html(timeline.end_message);
@@ -923,9 +940,7 @@ jsPsych.turk = (function() {
 jsPsych.randomization = (function() {
 
   var module = {};
-
   module.repeat = function(array, repetitions, unpack) {
-
     var arr_isArray = Array.isArray(array);
     var rep_isArray = Array.isArray(repetitions);
 
@@ -941,9 +956,10 @@ jsPsych.randomization = (function() {
     } else {
       if (!rep_isArray) {
         var reps = [];
-        for (var i = 0; i < array.length; i++) {
-          reps.push(repetitions);
-        }
+        // for (var i = 0; i < array.length; i++) { //Todo: remove
+        //   reps.push(repetitions);
+        // }
+        reps.push(repetitions);
         repetitions = reps;
       } else {
         if (array.length != repetitions.length) {
@@ -962,21 +978,24 @@ jsPsych.randomization = (function() {
         }
       }
     }
-
     // should be clear at this point to assume that array and repetitions are arrays with == length
     var allsamples = [];
-    for (var i = 0; i < array.length; i++) {
-      for (var j = 0; j < repetitions[i]; j++) {
-        allsamples.push(array[i]);
-      }
+    // for (var i = 0; i < array.length; i++) { //Todo: remove
+    //   for (var j = 0; j < repetitions[i]; j++) {
+    //     allsamples.push(array[i]);
+    //   }
+    // }
+    var k;
+    for (k = 0; k < repetitions[0]; k++) {
+      (Math.random() >= 0.5) ? allsamples.push(array[0]) : allsamples.push(array[1]); //Todo: test
     }
-
-    var out = shuffle(allsamples);
+    
+    var out = allsamples;
+    // var out = shuffle(allsamples);
 
     if (unpack) {
       out = unpackArray(out);
     }
-
     return out;
   }
 
@@ -1038,7 +1057,6 @@ jsPsych.randomization = (function() {
   }
 
   module.factorial = function(factors, repetitions, unpack) {
-
     var factorNames = Object.keys(factors);
 
     var factor_combinations = [];

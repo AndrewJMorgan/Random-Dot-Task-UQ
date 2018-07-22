@@ -138,7 +138,6 @@ var jsPsych = (function() {
     } else {
       if (current_trial.timing_post_trial > 0) {
         setTimeout(next_trial, current_trial.timing_post_trial);
-      
       } else {
         next_trial();
       }

@@ -1,0 +1,133 @@
+<! doctype html>
+<html>
+	<head>
+	
+		<!--
+		
+		RDK plugin for JsPsych
+		----------------------
+		
+		This code was created in the Consciousness and Metacognition Lab at UCLA, 
+		under the supervision of Brian Odegaard and Hakwan Lau
+    
+		----------------------
+		
+		Copyright (C) 2017  Sivananda Rajananda
+		
+		This program is free software: you can redistribute it and/or modify
+		it under the terms of the GNU General Public License as published by
+		the Free Software Foundation, either version 3 of the License, or
+		(at your option) any later version.
+		
+		This program is distributed in the hope that it will be useful,
+		but WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+		GNU General Public License for more details.
+		
+		You should have received a copy of the GNU General Public License
+		along with this program.  If not, see <http://www.gnu.org/licenses/>.
+		
+		-->
+		
+		<title> Random Dot Task</title>
+		 <script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		 <script src = "jspsych-5.0.3/jspsych.js"></script>
+		 <script src = "jspsych-5.0.3/plugins/jspsych-RDK-goal.js"></script> <!--Include the script for the RDK *goal* plugin-->
+		 <script src = "jspsych-5.0.3/plugins/jspsych-text.js"></script>
+		 <link href = "jspsych-5.0.3/css/jspsych.css" rel = "stylesheet" type = "text/css"></link>
+	</head>
+	<body>
+		<canvas>
+			
+		</canvas>
+	</body>
+	<script>
+		
+		
+		//---------Create instructions---------
+		
+		var instructions_block = {
+			type: "text",
+			text: "<p> This is a random dot task. Your screen will show a group of dots that are moving in many directions.</p>" + 
+			"<p> On each trial, 30% of the dots will be moving in a coherent direction (left or right) and the other 70% will move randomly.</p>" + 
+			"<p> You need to determine if the dots are moving left or right.</p>" + 
+			"<p> If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.</p>" +
+			"<p> You will have 60 seconds to acheive a score of 20.</p>" +
+			"<p> For each correct response, you will gain a point. For each incorrect response, you will lose a point. Points can go into the negatives.</p>" +
+			"<p> Once you achieve your goal, or the time runs out, the experiment will end and a copy will be saved locally in a .csv file.</p>"  +
+			"<p> Press any key to continue.</p>"			
+		}
+		
+		
+		
+		//---------Create trials---------
+		
+		//Create an array of 2 different trials (different conditions)
+		var RDK_trial = [
+			{//Condition 1
+				correct_choice: "a", //The correct answer for Condition 1
+				coherent_direction: 180 //The coherent direction for Condition 1 (dots move left)
+			},
+			{//Condition 2
+				correct_choice: "l", //The correct answer for Condition 2
+				coherent_direction: 0 //The coherent direction for Condition 2 (dots move right)
+			},
+		];
+		
+		//Multiply based on how many trials you need and randomize the trial order
+		var all_trials = jsPsych.randomization.repeat(RDK_trial,1); //Double the number of trials and shuffle them
+		
+		//The test block where all the trials are nested. The properties here will trickle down to all trials in the timeline unless they have their own properties defined		
+		var test_block = {
+			
+			type: "RDK", 
+			timing_post_trial: 1000, //The Inter Trial Interval. You can either have no ITI, or change the display element to be the same color as the stimuli background to prevent flashing between trials
+			number_of_dots: 200, //Total number of dots in the aperture
+			RDK_type: 3, //The type of RDK used
+			choices: ["a", "l"], //Choices available to be keyed in by participant
+			trial_duration: 100000, //Duration of each trial in ms
+			timeline: all_trials //The timeline of all the trials
+			
+		}
+		//Timer, hopefully
+		
+		function timer() {
+			console.log("test");
+			var countDownTime = new Date().getTime() + (1000 * 61);
+			var x = setInterval(function() {
+		var now = new Date().getTime();
+		var distance = countDownTime - now;
+		var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+		if (distance <= 0) {
+			clearInterval(x);
+			window.alert("Trial Complete");
+		}
+	}, 1000);
+}
+		
+
+		
+		//---------Prepare the main timeline---------
+		
+		//The main timeline to be fed into jsPsych.init
+		var main_timeline = [];
+		main_timeline.push(instructions_block);
+		main_timeline.push(test_block);
+			
+		
+		
+		
+		//---------Run the experiment---------
+		
+		//Initiate the experiment
+		jsPsych.init({
+			timeline: main_timeline,
+			on_finish: function(){ //Execute this when the experiment finishes
+				console.log('hot cakes');
+				jsPsych.data.localSave('testSave.csv', 'csv'); //Save the data locally in a .csv file
+				jsPsych.data.displayData(); //Display the data onto the browser screen
+			}
+		})
+		
+	</script>
+</html>

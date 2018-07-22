@@ -69,10 +69,9 @@ jsPsych.plugins["RDK"] = (function() {
 		if(typeof trial.coherence === 'undefined'){
 			trial.coherence = 0.5;
 		}
-
 		//Logical operators won't work for boolean parameters like they do for non-boolean parameters above, so we do it manually
 		if (typeof trial.response_ends_trial === 'undefined') {
-			trial.response_ends_trial = true;
+			trial.response_ends_trial = true; //Todo: exp
 		}
 		
 		//For square and circle, set the aperture height == aperture width
@@ -270,7 +269,6 @@ jsPsych.plugins["RDK"] = (function() {
 
 		//Function to end the trial proper
 		function end_trial() {
-			
 			//Stop the dot motion animation
 			stopDotMotion = true;
 			
@@ -335,7 +333,7 @@ jsPsych.plugins["RDK"] = (function() {
 		function after_response(info) {
 			
 			//Kill the timeout if the subject has responded within the time given
-			window.clearTimeout(timeoutID);
+			//window.clearTimeout(timeoutID); //todo: why?
 
 			//If the response has not been recorded, record it
 			if (response.key == -1) {
@@ -344,6 +342,7 @@ jsPsych.plugins["RDK"] = (function() {
 
 			//If the parameter is set such that the response ends the trial, then end the trial
 			if (trial.response_ends_trial) {
+				//in not goal re loop
 				end_trial();
 			}
 
@@ -841,7 +840,7 @@ jsPsych.plugins["RDK"] = (function() {
 					if ( (!timerHasStarted) && (trial.trial_duration > 0) ){
 						//If the trial duration is set, then set a timer to count down and call the end_trial function when the time is up
 						//(If the subject did not press a valid keyboard response within the trial duration, then this will end the trial)
-						timeoutID = window.setTimeout(end_trial,trial.trial_duration); //This timeoutID is then used to cancel the timeout should the subject press a valid key
+						//timeoutID = window.setTimeout(end_trial,trial.trial_duration); //This timeoutID is then used to cancel the timeout should the subject press a valid key //TODO: Remove
 						//The timer has started, so we set the variable to true so it does not start more timers
 						timerHasStarted = true;
 					}
