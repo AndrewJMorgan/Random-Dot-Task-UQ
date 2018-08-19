@@ -25,7 +25,7 @@ var negScoreBar = document.createElement("div");
 negScoreBar.id = "myNegScoreBar";
 var scoreBarProgress = document.createElement("div");
 scoreBarProgress.id = "myScoreProgress";
-scoreBarProgress.appendChild(negScoreBar);
+//scoreBarProgress.appendChild(negScoreBar);
 scoreBarProgress.appendChild(scoreBar);
 
 itiScreen.appendChild(scoreBarProgress);
