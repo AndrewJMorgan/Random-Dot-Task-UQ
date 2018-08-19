@@ -222,6 +222,7 @@ var jsPsych = (function() {
       document.body.removeChild(itiScreen);
       timerPause = false;
       if (timeRemaining == null) {
+        oldTime = Date.now();
         timeRemaining = timeLimit;
         setTimeout(clockTick, 1);
       }
