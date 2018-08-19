@@ -1,25 +1,30 @@
+var oldTime = Date.now();
 var score = 1;
 var scoreGoal = 5;
-var timeLimit = 10;
+var timeLimit = 60000;
+var timerPause = false;
 
+var newdiv = document.createElement("div");
 
-// var countDownTime = new Date().getTime() + (1000 * (timeLimit));
+var timingBar = document.createElement("div");
+timingBar.id = "myBar";
+var timingBarProgress = document.createElement("div");
+timingBarProgress.id = "myProgress";
+timingBarProgress.appendChild(timingBar);
+newdiv.appendChild(timingBarProgress);
 
-// var x = setInterval(function() {
-//   var now = new Date().getTime();
-//   var distance = countDownTime - now;
+newdiv.appendChild( document.createElement("br"));
+newdiv.appendChild( document.createElement("br"));
+newdiv.appendChild( document.createElement("br"));
+newdiv.appendChild( document.createElement("br"));
+newdiv.appendChild( document.createElement("br"));
 
-//   if (distance <= deadlineX) {
-//     clearInterval(x);
-//     end();//todo
-//   }
-// }, 1000);
-
-// setTimeout(clockTick, 1000);
-// var timeRemaining = timeLimit;
-
-
-
+var scoreBar = document.createElement("div");
+scoreBar.id = "myScoreBar";
+var scoreBarProgress = document.createElement("div");
+scoreBarProgress.id = "myScoreProgress";
+scoreBarProgress.appendChild(scoreBar);
+newdiv.appendChild(scoreBarProgress);
 
 /**
  * jspsych.js
@@ -86,7 +91,7 @@ var jsPsych = (function() {
       'max_load_time': 30000,
       'skip_load_check': false,
       'fullscreen': false,
-      'default_iti': 1000
+      'default_iti': 0
     };
 
     // override default options if user specifies an option
@@ -141,8 +146,10 @@ var jsPsych = (function() {
     data = typeof data == 'undefined' ? {} : data;
     jsPsych.data.write(data);
     if (data.correct) {
+      console.log('correct');
       score++;
     } else {
+      console.log('wrong');
       score--;
     }
     // get back the data with all of the defaults in
@@ -161,22 +168,44 @@ var jsPsych = (function() {
       if (opts.default_iti > 0) {
         setTimeout(next_trial, opts.default_iti);
       } else {
-        next_trial();
+        opts.default_iti = 1000;
+        document.body.appendChild(newdiv);
+        next_trial(); //undo
       }
     } else {
-      if (current_trial.timing_post_trial > 0) {
-        setTimeout(next_trial, current_trial.timing_post_trial);
+      if (opts.default_iti > 0) {
+        //show screen todo
+          timerPause = true;
+          oldTime += opts.default_iti;
+          document.body.appendChild(newdiv);
+          var timerBar = document.getElementById("myBar");  
+          width = 100 * ((timeRemaining) / timeLimit); 
+          timerBar.style.width = width + '%'; 
+          timerBar.innerHTML = Math.round(timeRemaining / 1000) + 's';
+
+          var scoreBar = document.getElementById("myScoreBar"); 
+          width = 100 * ((score) / scoreGoal); 
+          scoreBar.style.width = width + '%'; 
+          scoreBar.innerHTML = 'Score: ' + score;
+
+          console.log('test|' + timeLimit + '|' + timeRemaining + "|" + score + "|" + scoreGoal)
+          setTimeout(next_trial, opts.default_iti);
       } else {
         next_trial();
       }
     }
 
     function clockTick() {
-      console.log(timeRemaining);
-      if (timeRemaining == null) {
+      //console.log(timeRemaining);
+      if (timerPause) {
+        setTimeout(clockTick, 1);
+      } else if (timeRemaining == null) {
       } else if (timeRemaining > 0) {
-        timeRemaining--;
-        setTimeout(clockTick, 1000);
+        var newTime = Date.now();
+        var diff = oldTime - newTime;
+        oldTime = newTime;
+        timeRemaining = timeRemaining + diff;
+        setTimeout(clockTick, 1);
       } else {
         console.log('End clock');
         finishExperiment(); //Todo
@@ -186,9 +215,11 @@ var jsPsych = (function() {
 
     function next_trial() {
       console.log('next trial');
+      document.body.removeChild(newdiv);
+      timerPause = false;
       if (timeRemaining == null) {
         timeRemaining = timeLimit;
-        setTimeout(clockTick, 1000);
+        setTimeout(clockTick, 1);
       }
       global_trial_index++;
 
@@ -200,7 +231,6 @@ var jsPsych = (function() {
       } else {
         complete = timeline.advance(); //todo: ending
       }
-      
 
       // update progress bar if shown
       if (opts.show_progress_bar === true) {

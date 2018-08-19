@@ -6,6 +6,28 @@
  */
 
 
+#myProgress {
+  width: 100%;
+  background-color: #ddd;
+}
+
+#myBar {
+  width: 1%;
+  height: 30px;
+  background-color: #4CAF50;
+}
+
+#myScoreProgress {
+  width: 100%;
+  background-color: #ddd;
+}
+
+#myScoreBar {
+  width: 1%;
+  height: 30px;
+  background-color: #4CAF50;
+}
+
 /* fonts and type */
 
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700);
