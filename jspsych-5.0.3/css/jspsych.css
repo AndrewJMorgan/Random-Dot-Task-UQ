@@ -6,13 +6,13 @@
  */
 
 
-#myProgress {
+#myTimingProgress {
   width: 100%;
   background-color: #ddd;
 }
 
-#myBar {
-  width: 1%;
+#myTimingBar {
+  width: 0%;
   height: 30px;
   background-color: #4CAF50;
 }
@@ -23,9 +23,17 @@
 }
 
 #myScoreBar {
-  width: 1%;
+  width: 0%;
   height: 30px;
   background-color: #4CAF50;
+  display: inline-block;
+}
+
+#myNegScoreBar {
+  width: 50%;
+  height: 30px;
+  background-color: red;
+  display: inline-block;
 }
 
 /* fonts and type */

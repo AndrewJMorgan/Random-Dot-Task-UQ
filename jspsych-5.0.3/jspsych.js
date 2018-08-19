@@ -1,30 +1,34 @@
 var oldTime = Date.now();
 var score = 1;
-var scoreGoal = 5;
+var scoreGoal = 20;
 var timeLimit = 60000;
 var timerPause = false;
 
-var newdiv = document.createElement("div");
+var itiScreen = document.createElement("div");
 
 var timingBar = document.createElement("div");
-timingBar.id = "myBar";
+timingBar.id = "myTimingBar";
 var timingBarProgress = document.createElement("div");
-timingBarProgress.id = "myProgress";
+timingBarProgress.id = "myTimingProgress";
 timingBarProgress.appendChild(timingBar);
-newdiv.appendChild(timingBarProgress);
+itiScreen.appendChild(timingBarProgress);
 
-newdiv.appendChild( document.createElement("br"));
-newdiv.appendChild( document.createElement("br"));
-newdiv.appendChild( document.createElement("br"));
-newdiv.appendChild( document.createElement("br"));
-newdiv.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
 
 var scoreBar = document.createElement("div");
 scoreBar.id = "myScoreBar";
+var negScoreBar = document.createElement("div");
+negScoreBar.id = "myNegScoreBar";
 var scoreBarProgress = document.createElement("div");
 scoreBarProgress.id = "myScoreProgress";
+scoreBarProgress.appendChild(negScoreBar);
 scoreBarProgress.appendChild(scoreBar);
-newdiv.appendChild(scoreBarProgress);
+
+itiScreen.appendChild(scoreBarProgress);
 
 /**
  * jspsych.js
@@ -169,7 +173,7 @@ var jsPsych = (function() {
         setTimeout(next_trial, opts.default_iti);
       } else {
         opts.default_iti = 1000;
-        document.body.appendChild(newdiv);
+        document.body.appendChild(itiScreen);
         next_trial(); //undo
       }
     } else {
@@ -177,8 +181,8 @@ var jsPsych = (function() {
         //show screen todo
           timerPause = true;
           oldTime += opts.default_iti;
-          document.body.appendChild(newdiv);
-          var timerBar = document.getElementById("myBar");  
+          document.body.appendChild(itiScreen);
+          var timerBar = document.getElementById("myTimingBar");  
           width = 100 * ((timeRemaining) / timeLimit); 
           timerBar.style.width = width + '%'; 
           timerBar.innerHTML = Math.round(timeRemaining / 1000) + 's';
@@ -215,7 +219,7 @@ var jsPsych = (function() {
 
     function next_trial() {
       console.log('next trial');
-      document.body.removeChild(newdiv);
+      document.body.removeChild(itiScreen);
       timerPause = false;
       if (timeRemaining == null) {
         timeRemaining = timeLimit;
@@ -227,7 +231,7 @@ var jsPsych = (function() {
       //done_flag = true;
       var complete;
       if (score == scoreGoal) {
-        complete = true;
+        //complete = true; //Comment in to end when goal is hit.
       } else {
         complete = timeline.advance(); //todo: ending
       }
