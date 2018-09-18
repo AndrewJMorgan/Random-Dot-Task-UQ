@@ -1,6 +1,6 @@
 var oldTime = Date.now();
 var score = 1;
-var scoreGoal = 20;
+var scoreGoal = 4;
 var timeLimit = 60000;
 var timerPause = false;
 
@@ -213,17 +213,32 @@ var jsPsych = (function() {
           var scoreBar3 = document.getElementById("myScoreBar3"); 
           console.log(score + "|" + scoreGoal + "|" + 100 * ((score) / scoreGoal));
         if (score < 0) {
-          scoreBar1.style.width = (100 - (100 * ((score * -1) / scoreGoal))) + '%'; 
+          if (score < scoreGoal * -1) {
+            scoreBar3.style.width = '0%';
+          } else {
+            scoreBar1.style.width = (100 - (100 * ((score * -1) / scoreGoal))) + '%'; 
+          }
           scoreBar2.style.width = '0%';
           scoreBar3.style.width = '0%';
+          scoreBar1.style.border = '4px black solid';
+          scoreBar1.style.borderWidth = '0px 4px 0px 0px';
         } else if (score >= 0 && score <= scoreGoal) {
           scoreBar1.style.width = '100%';
           scoreBar2.style.width = (100 * ((score) / scoreGoal)) + '%'; 
           scoreBar3.style.width = '0%';
+          scoreBar3.style.border = '0';
+          scoreBar1.style.border = '0';
         } else if (score > scoreGoal) {
           scoreBar1.style.width = '100%';
           scoreBar2.style.width = '100%';
-          scoreBar3.style.width = (100 * ((score - scoreGoal) / scoreGoal)) + '%';
+          scoreBar1.style.border = '0';
+          if (score > scoreGoal * 2) {
+            scoreBar3.style.width = '100%';
+          } else {
+            scoreBar3.style.width = (100 * ((score - scoreGoal) / scoreGoal)) + '%';
+          }
+          scoreBar3.style.border = '4px black solid';
+          scoreBar3.style.borderWidth = '0px 4px 0px 0px';
         } else {
           
           console.log('SCORE ERROR: ' + score);
