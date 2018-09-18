@@ -19,16 +19,36 @@ itiScreen.appendChild( document.createElement("br"));
 itiScreen.appendChild( document.createElement("br"));
 itiScreen.appendChild( document.createElement("br"));
 
-var scoreBar = document.createElement("div");
-scoreBar.id = "myScoreBar";
-var negScoreBar = document.createElement("div");
-negScoreBar.id = "myNegScoreBar";
-var scoreBarProgress = document.createElement("div");
-scoreBarProgress.id = "myScoreProgress";
-//scoreBarProgress.appendChild(negScoreBar);
-scoreBarProgress.appendChild(scoreBar);
 
-itiScreen.appendChild(scoreBarProgress);
+var scoreBarMaster = document.createElement("div");
+scoreBarMaster.id = "myScoreMaster";
+
+var scoreBar1 = document.createElement("div");
+scoreBar1.id = "myScoreBar1";
+var scoreBar1Progress = document.createElement("div");
+scoreBar1Progress.id = "myScore1Progress";
+scoreBar1Progress.appendChild(scoreBar1);
+
+var scoreBar2 = document.createElement("div");
+scoreBar2.id = "myScoreBar2";
+var scoreBar2Text = document.createElement("div");
+scoreBar2Text.id = "myScoreBar2Text";
+var scoreBar2Progress = document.createElement("div");
+scoreBar2Progress.id = "myScore2Progress";
+scoreBar2Progress.appendChild(scoreBar2);
+scoreBar2Progress.appendChild(scoreBar2Text);
+
+var scoreBar3 = document.createElement("div");
+scoreBar3.id = "myScoreBar3";
+var scoreBar3Progress = document.createElement("div");
+scoreBar3Progress.id = "myScore3Progress";
+scoreBar3Progress.appendChild(scoreBar3);
+
+scoreBarMaster.appendChild(scoreBar1Progress);
+scoreBarMaster.appendChild(scoreBar2Progress);
+scoreBarMaster.appendChild(scoreBar3Progress);
+
+itiScreen.appendChild(scoreBarMaster);
 
 /**
  * jspsych.js
@@ -187,11 +207,29 @@ var jsPsych = (function() {
           timerBar.style.width = width + '%'; 
           timerBar.innerHTML = Math.round(timeRemaining / 1000) + 's';
 
-          var scoreBar = document.getElementById("myScoreBar"); 
-          width = 100 * ((score) / scoreGoal); 
-          scoreBar.style.width = width + '%'; 
-          scoreBar.innerHTML = 'Score: ' + score;
-
+          var scoreBar1 = document.getElementById("myScoreBar1"); 
+          var scoreBar2 = document.getElementById("myScoreBar2"); 
+          var scoreBar2Text = document.getElementById("myScoreBar2Text"); 
+          var scoreBar3 = document.getElementById("myScoreBar3"); 
+          console.log(score + "|" + scoreGoal + "|" + 100 * ((score) / scoreGoal));
+        if (score < 0) {
+          scoreBar1.style.width = (100 - (100 * ((score * -1) / scoreGoal))) + '%'; 
+          scoreBar2.style.width = '0%';
+          scoreBar3.style.width = '0%';
+        } else if (score >= 0 && score <= scoreGoal) {
+          scoreBar1.style.width = '100%';
+          scoreBar2.style.width = (100 * ((score) / scoreGoal)) + '%'; 
+          scoreBar3.style.width = '0%';
+        } else if (score > scoreGoal) {
+          scoreBar1.style.width = '100%';
+          scoreBar2.style.width = '100%';
+          scoreBar3.style.width = (100 * ((score - scoreGoal) / scoreGoal)) + '%';
+        } else {
+          
+          console.log('SCORE ERROR: ' + score);
+        }
+          scoreBar2Text.innerHTML = 'Score: ' + score;
+          
           console.log('test|' + timeLimit + '|' + timeRemaining + "|" + score + "|" + scoreGoal)
           setTimeout(next_trial, opts.default_iti);
       } else {

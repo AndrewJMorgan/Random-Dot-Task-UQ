@@ -17,12 +17,58 @@
   background-color: #4CAF50;
 }
 
-#myScoreProgress {
-  width: 100%;
-  background-color: #ddd;
+#myScore1Progress {
+  width: 33.3333%;
+  background-color: red;
+  display: inline-block;
 }
 
-#myScoreBar {
+#myScore2Progress {
+  width: 33.3333%;
+  background-color: #ddd;
+  display: inline-block;
+}
+
+#myScore3Progress {
+  width: 33.3333%;
+  background-color: #ddd;
+  display: inline-block;
+}
+
+#scoreBarMaster {
+  width: 100%;
+  background-color: #ddd;
+  display: inline-block;
+}
+
+#myScoreBar1 {
+  width: 100%;
+  height: 30px;
+  background-color: #ddd;
+  display: inline-block;
+}
+
+#myScoreBar2 {
+  width: 0%;
+  height: 30px;
+  background-color: #4CAF50;
+  display: inline-block;
+  border: 4px black solid;
+  position: relative;
+  top: 0;
+  left: 0;
+}
+
+#myScoreBar2Text {
+  width: 100%;
+  position: relative;
+  top: 0;
+  left: 0;
+  text-align: center;
+  z-index: 2;
+}
+
+#myScoreBar3 {
   width: 0%;
   height: 30px;
   background-color: #4CAF50;
