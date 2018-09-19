@@ -72,6 +72,7 @@
   background-color:  rgb(213, 213, 213);
   display: inline-block;
   position: relative;
+  word-spacing: 32%;
 }
 
 #myScoreBar1 {
@@ -81,6 +82,8 @@
   border: 0px black solid;
   display: inline-block;
   position: relative;
+  text-align: +50%;
+  font-size: 150%;
 }
 
 #myScoreBar2 {
@@ -93,6 +96,8 @@
   position: relative;
   top: 0;
   left: 0;
+  text-align: +50%;
+  font-size: 150%;
 }
 
 #myScoreBar2Text {
@@ -114,6 +119,8 @@
   border: 0px black solid;
   display: inline-block;
   position: relative;
+  text-align: +50%;
+  font-size: 150%;
 }
 
 #myNegScoreBar {

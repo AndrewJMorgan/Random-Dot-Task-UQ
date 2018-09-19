@@ -224,16 +224,21 @@ var jsPsych = (function() {
           if (score <= (scoreGoal) * -1) {
             scoreBar1.style.width = '0%';
             scoreBar1.style.borderWidth = '0px 0px 0px 0px';
-            scoreBar1Progress.style.borderWidth = '0px 4px 4px 0px';
+            scoreBar1Progress.style.borderWidth = '0px 2px 4px 0px';
           } else {
             scoreBar1.style.width = (100 - (100 * ((score * -1) / scoreGoal))) + '%'; 
-            scoreBar1Progress.style.borderWidth = '0px 2px 4px 2px';
+            scoreBar1Progress.style.borderWidth = '0px 2px 4px 4px';
           }
           scoreBar2.style.width = '0%';
           scoreBar3.style.width = '0%';
           scoreBar1.style.border = '4px black solid';
           scoreBar1.style.borderWidth = '0px 4px 0px 0px';
           scoreBar2.style.border = '0px';
+          //scoreBar1.outerHtml = -scoreGoal;
+          /*scoreBar1.innerHTML = '<br/><br/>' + '-' + scoreGoal;
+          scoreBar2.innerHTML = '<br/><br/>' + '0';
+          scoreBar3.innerHTML = '<br/><br/>' + scoreGoal;*/
+          //scoreBarMaster.innerHTML = '<br/><br/>' + (-scoreGoal) + ' ' + (0) + ' ' + (scoreGoal) + ' ' + (2*scoreGoal);
         } else if (score > -1 && score < 1) { //score = 0 would not work...
           scoreBar1.style.width = '100%';
           scoreBar2.style.width = '0%'; 
@@ -241,6 +246,7 @@ var jsPsych = (function() {
           scoreBar1.style.border = '0px';
           scoreBar2.style.border = '0px';
           scoreBar3.style.border = '0px';
+          //scoreBarMaster.innerHTML = '<br/><br/>' + (-scoreGoal) + ' ' + (0) + ' ' + (scoreGoal) + ' ' + (2*scoreGoal);
         } else if (score >= 0 && score <= scoreGoal) {
           scoreBar1.style.width = '100%';
           scoreBar2.style.width = (100 * ((score) / scoreGoal)) + '%'; 
@@ -249,10 +255,15 @@ var jsPsych = (function() {
           scoreBar1.style.border = '0';
           scoreBar2.style.border = '4px black solid';
           scoreBar2.style.borderWidth = '0px 4px 0px 0px';
+          //scoreBarMaster.innerHTML = '<br/><br/>' + (-scoreGoal) + ' ' + (0) + ' ' + (scoreGoal) + ' ' + (2*scoreGoal);
+         /* scoreBar1.innerHTML = '<br/><br/>' + '-' + scoreGoal;
+          scoreBar2.innerHTML = '<br/><br/>' + '0';
+          scoreBar3.innerHTML = '<br/><br/>' + scoreGoal;*/
         } else if (score > scoreGoal) {
           scoreBar1.style.width = '100%';
           scoreBar2.style.width = '100%';
           scoreBar1.style.border = '0';
+          //scoreBarMaster.innerHTML = '<br/><br/>' + (-scoreGoal) + ' ' + (0) + ' ' + (scoreGoal) + ' ' + (2*scoreGoal);
           if (score > scoreGoal * 2) {
             scoreBar3.style.width = '100%';
           } else {
