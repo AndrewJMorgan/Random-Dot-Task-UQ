@@ -6,6 +6,14 @@ var timerPause = false;
 
 var itiScreen = document.createElement("div");
 
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+
 var timingBar = document.createElement("div");
 timingBar.id = "myTimingBar";
 var timingBarProgress = document.createElement("div");
@@ -203,9 +211,9 @@ var jsPsych = (function() {
           oldTime += opts.default_iti;
           document.body.appendChild(itiScreen);
           var timerBar = document.getElementById("myTimingBar");  
-          width = 100 * ((timeRemaining) / timeLimit); 
+          width = 100 - (100 * ((timeRemaining) / timeLimit)); 
           timerBar.style.width = width + '%'; 
-          timerBar.innerHTML = Math.round(timeRemaining / 1000) + 's';
+          timerBar.innerHTML = Math.round(timeRemaining / 1000) + 's remaining';
 
           var scoreBar1 = document.getElementById("myScoreBar1"); 
           var scoreBar2 = document.getElementById("myScoreBar2"); 
@@ -213,21 +221,34 @@ var jsPsych = (function() {
           var scoreBar3 = document.getElementById("myScoreBar3"); 
           console.log(score + "|" + scoreGoal + "|" + 100 * ((score) / scoreGoal));
         if (score < 0) {
-          if (score < scoreGoal * -1) {
-            scoreBar3.style.width = '0%';
+          if (score <= (scoreGoal) * -1) {
+            scoreBar1.style.width = '0%';
+            scoreBar1.style.borderWidth = '0px 0px 0px 0px';
+            scoreBar1Progress.style.borderWidth = '0px 4px 4px 0px';
           } else {
             scoreBar1.style.width = (100 - (100 * ((score * -1) / scoreGoal))) + '%'; 
+            scoreBar1Progress.style.borderWidth = '0px 2px 4px 2px';
           }
           scoreBar2.style.width = '0%';
           scoreBar3.style.width = '0%';
           scoreBar1.style.border = '4px black solid';
           scoreBar1.style.borderWidth = '0px 4px 0px 0px';
+          scoreBar2.style.border = '0px';
+        } else if (score > -1 && score < 1) { //score = 0 would not work...
+          scoreBar1.style.width = '100%';
+          scoreBar2.style.width = '0%'; 
+          scoreBar3.style.width = '0%';
+          scoreBar1.style.border = '0px';
+          scoreBar2.style.border = '0px';
+          scoreBar3.style.border = '0px';
         } else if (score >= 0 && score <= scoreGoal) {
           scoreBar1.style.width = '100%';
           scoreBar2.style.width = (100 * ((score) / scoreGoal)) + '%'; 
           scoreBar3.style.width = '0%';
           scoreBar3.style.border = '0';
           scoreBar1.style.border = '0';
+          scoreBar2.style.border = '4px black solid';
+          scoreBar2.style.borderWidth = '0px 4px 0px 0px';
         } else if (score > scoreGoal) {
           scoreBar1.style.width = '100%';
           scoreBar2.style.width = '100%';
