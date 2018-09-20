@@ -33,24 +33,39 @@ scoreBarMaster.id = "myScoreMaster";
 
 var scoreBar1 = document.createElement("div");
 scoreBar1.id = "myScoreBar1";
+var scoreBar1Text = document.createElement("div");
+scoreBar1Text.id = "myScoreBar1Text";
+var scoreBar1Text2 = document.createElement("div");
+scoreBar1Text2.id = "myScoreBar1Text2";
 var scoreBar1Progress = document.createElement("div");
 scoreBar1Progress.id = "myScore1Progress";
 scoreBar1Progress.appendChild(scoreBar1);
+scoreBar1Progress.appendChild(scoreBar1Text);
+scoreBar1Progress.appendChild(scoreBar1Text2);
 
 var scoreBar2 = document.createElement("div");
 scoreBar2.id = "myScoreBar2";
 var scoreBar2Text = document.createElement("div");
 scoreBar2Text.id = "myScoreBar2Text";
+var scoreBar2Text2 = document.createElement("div");
+scoreBar2Text2.id = "myScoreBar2Text2";
 var scoreBar2Progress = document.createElement("div");
 scoreBar2Progress.id = "myScore2Progress";
 scoreBar2Progress.appendChild(scoreBar2);
 scoreBar2Progress.appendChild(scoreBar2Text);
+scoreBar2Progress.appendChild(scoreBar2Text2);
 
 var scoreBar3 = document.createElement("div");
 scoreBar3.id = "myScoreBar3";
+var scoreBar3Text = document.createElement("div");
+scoreBar3Text.id = "myScoreBar3Text";
+var scoreBar3Text2 = document.createElement("div");
+scoreBar3Text2.id = "myScoreBar3Text2";
 var scoreBar3Progress = document.createElement("div");
 scoreBar3Progress.id = "myScore3Progress";
 scoreBar3Progress.appendChild(scoreBar3);
+scoreBar3Progress.appendChild(scoreBar3Text);
+scoreBar3Progress.appendChild(scoreBar3Text2);
 
 scoreBarMaster.appendChild(scoreBar1Progress);
 scoreBarMaster.appendChild(scoreBar2Progress);
@@ -234,11 +249,11 @@ var jsPsych = (function() {
           scoreBar1.style.border = '4px black solid';
           scoreBar1.style.borderWidth = '0px 4px 0px 0px';
           scoreBar2.style.border = '0px';
-          //scoreBar1.outerHtml = -scoreGoal;
-          /*scoreBar1.innerHTML = '<br/><br/>' + '-' + scoreGoal;
-          scoreBar2.innerHTML = '<br/><br/>' + '0';
-          scoreBar3.innerHTML = '<br/><br/>' + scoreGoal;*/
-          //scoreBarMaster.innerHTML = '<br/><br/>' + (-scoreGoal) + ' ' + (0) + ' ' + (scoreGoal) + ' ' + (2*scoreGoal);
+          scoreBar1Text.innerHTML = '<br/><br/>' + '-' + scoreGoal;
+          scoreBar1Text2.innerHTML = '<br/><br/>' + '0';
+          scoreBar3Text2.innerHTML = '<br/><br/>' + scoreGoal;
+          scoreBar3Text.innerHTML = '<br/><br/>' + (2*scoreGoal);
+
         } else if (score > -1 && score < 1) { //score = 0 would not work...
           scoreBar1.style.width = '100%';
           scoreBar2.style.width = '0%'; 
@@ -246,7 +261,7 @@ var jsPsych = (function() {
           scoreBar1.style.border = '0px';
           scoreBar2.style.border = '0px';
           scoreBar3.style.border = '0px';
-          //scoreBarMaster.innerHTML = '<br/><br/>' + (-scoreGoal) + ' ' + (0) + ' ' + (scoreGoal) + ' ' + (2*scoreGoal);
+
         } else if (score >= 0 && score <= scoreGoal) {
           scoreBar1.style.width = '100%';
           scoreBar2.style.width = (100 * ((score) / scoreGoal)) + '%'; 
@@ -255,15 +270,16 @@ var jsPsych = (function() {
           scoreBar1.style.border = '0';
           scoreBar2.style.border = '4px black solid';
           scoreBar2.style.borderWidth = '0px 4px 0px 0px';
-          //scoreBarMaster.innerHTML = '<br/><br/>' + (-scoreGoal) + ' ' + (0) + ' ' + (scoreGoal) + ' ' + (2*scoreGoal);
-         /* scoreBar1.innerHTML = '<br/><br/>' + '-' + scoreGoal;
-          scoreBar2.innerHTML = '<br/><br/>' + '0';
-          scoreBar3.innerHTML = '<br/><br/>' + scoreGoal;*/
+
+          scoreBar1Text.innerHTML = '<br/><br/>' + '-' + scoreGoal;
+          scoreBar1Text2.innerHTML = '<br/><br/>' + '0';
+          scoreBar3Text2.innerHTML = '<br/><br/>' + scoreGoal;
+          scoreBar3Text.innerHTML = '<br/><br/>' + 2*scoreGoal 
         } else if (score > scoreGoal) {
           scoreBar1.style.width = '100%';
           scoreBar2.style.width = '100%';
           scoreBar1.style.border = '0';
-          //scoreBarMaster.innerHTML = '<br/><br/>' + (-scoreGoal) + ' ' + (0) + ' ' + (scoreGoal) + ' ' + (2*scoreGoal);
+
           if (score > scoreGoal * 2) {
             scoreBar3.style.width = '100%';
           } else {
