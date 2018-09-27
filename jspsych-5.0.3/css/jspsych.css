@@ -183,9 +183,17 @@
   font-size: 150%;
 }
 
-
-
-
+#myScoreBar3Text3 {
+  width: 116%;
+  position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
+  top: -28px;
+  right: 0;
+  text-align: left;
+  z-index: 2;
+  color: white;
+  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+  font-size: 150%;
+}
 
 #myNegScoreBar {
   width: 50%;
@@ -193,6 +201,10 @@
   background-color: red;
   display: inline-block;
   position: relative;
+}
+
+#flagimage {
+  margin-left: 457px;
 }
 
 /* fonts and type */
@@ -210,6 +222,7 @@ body {
 p {
   clear: both;
 }
+
 .very-small {
   font-size: 50%;
 }

@@ -61,11 +61,45 @@ var scoreBar3Text = document.createElement("div");
 scoreBar3Text.id = "myScoreBar3Text";
 var scoreBar3Text2 = document.createElement("div");
 scoreBar3Text2.id = "myScoreBar3Text2";
+var scoreBar3Text3 = document.createElement("div");
+scoreBar3Text3.id = "myScoreBar3Text3";
 var scoreBar3Progress = document.createElement("div");
 scoreBar3Progress.id = "myScore3Progress";
 scoreBar3Progress.appendChild(scoreBar3);
 scoreBar3Progress.appendChild(scoreBar3Text);
 scoreBar3Progress.appendChild(scoreBar3Text2);
+scoreBar3Progress.appendChild(scoreBar3Text3);
+
+var myImage = new Image(100, 200);
+myImage.src = 'flags.png';
+
+var flagImg = document.createElement("IMG");
+flagImg.id = "flagimage";
+flagImg.setAttribute("src", "./Images/flags.png");
+flagImg.setAttribute("width", "129");
+flagImg.setAttribute("height", "110");
+flagImg.setAttribute("alt", "flags");
+itiScreen.appendChild(flagImg);
+
+var failSound = new sound("./Sounds/trial-fail.mp3");
+var successSound = new sound("./Sounds/trial-success.mp3");
+
+function sound(src) {
+  this.sound = document.createElement("audio");
+  this.sound.src = src;
+  this.sound.setAttribute("preload", "auto");
+  this.sound.setAttribute("controls", "none");
+  this.sound.style.display = "none";
+  itiScreen.appendChild(this.sound);
+  this.play = function(){
+      this.sound.currentTime = 0;
+      this.sound.play();
+  }
+  this.stop = function(){
+      this.sound.pause();
+  }
+} 
+
 
 scoreBarMaster.appendChild(scoreBar1Progress);
 scoreBarMaster.appendChild(scoreBar2Progress);
@@ -195,9 +229,11 @@ var jsPsych = (function() {
     if (data.correct) {
       console.log('correct');
       score++;
+      successSound.play();
     } else {
       console.log('wrong');
       score--;
+      failSound.play();
     }
     // get back the data with all of the defaults in
     var trial_data = jsPsych.data.getDataByTrialIndex(global_trial_index);
@@ -222,19 +258,25 @@ var jsPsych = (function() {
     } else {
       if (opts.default_iti > 0) {
         //show screen todo
-          timerPause = true;
-          oldTime += opts.default_iti;
-          document.body.appendChild(itiScreen);
-          var timerBar = document.getElementById("myTimingBar");  
-          width = 100 - (100 * ((timeRemaining) / timeLimit)); 
-          timerBar.style.width = width + '%'; 
-          timerBar.innerHTML = Math.round(timeRemaining / 1000) + 's remaining';
+        timerPause = true;
+        oldTime += opts.default_iti;
+        document.body.appendChild(itiScreen);
+        var timerBar = document.getElementById("myTimingBar");  
+        width = 100 - (100 * ((timeRemaining) / timeLimit)); 
+        timerBar.style.width = width + '%'; 
+        timerBar.innerHTML = Math.round(timeRemaining / 1000) + 's remaining';
 
-          var scoreBar1 = document.getElementById("myScoreBar1"); 
-          var scoreBar2 = document.getElementById("myScoreBar2"); 
-          var scoreBar2Text = document.getElementById("myScoreBar2Text"); 
-          var scoreBar3 = document.getElementById("myScoreBar3"); 
-          console.log(score + "|" + scoreGoal + "|" + 100 * ((score) / scoreGoal));
+        var scoreBar1 = document.getElementById("myScoreBar1"); 
+        var scoreBar2 = document.getElementById("myScoreBar2"); 
+        var scoreBar2Text = document.getElementById("myScoreBar2Text"); 
+        var scoreBar3 = document.getElementById("myScoreBar3"); 
+        console.log(score + "|" + scoreGoal + "|" + 100 * ((score) / scoreGoal));
+        scoreBar1Text.innerHTML = '<br/><br/>' + '0';
+        scoreBar1Text2.innerHTML = '<br/><br/>' + '-' + scoreGoal; 
+        scoreBar3Text2.innerHTML = '<br/><br/>' + scoreGoal;
+        scoreBar3Text.innerHTML = '<br/><br/>' + 2 * scoreGoal;  
+        
+        scoreBar3Text3.innerHTML = 'GOAL';
         if (score < 0) {
           if (score <= (scoreGoal) * -1) {
             scoreBar1.style.width = '0%';
@@ -249,20 +291,14 @@ var jsPsych = (function() {
           scoreBar1.style.border = '4px black solid';
           scoreBar1.style.borderWidth = '0px 4px 0px 0px';
           scoreBar2.style.border = '0px';
-          scoreBar1Text.innerHTML = '<br/><br/>' + '-' + scoreGoal;
-          scoreBar1Text2.innerHTML = '<br/><br/>' + '0';
-          scoreBar3Text2.innerHTML = '<br/><br/>' + scoreGoal;
-          scoreBar3Text.innerHTML = '<br/><br/>' + (2*scoreGoal);
-
-        } else if (score > -1 && score < 1) { //score = 0 would not work...
+        } else if (score == 0) { 
           scoreBar1.style.width = '100%';
           scoreBar2.style.width = '0%'; 
           scoreBar3.style.width = '0%';
           scoreBar1.style.border = '0px';
           scoreBar2.style.border = '0px';
           scoreBar3.style.border = '0px';
-
-        } else if (score >= 0 && score <= scoreGoal) {
+        } else if (score > 0 && score <= scoreGoal) {
           scoreBar1.style.width = '100%';
           scoreBar2.style.width = (100 * ((score) / scoreGoal)) + '%'; 
           scoreBar3.style.width = '0%';
@@ -270,11 +306,6 @@ var jsPsych = (function() {
           scoreBar1.style.border = '0';
           scoreBar2.style.border = '4px black solid';
           scoreBar2.style.borderWidth = '0px 4px 0px 0px';
-
-          scoreBar1Text.innerHTML = '<br/><br/>' + '-' + scoreGoal;
-          scoreBar1Text2.innerHTML = '<br/><br/>' + '0';
-          scoreBar3Text2.innerHTML = '<br/><br/>' + scoreGoal;
-          scoreBar3Text.innerHTML = '<br/><br/>' + 2*scoreGoal 
         } else if (score > scoreGoal) {
           scoreBar1.style.width = '100%';
           scoreBar2.style.width = '100%';
