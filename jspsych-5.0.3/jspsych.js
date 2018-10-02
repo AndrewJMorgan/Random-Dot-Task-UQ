@@ -1,9 +1,9 @@
 var oldTime = Date.now();
 var score = 1;
 var scoreGoal = 4;
-var timeLimit = 60000;
+var timeLimit = 6000;
 var timerPause = false;
-
+var ended = false;
 var itiScreen = document.createElement("div");
 
 itiScreen.appendChild( document.createElement("br"));
@@ -350,6 +350,38 @@ var jsPsych = (function() {
     }
 
     function next_trial() {
+      if (ended == true) {
+        console.log('Trial over');
+        if (score >= scoreGoal) {
+          var faceImg = document.createElement("IMG");
+          faceImg.id = "faceimage";
+          faceImg.setAttribute("src", "./Images/face0.png");
+          faceImg.setAttribute("width", "110");
+          faceImg.setAttribute("height", "110");
+          faceImg.setAttribute("alt", "face");
+          var faceText = document.createElement("div");
+          faceText.id = "facetext";
+          timerBar.appendChild(faceText);
+          timerBar.appendChild(faceImg);
+          faceText.innerHTML = '</br> </br> You achieved your goal!';
+
+        } else {
+            var faceImg = document.createElement("IMG");
+            faceImg.id = "faceimage";
+            faceImg.setAttribute("src", "./Images/face1.png");
+            faceImg.setAttribute("width", "110");
+            faceImg.setAttribute("height", "110");
+            faceImg.setAttribute("alt", "face");
+            var faceText = document.createElement("div");
+            faceText.id = "facetext";
+            timerBar.appendChild(faceText);
+            timerBar.appendChild(faceImg);
+            faceText.innerHTML = '</br> </br> You did not achieve your goal.';
+
+        };
+
+
+      } else {
       console.log('next trial');
       document.body.removeChild(itiScreen);
       timerPause = false;
@@ -379,9 +411,10 @@ var jsPsych = (function() {
         finishExperiment();
         return;
       }
-
+  
       doTrial(timeline.trial());
     }
+  }
   };
 
   core.endExperiment = function(end_message) {
@@ -766,6 +799,8 @@ var jsPsych = (function() {
 
   function finishExperiment() {
     opts.on_finish(jsPsych.data.getData()); //todo
+    ended = true;
+    keyboard_listeners = [];
 
     if(typeof timeline.end_message !== 'undefined'){
       DOM_target.html(timeline.end_message);

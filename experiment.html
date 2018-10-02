@@ -85,7 +85,10 @@
 			timeline: all_trials //The timeline of all the trials
 		}
 		
-		
+		var experimentEnd = {
+			type: "text",
+			text: "<p> Thank you for participating. </p>"
+		}
 		
 		//---------Prepare the main timeline---------
 		
@@ -93,6 +96,7 @@
 		var main_timeline = [];
 		main_timeline.push(instructions_block);
 		main_timeline.push(test_block);
+		main_timeline.push(experimentEnd);
 		
 		
 		
