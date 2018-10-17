@@ -13,19 +13,21 @@ const direction = {
 	DOWN: 270,
 }
 
+
+
 function getRandomDirection() {
 	return (Math.random() >= 0.5) ? direction.LEFT : direction.RIGHT;
 }
 
 function runTest() {
 	var nApertures = 1; //The number of apertures
-	var nDots = [100]; //Number of dots per set (equivalent to number of dots per frame)
+	var nDots = [200]; //Number of dots per set (equivalent to number of dots per frame)
 	var nSets = 1; //Number of sets to cycle through per frame
 	coherentDirection = getRandomDirection(); //The direction of the coherentDots in degrees. Starts at 3 o'clock and goes counterclockwise (0 == rightwards, 90 == upwards, 180 == leftwards, 270 == downwards), range 0 - 360
 
 	var coherence = 0.3; //Proportion of dots to move together, range from 0 to 1
 	var oppositeCoherence = 0; // The coherence for the dots going the opposite direction as the coherent dots
-	var dotRadius = 4; //Radius of each dot in pixels
+	var dotRadius = 2; //Radius of each dot in pixels
 	var dotLife = 20;//How many frames a dot will keep following its trajectory before it is redrawn at a random location. -1 denotes infinite life (the dot will only be redrawn if it reaches the end of the aperture).
 	var moveDistance = 3; //How many pixels the dots move per frame
 	var apertureWidth = 1000; // How many pixels wide the aperture is. For square aperture this will be the both height and width. For circle, this will be the diameter.
@@ -830,7 +832,24 @@ function runTest() {
 }
 
 
+var failSound = new sound("./Sounds/trial-fail.mp3");
+var successSound = new sound("./Sounds/trial-success.mp3");
 
+function sound(src) {
+  this.sound = document.createElement("audio");
+  this.sound.src = src;
+  this.sound.setAttribute("preload", "auto");
+  this.sound.setAttribute("controls", "none");
+  this.sound.style.display = "none";
+  //.appendChild(this.sound);
+  this.play = function(){
+      this.sound.currentTime = 0;
+      this.sound.play();
+  }
+  this.stop = function(){
+      this.sound.pause();
+  }
+} 
 
 var totalgoal = 20;
 var leftpress = 0;
@@ -852,13 +871,17 @@ document.addEventListener('keydown', function(event) {
 			console.log("correct");
 			console.log(trialtime);
 			console.log(speedms);
+			successSound.play();
 				goal = goal + 1;
 				moveProgress();
 		} else {
 			console.log("bad");
 			console.log(trialtime);
 			console.log(speedms);
+			failSound.play();
 				misses = misses + 1;
+				goal--;
+				moveProgress();
 		}
 		stopDotMotion = true;
 		runTest();
@@ -870,13 +893,17 @@ document.addEventListener('keydown', function(event) {
 			console.log("correct");
 			console.log(trialtime);
 			console.log(speedms);
+			successSound.play();
 			goal = goal + 1;
 			moveProgress();
 		} else {
 			console.log("bad");
 			console.log(trialtime);
 			console.log(speedms);
+			failSound.play();
 				misses = misses + 1;
+				goal--;
+				moveProgress();
 		}
 		stopDotMotion = true;
 		runTest();
@@ -912,7 +939,9 @@ function moveProgress() {
 	elem.style.width = width + '%'; //setting the width
 	elem.innerHTML = width  + '%'; //setting the text
 
-	if (distance <= 0) {
-		window.alert("Trial Complete");
-	}
+	//if (distance <= 0) {
+	//	window.alert("Trial Complete");
+	//}
 }
+
+
