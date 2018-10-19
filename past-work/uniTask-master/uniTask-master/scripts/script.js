@@ -851,11 +851,11 @@ function sound(src) {
   }
 } 
 
-var totalgoal = 20;
+var goal = 20;
 var leftpress = 0;
 var rightpress = 0;
 var misses = 0;
-var goal = 0;
+var score = 0;
 var stopDotMotion = false;
 var coherentDirection = null; //The direction of the coherentDots in degrees. Starts at 3 o'clock and goes counterclockwise (0 == rightwards, 90 == upwards, 180 == leftwards, 270 == downwards), range 0 - 360
 var frameRequestID = null;
@@ -872,7 +872,7 @@ document.addEventListener('keydown', function(event) {
 			console.log(trialtime);
 			console.log(speedms);
 			successSound.play();
-				goal = goal + 1;
+				score++;
 				moveProgress();
 		} else {
 			console.log("bad");
@@ -880,7 +880,7 @@ document.addEventListener('keydown', function(event) {
 			console.log(speedms);
 			failSound.play();
 				misses = misses + 1;
-				goal--;
+				score--;
 				moveProgress();
 		}
 		stopDotMotion = true;
@@ -894,7 +894,7 @@ document.addEventListener('keydown', function(event) {
 			console.log(trialtime);
 			console.log(speedms);
 			successSound.play();
-			goal = goal + 1;
+			score++;
 			moveProgress();
 		} else {
 			console.log("bad");
@@ -902,7 +902,7 @@ document.addEventListener('keydown', function(event) {
 			console.log(speedms);
 			failSound.play();
 				misses = misses + 1;
-				goal--;
+				score--;
 				moveProgress();
 		}
 		stopDotMotion = true;
@@ -933,9 +933,9 @@ function move() {
 function moveProgress() {
 	var elem = document.getElementById("myBar2");
 	var width = 100;
-	var distance = totalgoal - goal;
+	var distance = goal - score;
 		
-	width = (goal / totalgoal) * 100;
+	width = (score / goal) * 100;
 	elem.style.width = width + '%'; //setting the width
 	elem.innerHTML = width  + '%'; //setting the text
 
