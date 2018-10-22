@@ -862,6 +862,118 @@ var frameRequestID = null;
 var speedms = 0;
 var trialtime = 0;
 
+var oldTime = Date.now();
+var timeLimit = 60000;
+var timerPause = false;
+var ended = false;
+var itiScreen = document.createElement("div");
+
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+
+var timingBar = document.createElement("div");
+timingBar.id = "myTimingBar";
+var timingBarProgress = document.createElement("div");
+timingBarProgress.id = "myTimingProgress";
+timingBarProgress.appendChild(timingBar);
+itiScreen.appendChild(timingBarProgress);
+
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+itiScreen.appendChild( document.createElement("br"));
+
+
+var scoreBarMaster = document.createElement("div");
+scoreBarMaster.id = "myScoreMaster";
+
+var scoreBar1 = document.createElement("div");
+scoreBar1.id = "myScoreBar1";
+var scoreBar1Text = document.createElement("div");
+scoreBar1Text.id = "myScoreBar1Text";
+var scoreBar1Text2 = document.createElement("div");
+scoreBar1Text2.id = "myScoreBar1Text2";
+var scoreBar1Progress = document.createElement("div");
+scoreBar1Progress.id = "myScore1Progress";
+scoreBar1Progress.appendChild(scoreBar1);
+scoreBar1Progress.appendChild(scoreBar1Text);
+scoreBar1Progress.appendChild(scoreBar1Text2);
+
+var scoreBar2 = document.createElement("div");
+scoreBar2.id = "myScoreBar2";
+var scoreBar2Text = document.createElement("div");
+scoreBar2Text.id = "myScoreBar2Text";
+var scoreBar2Text2 = document.createElement("div");
+scoreBar2Text2.id = "myScoreBar2Text2";
+var scoreBar2Progress = document.createElement("div");
+scoreBar2Progress.id = "myScore2Progress";
+scoreBar2Progress.appendChild(scoreBar2);
+scoreBar2Progress.appendChild(scoreBar2Text);
+scoreBar2Progress.appendChild(scoreBar2Text2);
+
+var scoreBar3 = document.createElement("div");
+scoreBar3.id = "myScoreBar3";
+var scoreBar3Text = document.createElement("div");
+scoreBar3Text.id = "myScoreBar3Text";
+var scoreBar3Text2 = document.createElement("div");
+scoreBar3Text2.id = "myScoreBar3Text2";
+var scoreBar3Text3 = document.createElement("div");
+scoreBar3Text3.id = "myScoreBar3Text3";
+var scoreBar3Progress = document.createElement("div");
+scoreBar3Progress.id = "myScore3Progress";
+scoreBar3Progress.appendChild(scoreBar3);
+scoreBar3Progress.appendChild(scoreBar3Text);
+scoreBar3Progress.appendChild(scoreBar3Text2);
+scoreBar3Progress.appendChild(scoreBar3Text3);
+
+var myImage = new Image(100, 200);
+myImage.src = 'flags.png';
+
+var flagImg = document.createElement("IMG");
+flagImg.id = "flagimage";
+flagImg.setAttribute("src", "./Images/flags.png");
+flagImg.setAttribute("width", "129");
+flagImg.setAttribute("height", "110");
+flagImg.setAttribute("alt", "flags");
+itiScreen.appendChild(flagImg);
+
+var failSound = new sound("./Sounds/trial-fail.mp3");
+var successSound = new sound("./Sounds/trial-success.mp3");
+
+
+
+scoreBarMaster.appendChild(scoreBar1Progress);
+scoreBarMaster.appendChild(scoreBar2Progress);
+scoreBarMaster.appendChild(scoreBar3Progress);
+
+itiScreen.appendChild(scoreBarMaster);
+
+var default_iti = 1000;
+
+var timeRemaining = null;
+
+function moveProgress() {
+	var elem = document.getElementById("myBar2");
+	var width = 100;
+	var distance = goal - score;
+		
+	width = (score / goal) * 100;
+	elem.style.width = width + '%'; //setting the width
+	elem.innerHTML = width  + '%'; //setting the text
+
+	//if (distance <= 0) {
+	//	window.alert("Trial Complete");
+	//}
+}
+
+
+
 runTest();
 document.addEventListener('keydown', function(event) {
     if(event.keyCode == 65) {
@@ -930,18 +1042,137 @@ function move() {
 	}, 1000);
 }
 
-function moveProgress() {
-	var elem = document.getElementById("myBar2");
-	var width = 100;
-	var distance = goal - score;
-		
-	width = (score / goal) * 100;
-	elem.style.width = width + '%'; //setting the width
-	elem.innerHTML = width  + '%'; //setting the text
 
-	//if (distance <= 0) {
-	//	window.alert("Trial Complete");
+function next_trial() {
+	if (ended == true) {
+	  console.log('Trial over');
+	  if (score >= scoreGoal) {
+		var faceImg = document.createElement("IMG");
+		faceImg.id = "faceimage";
+		faceImg.setAttribute("src", "./Images/face0.png");
+		faceImg.setAttribute("width", "110");
+		faceImg.setAttribute("height", "110");
+		faceImg.setAttribute("alt", "face");
+		var faceText = document.createElement("div");
+		faceText.id = "facetext";
+		timerBar.appendChild(faceText);
+		timerBar.appendChild(faceImg);
+		faceText.innerHTML = '</br> </br> You achieved your goal!';
+
+	  } else {
+		  var faceImg = document.createElement("IMG");
+		  faceImg.id = "faceimage";
+		  faceImg.setAttribute("src", "./Images/face1.png");
+		  faceImg.setAttribute("width", "110");
+		  faceImg.setAttribute("height", "110");
+		  faceImg.setAttribute("alt", "face");
+		  var faceText = document.createElement("div");
+		  faceText.id = "facetext";
+		  timerBar.appendChild(faceText);
+		  timerBar.appendChild(faceImg);
+		  faceText.innerHTML = '</br> </br> You did not achieve your goal.';
+
+	  };
+
+
+	} else {
+	console.log('next trial');
+	document.body.removeChild(itiScreen);
+	timerPause = false;
+	if (timeRemaining == null) {
+	  oldTime = Date.now();
+	  timeRemaining = timeLimit;
+	  setTimeout(clockTick, 1);
+	}
+
+
+
+
+
+ // wait for iti
+ //if (typeof current_trial.timing_post_trial == 'undefined') {
+	//if (opts.default_iti > 0) {
+	 // setTimeout(next_trial, opts.default_iti);
+	//} else {
+	 // opts.default_iti = 1000;
+	 // document.body.appendChild(itiScreen);
+	 // next_trial(); //undo
 	//}
-}
+ // } else {
+	if (default_iti > 0) {
+	  //show screen todo
+	  timerPause = true;
+	  oldTime += default_iti;
+	  document.body.appendChild(itiScreen);
+	  var timerBar = document.getElementById("myTimingBar");  
+	  width = 100 - (100 * ((timeRemaining) / timeLimit)); 
+	  timerBar.style.width = width + '%'; 
+	  timerBar.innerHTML = Math.round(timeRemaining / 1000) + 's remaining';
+
+	  var scoreBar1 = document.getElementById("myScoreBar1"); 
+	  var scoreBar2 = document.getElementById("myScoreBar2"); 
+	  var scoreBar2Text = document.getElementById("myScoreBar2Text"); 
+	  var scoreBar3 = document.getElementById("myScoreBar3"); 
+	  console.log(score + "|" + goal + "|" + 100 * ((score) / goal));
+	  scoreBar1Text.innerHTML = '<br/><br/>' + '0';
+	  scoreBar1Text2.innerHTML = '<br/><br/>' + '-' + goal; 
+	  scoreBar3Text2.innerHTML = '<br/><br/>' + goal;
+	  scoreBar3Text.innerHTML = '<br/><br/>' + 2 * goal;  
+	  
+	  scoreBar3Text3.innerHTML = 'GOAL';
+	  if (score < 0) {
+		if (score <= (goal) * -1) {
+		  scoreBar1.style.width = '0%';
+		  scoreBar1.style.borderWidth = '0px 0px 0px 0px';
+		  scoreBar1Progress.style.borderWidth = '0px 2px 4px 0px';
+		} else {
+		  scoreBar1.style.width = (100 - (100 * ((score * -1) / goal))) + '%'; 
+		  scoreBar1Progress.style.borderWidth = '0px 2px 4px 4px';
+		}
+		scoreBar2.style.width = '0%';
+		scoreBar3.style.width = '0%';
+		scoreBar1.style.border = '4px black solid';
+		scoreBar1.style.borderWidth = '0px 4px 0px 0px';
+		scoreBar2.style.border = '0px';
+	  } else if (score == 0) { 
+		scoreBar1.style.width = '100%';
+		scoreBar2.style.width = '0%'; 
+		scoreBar3.style.width = '0%';
+		scoreBar1.style.border = '0px';
+		scoreBar2.style.border = '0px';
+		scoreBar3.style.border = '0px';
+	  } else if (score > 0 && score <= goal) {
+		scoreBar1.style.width = '100%';
+		scoreBar2.style.width = (100 * ((score) / goal)) + '%'; 
+		scoreBar3.style.width = '0%';
+		scoreBar3.style.border = '0';
+		scoreBar1.style.border = '0';
+		scoreBar2.style.border = '4px black solid';
+		scoreBar2.style.borderWidth = '0px 4px 0px 0px';
+	  } else if (score > goal) {
+		scoreBar1.style.width = '100%';
+		scoreBar2.style.width = '100%';
+		scoreBar1.style.border = '0';
+
+		if (score > goal * 2) {
+		  scoreBar3.style.width = '100%';
+		} else {
+		  scoreBar3.style.width = (100 * ((score - goal) / goal)) + '%';
+		}
+		scoreBar3.style.border = '4px black solid';
+		scoreBar3.style.borderWidth = '0px 4px 0px 0px';
+	  } else {
+		
+		console.log('SCORE ERROR: ' + score);
+	  }
+		scoreBar2Text.innerHTML = 'Score: ' + score;
+		
+		console.log('test|' + timeLimit + '|' + timeRemaining + "|" + score + "|" + goal)
+		setTimeout(next_trial, default_iti);
+	} else {
+	  next_trial();
+	}
 
 
+	};
+  };
