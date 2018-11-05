@@ -1042,6 +1042,24 @@ function move() {
 	}, 1000);
 }
 
+function clockTick() {
+	//console.log(timeRemaining);
+	if (timerPause) {
+	  setTimeout(clockTick, 1);
+	} else if (timeRemaining == null) {
+	} else if (timeRemaining > 0) {
+	  var newTime = Date.now();
+	  var diff = oldTime - newTime;
+	  oldTime = newTime;
+	  timeRemaining = timeRemaining + diff;
+	  setTimeout(clockTick, 1);
+	} else {
+	  console.log('End clock');
+	  finishExperiment(); //Todo
+	  return;
+	}
+  }
+
 
 function next_trial() {
 	if (ended == true) {
