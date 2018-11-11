@@ -72,15 +72,18 @@ html {
   font-size: 150%;
 }
 
-/*#myTimingBarText {
+#myTimingBarText {
   width: 100%;
-  position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*//*
-  top: 0;
-  left: 0;
+  height: 100%;
+  white-space: nowrap;
   text-align: center;
-  z-index: 2;
+  position: absolute;
+  top: 0px;
+  left: 0px;
   color: white;
-  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;*/
+  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+  font-size: 150%;
+}
 
 #myScore1Progress {
   width: 32%;
@@ -252,14 +255,13 @@ html {
   margin-left: 457px;
 }
 
-#faceimage {
+#faceImg {
   position: absolute;
   top: 25%;
   left: 100%;
 }
 
-#facetext {
-
+#faceText {
   position: absolute;
   white-space: nowrap;
   top: 0;
