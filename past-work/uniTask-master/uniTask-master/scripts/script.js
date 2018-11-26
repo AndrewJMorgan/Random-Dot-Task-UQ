@@ -22,12 +22,17 @@ const uiStates = {
 
 var CLOCK_INTERVAL_MS = 50;
 var ITI_DURATION_MS = 1000;
-var TIME_LIMIT_MS = 5000;
+var TIME_LIMIT_MS = [4000, 5000, 6000];
 var LEFT_KEY = 65;
 var RIGHT_KEY = 76;
-var GOAL = 20;
+var GOAL = [30, 40, 50];
 var CSV_HEADER = ["direction", "correct", "reaction_time"];
 var CSV_FILENAME = "testSave.csv"
+var TIME_RANDOM = Math.floor((Math.random() * 3));
+var GOAL_RANDOM = Math.floor((Math.random() * 3));
+var TIME_INDEX = TIME_LIMIT_MS.indexOf(TIME_RANDOM);
+var GOAL_INDEX = GOAL.indexOf(GOAL_RANDOM);
+var TRIAL_COUNT = 0;
 
 var FAIL_SOUND = new sound("./Sounds/trial-fail.mp3");
 var SUCCESS_SOUND = new sound("./Sounds/trial-success.mp3");
@@ -141,9 +146,9 @@ This is a random dot task. Your screen will show a group of dots that are moving
 On each trial, 30% of the dots will be moving in a coherent direction (left or right) and the other 70% will move randomly.<br /><br />
 You need to determine if the dots are moving left or right.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
-You will have 60 seconds to acheive a score of 20.<br /><br />
+You will have ${TIME_LIMIT_MS[TIME_RANDOM]/1000} seconds to acheive a score of ${GOAL[GOAL_RANDOM]}.<br /><br />
 For each correct response, you will gain a point. For each incorrect response, you will lose a point. Points can go into the negatives.<br /><br />
-Once you achieve your goal, or the time runs out, the experiment will end and a copy will be saved locally in a .csv file.<br /><br />
+Once the time runs out, the experiment will end and a copy will be saved locally in a .csv file.<br /><br />
 Press any key to continue.
 `
   return text;
@@ -286,25 +291,25 @@ function updateITI(itiScreen) {
 
   // UI for remaining time
   remaining = timer.remaining < 0 ? 0 : timer.remaining;
-  width = 100 - (100 * (remaining / TIME_LIMIT_MS)); 
+  width = 100 - (100 * (remaining / TIME_LIMIT_MS[TIME_RANDOM])); 
   timingBar.style.width = width + '%'; 
   timingBarText.innerHTML = Math.round(remaining / 1000) + 's remaining';
 
   // UI for score
   scoreBar1Text.innerHTML = '<br/><br/>' + '0';
-  scoreBar1Text2.innerHTML = '<br/><br/>' + '-' + GOAL;
+  scoreBar1Text2.innerHTML = '<br/><br/>' + '-' + GOAL[GOAL_RANDOM];
   scoreBar2Text.innerHTML = 'Score: ' + score;
-  scoreBar3Text.innerHTML = '<br/><br/>' + 2 * GOAL;
-  scoreBar3Text2.innerHTML = '<br/><br/>' + GOAL;
+  scoreBar3Text.innerHTML = '<br/><br/>' + 2 * GOAL[GOAL_RANDOM];
+  scoreBar3Text2.innerHTML = '<br/><br/>' + GOAL[GOAL_RANDOM];
   scoreBar3Text3.innerHTML = 'GOAL';
 
   if (score < 0) {
-    if (score <= (GOAL) * -1) {
+    if (score <= (GOAL[GOAL_RANDOM]) * -1) {
       scoreBar1.style.width = '0%';
       scoreBar1.style.borderWidth = '0px 0px 0px 0px';
       scoreBar1Progress.style.borderWidth = '0px 2px 4px 0px';
     } else {
-      scoreBar1.style.width = (100 - (100 * ((score * -1) / GOAL))) + '%'; 
+      scoreBar1.style.width = (100 - (100 * ((score * -1) / GOAL[GOAL_RANDOM]))) + '%'; 
       scoreBar1Progress.style.borderWidth = '0px 2px 4px 4px';
     }
     scoreBar2.style.width = '0%';
@@ -319,9 +324,9 @@ function updateITI(itiScreen) {
     scoreBar1.style.border = '0px';
     scoreBar2.style.border = '0px';
     scoreBar3.style.border = '0px';
-  } else if (score > 0 && score <= GOAL) {
+  } else if (score > 0 && score <= GOAL[GOAL_RANDOM]) {
     scoreBar1.style.width = '100%';
-    scoreBar2.style.width = (100 * ((score) / GOAL)) + '%'; 
+    scoreBar2.style.width = (100 * ((score) / GOAL[GOAL_RANDOM])) + '%'; 
     scoreBar3.style.width = '0%';
     scoreBar3.style.border = '0';
     scoreBar1.style.border = '0';
@@ -334,7 +339,7 @@ function updateITI(itiScreen) {
     if (score > GOAL * 2) {
       scoreBar3.style.width = '100%';
     } else {
-      scoreBar3.style.width = (100 * ((score - GOAL) / GOAL)) + '%';
+      scoreBar3.style.width = (100 * ((score - GOAL[GOAL_RANDOM]) / GOAL[GOAL_RANDOM])) + '%';
     }
     scoreBar3.style.border = '4px black solid';
     scoreBar3.style.borderWidth = '0px 4px 0px 0px';
@@ -350,7 +355,7 @@ function updateResults(itiScreen) {
   var faceText = itiScreen.querySelector(`#${FACE_TEXT_ID}`);
 
   /* Customize based on score */
-  if (score >= GOAL) {
+  if (score >= GOAL[GOAL_RANDOM]) {
     faceImg.setAttribute("src", "./Images/face0.png");
     faceText.innerHTML = '</br> </br> You achieved your goal!';
   } else {
@@ -463,6 +468,19 @@ function keyPress(event) {
   } else if (uiState == uiStates.RESULTS) {
     /* Restart the trials */
     if (event.keyCode == 82) {
+      TRIAL_COUNT++;
+      TIME_INDEX = TIME_LIMIT_MS.indexOf(TIME_LIMIT_MS[TIME_RANDOM]);
+      if (TIME_INDEX > -1) {
+        TIME_LIMIT_MS.splice(TIME_INDEX, 1);
+      }
+      GOAL_INDEX = GOAL.indexOf(GOAL[GOAL_RANDOM]);
+      if (GOAL_INDEX > -1) {
+        GOAL.splice(GOAL_INDEX, 1);
+      }
+      TIME_RANDOM = Math.floor((Math.random() * (3-TRIAL_COUNT)));
+      GOAL_RANDOM = Math.floor((Math.random() * (3-TRIAL_COUNT)));
+      console.log(TIME_LIMIT_MS, GOAL);
+      drawInstructions();
       main();
     }
   }
@@ -477,7 +495,7 @@ function main() {
   csvLogs = []
   score = 0;
   correctKey = null;
-  timer = new clock(TIME_LIMIT_MS, showResults);
+  timer = new clock(TIME_LIMIT_MS[TIME_RANDOM], showResults);
 
   /* Setup state for instructions */
   showInstructions();
