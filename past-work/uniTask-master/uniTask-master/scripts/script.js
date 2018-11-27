@@ -23,16 +23,20 @@ const uiStates = {
 var CLOCK_INTERVAL_MS = 50;
 var ITI_DURATION_MS = 1000;
 var TIME_LIMIT_MS = [4000, 5000, 6000];
+var TIME_LENGTH = TIME_LIMIT_MS.length;
 var LEFT_KEY = 65;
 var RIGHT_KEY = 76;
 var GOAL = [30, 40, 50];
-var CSV_HEADER = ["direction", "correct", "reaction_time"];
+var GOAL_LENGTH = GOAL.length;
+var CSV_HEADER = ["trial number", "direction", "correct", "reaction_time", "score", "goal", "distance", "time limit", "coherence"];
 var CSV_FILENAME = "testSave.csv"
-var TIME_RANDOM = Math.floor((Math.random() * 3));
-var GOAL_RANDOM = Math.floor((Math.random() * 3));
+var TIME_RANDOM = Math.floor((Math.random() * TIME_LENGTH));
+var GOAL_RANDOM = Math.floor((Math.random() * GOAL_LENGTH));
 var TIME_INDEX = TIME_LIMIT_MS.indexOf(TIME_RANDOM);
 var GOAL_INDEX = GOAL.indexOf(GOAL_RANDOM);
 var TRIAL_COUNT = 0;
+var DOT_COHERENCE = 0.3;
+
 
 var FAIL_SOUND = new sound("./Sounds/trial-fail.mp3");
 var SUCCESS_SOUND = new sound("./Sounds/trial-success.mp3");
@@ -426,9 +430,15 @@ function logGuess(correct) {
 
   /* Generate a record for the guess */
   var guess = []
+  guess.push(TRIAL_COUNT+1);
   guess.push(correctKey == LEFT_KEY ? "left" : "right");
   guess.push(correct);
   guess.push(reaction);
+  guess.push(score);
+  guess.push(GOAL[GOAL_RANDOM]);
+  guess.push(GOAL[GOAL_RANDOM]-(score));
+  guess.push(TIME_LIMIT_MS[TIME_RANDOM]);
+  guess.push(DOT_COHERENCE);
   return guess;
 }
 
@@ -468,21 +478,26 @@ function keyPress(event) {
   } else if (uiState == uiStates.RESULTS) {
     /* Restart the trials */
     if (event.keyCode == 82) {
-      TRIAL_COUNT++;
-      TIME_INDEX = TIME_LIMIT_MS.indexOf(TIME_LIMIT_MS[TIME_RANDOM]);
-      if (TIME_INDEX > -1) {
-        TIME_LIMIT_MS.splice(TIME_INDEX, 1);
-      }
+      if (TRIAL_COUNT < TIME_LENGTH-1) {
+            TRIAL_COUNT++;
+            TIME_INDEX = TIME_LIMIT_MS.indexOf(TIME_LIMIT_MS[TIME_RANDOM]);
+        if (TIME_INDEX > -1) {
+              TIME_LIMIT_MS.splice(TIME_INDEX, 1);
+          }
       GOAL_INDEX = GOAL.indexOf(GOAL[GOAL_RANDOM]);
       if (GOAL_INDEX > -1) {
         GOAL.splice(GOAL_INDEX, 1);
       }
-      TIME_RANDOM = Math.floor((Math.random() * (3-TRIAL_COUNT)));
-      GOAL_RANDOM = Math.floor((Math.random() * (3-TRIAL_COUNT)));
+      TIME_RANDOM = Math.floor((Math.random() * (TIME_LENGTH-TRIAL_COUNT)));
+      GOAL_RANDOM = Math.floor((Math.random() * (GOAL_LENGTH-TRIAL_COUNT)));
       console.log(TIME_LIMIT_MS, GOAL);
       drawInstructions();
       main();
     }
+    else {
+      window.alert("You have now finished the experiment and can safely close the window.")
+    }
+  }
   }
 }
 
@@ -550,7 +565,7 @@ function runTest(canvas) {
   var nDots = 200; //Number of dots per set (equivalent to number of dots per frame)
   var nSets = 1; //Number of sets to cycle through per frame
   var coherentDirection = [direction.LEFT, direction.RIGHT]; //The direction of the coherentDots in degrees. Starts at 3 o'clock and goes counterclockwise (0 == rightwards, 90 == upwards, 180 == leftwards, 270 == downwards), range 0 - 360
-  var coherence = 0.3; //Proportion of dots to move together, range from 0 to 1
+  var coherence = DOT_COHERENCE; //Proportion of dots to move together, range from 0 to 1
   var oppositeCoherence = 0; // The coherence for the dots going the opposite direction as the coherent dots
   var dotRadius = 2; //Radius of each dot in pixels
   var dotLife = 20;//How many frames a dot will keep following its trajectory before it is redrawn at a random location. -1 denotes infinite life (the dot will only be redrawn if it reaches the end of the aperture).
