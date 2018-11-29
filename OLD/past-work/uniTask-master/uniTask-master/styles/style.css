@@ -1,0 +1,274 @@
+/*This is to remove the white edges around the canvas. (There is margin and padding by default.)*/
+*{
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: 'Open Sans', 'Arial', sans-serif;
+  font-size: 18px;
+  line-height: 1.6em;
+}
+
+#instructions {
+  width: 800px;
+  margin: 50px auto 50px auto;
+}
+
+#myProgress {
+  width: 100%;
+  background-color: #ddd;
+  text-align: center;
+  text-decoration-color: black;
+}
+
+#myBar {
+  width: 100%;
+  height: 30px;
+  background-color: #4CAF50;
+  text-align: center;
+  line-height: 30px;
+  color: white;
+}
+
+#myProgress2 {
+  width: 100%;
+  background-color: #ddd;
+}
+
+#myBar2 {
+  width: 0%;
+  height: 30px;
+  background-color: #4CAF50;
+  text-align: center;
+  line-height: 30px;
+  color: white;
+}
+
+
+/*jsPsych css */
+
+#myTimingProgress {
+  width: 32%;
+  background-color: rgb(213, 213, 213);
+  border: 4px black solid;
+  border-width: 4px 4px 0px 4px;
+  position: relative;
+  left: 32.5%;
+}
+
+#myTimingBar {
+  width: 0%;
+  height: 30px;
+  background-color: #4CAF50;
+  white-space: nowrap;
+  text-align: center;
+  position: relative;
+  border: 4px black solid;
+  border-width: 0px 4px 0px 0px;
+  color: white;
+  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+  text-indent: 16%;
+  font-size: 150%;
+}
+
+#myTimingBarText {
+  width: 100%;
+  height: 100%;
+  white-space: nowrap;
+  text-align: center;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  color: white;
+  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+  font-size: 150%;
+}
+
+#myScore1Progress {
+  width: 32%;
+  height: 30px;
+  background-color: red;
+  border: 4px black solid;
+  border-width: 0px 2px 4px 4px;
+  display: inline-block;
+  position: relative;
+}
+
+#myScore2Progress {
+  width: 32%;
+  height: 30px;
+  background-color:  rgb(213, 213, 213);
+  border: 4px black solid;
+  border-width: 0px 2px 4px 2px;
+  display: inline-block;
+  position: relative;
+}
+
+#myScore3Progress {
+  width: 32%;
+  height: 30px;
+  background-color:  rgb(213, 213, 213);
+  border: 4px black solid;
+  border-width: 0px 4px 4px 2px;
+  display: inline-block;
+  position: relative;
+}
+
+#scoreBarMaster {
+  width: 100%;
+  background-color:  rgb(213, 213, 213);
+  display: inline-block;
+  position: relative;
+  word-spacing: 32%;
+}
+
+#myScoreBar1 {
+  width: 100%;
+  height: 30px;
+  background-color:  rgb(213, 213, 213);
+  border: 0px black solid;
+  display: inline-block;
+  position: relative;
+  text-align: left;
+  font-size: 150%;
+}
+
+#myScoreBar1Text {
+  width: 104%;
+  position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
+  top: 0;
+  left: 0;
+  text-align: right;
+  z-index: 2;
+  color: white;
+  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+  font-size: 150%;
+}
+
+#myScoreBar1Text2 {
+  width: 103%;
+  position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
+  top: 0;
+  right: 0;
+  text-align: left;
+  z-index: 2;
+  color: white;
+  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+  font-size: 150%;
+}
+
+#myScoreBar2 {
+  width: 0%;
+  height: 30px;
+  background-color: #4CAF50;
+  display: inline-block;
+  border: 4px black solid;
+  border-width: 0px 4px 0px 0px;
+  position: relative;
+  top: 0;
+  left: 0;
+  text-align: left;
+  font-size: 150%;
+}
+
+#myScoreBar2Text {
+  width: 100%;
+  position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
+  top: 0;
+  left: 0;
+  text-align: center;
+  z-index: 2;
+  color: white;
+  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+  font-size: 150%;
+}
+
+#myScoreBar2Text2 {
+  width: 103%;
+  position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
+  top: 0;
+  right: 0;
+  text-align: right;
+  z-index: 2;
+  color: white;
+  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+  font-size: 150%;
+}
+
+#myScoreBar3 {
+  width: 0%;
+  height: 30px;
+  background-color: #4CAF50;
+  border: 0px black solid;
+  display: inline-block;
+  position: relative;
+  text-align: left;
+  font-size: 150%;
+}
+
+#myScoreBar3Text {
+  width: 104%;
+  position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
+  top: 0;
+  left: 0;
+  text-align: right;
+  z-index: 2;
+  color: white;
+  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+  font-size: 150%;
+}
+
+#myScoreBar3Text2 {
+  width: 103%;
+  position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
+  top: 0;
+  right: 0;
+  text-align: left;
+  z-index: 2;
+  color: white;
+  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+  font-size: 150%;
+}
+
+#myScoreBar3Text3 {
+  width: 116%;
+  position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
+  top: -28px;
+  right: 0;
+  text-align: left;
+  z-index: 2;
+  color: white;
+  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+  font-size: 150%;
+}
+
+#myNegScoreBar {
+  width: 50%;
+  height: 30px;
+  background-color: red;
+  display: inline-block;
+  position: relative;
+}
+
+#flagimage {
+  margin-left: 457px;
+}
+
+#faceImg {
+  position: absolute;
+  top: 25%;
+  left: 100%;
+}
+
+#faceText {
+  position: absolute;
+  white-space: nowrap;
+  top: 0;
+  right: 0;
+  text-align: center;
+  z-index: 2;
+  color: white;
+  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+  font-size: 100%;
+}
