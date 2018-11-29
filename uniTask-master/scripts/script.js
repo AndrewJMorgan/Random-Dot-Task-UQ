@@ -38,7 +38,7 @@ var TIME_INDEX = TIME_LIMIT_MS.indexOf(TIME_RANDOM);
 var GOAL_INDEX = GOAL.indexOf(GOAL_RANDOM);
 var TRIAL_COUNT = 0;
 var DOT_COHERENCE = 0.3;
-
+var INTRO = true;
 
 var FAIL_SOUND = new sound("./Sounds/trial-fail.mp3");
 var SUCCESS_SOUND = new sound("./Sounds/trial-success.mp3");
@@ -150,7 +150,7 @@ function exportCSV(values, filename) {
 function drawIntroduction() {
   var introText = document.createElement("p");
   introText.innerHTML = `
-  PLACEHOLDER TEXT
+  INTRODUCTION PLACEHOLDER TEXT - PRESS ANY KEY
   `
   return introText;
 }
@@ -158,7 +158,7 @@ function drawIntroduction() {
 function drawDebrief() {
   var debriefText = document.createElement("p");
   debriefText.innerHTML = `
-  PLACEHOLDER TEXT
+  DEBRIEF PLACEHOLDER TEXT - EXIT THE EXPERIMENT
   `
   return debriefText;
 }
@@ -399,7 +399,7 @@ function showIntroduction() {
   document.body.appendChild(introduction);
 }
 
-function showDebrieg() {
+function showDebrief() {
   removeBody();
   uiState = uiStates.DEBRIEF;
   document.body.style.backgroundColor = "white";
@@ -442,16 +442,20 @@ function showITI() {
 }
 
 function showResults() {
+  csvLogs.push(logTimeout());
   /* Reset state, stop drawing */
   removeBody();
   activeAperture = [false, false];
   uiState = uiStates.RESULTS;
   document.body.style.backgroundColor = "gray";
   document.body.appendChild(updateResults(updateITI(results)));
-
+  
   /* Generate and export the CSV */
+  if (INTRO == true){
   csvLogs.unshift(CSV_HEADER);
-  exportCSV(csvLogs, CSV_FILENAME);
+  }
+  else {}
+  
 }
 
 /*** MISC *********************************************************************/
@@ -477,6 +481,27 @@ function logGuess(correct) {
   return guess;
 }
 
+function logTimeout() {
+    /* Determine the trial time */
+    var trialEnd = new Date().getTime();
+    var reaction = trialEnd - trialStart;
+    trialStart = trialEnd;
+  
+    /* Generate a record for the guess */
+    var guess = []
+    guess.push(TRIAL_COUNT+1);
+    guess.push(correctKey == LEFT_KEY ? "left" : "right");
+    guess.push("NA");
+    guess.push("NA");
+    guess.push(reaction);
+    guess.push(score);
+    guess.push(GOAL[GOAL_RANDOM]);
+    guess.push(GOAL[GOAL_RANDOM]-(score));
+    guess.push(TIME_LIMIT_MS[TIME_RANDOM]);
+    guess.push(DOT_COHERENCE);
+    return guess;
+}
+
 /*
  * Key press listener
  * Capture key presses for the instructions and canvas UIs
@@ -491,7 +516,10 @@ function keyPress(event) {
     return;
   }
   stopPress = true;
-  if (uiState == uiStates.INSTRUCTIONS) {
+  if (uiState == uiStates.INTRODUCTION) {
+    showInstructions();
+  }
+  else if (uiState == uiStates.INSTRUCTIONS) {
     showTrial(); 
   } else if (uiState == uiStates.TRIAL) {
     if (event.keyCode == LEFT_KEY || event.keyCode == RIGHT_KEY) {
@@ -499,7 +527,7 @@ function keyPress(event) {
 
       /* Update score state and play sound */
       var correct = event.keyCode == correctKey;
-      csvLogs.push(logGuess(correct));
+      
       if (correct) {
         score++;
         SUCCESS_SOUND.play();
@@ -507,10 +535,11 @@ function keyPress(event) {
         score--;
         FAIL_SOUND.play();
       }
-
+      csvLogs.push(logGuess(correct));
       showITI();
     }
   } else if (uiState == uiStates.RESULTS) {
+    
     /* Restart the trials */
     if (event.keyCode == 82) {
       if (TRIAL_COUNT < TIME_LENGTH-1) {
@@ -526,12 +555,14 @@ function keyPress(event) {
       TIME_RANDOM = Math.floor((Math.random() * (TIME_LENGTH-TRIAL_COUNT)));
       GOAL_RANDOM = Math.floor((Math.random() * (GOAL_LENGTH-TRIAL_COUNT)));
       console.log(TIME_LIMIT_MS, GOAL);
+      INTRO = false;
       drawInstructions();
       showInstructions();
       main();
     }
     else {
-      window.alert("You have now finished the experiment and can safely close the window.")
+      exportCSV(csvLogs, CSV_FILENAME);
+      showDebrief();
     }
   }
   }
@@ -541,15 +572,26 @@ function keyPress(event) {
  * Main body of the script
  * Sets up initial state and registers events
  */
+
+
 function main() {
   /* UI state */
+  if (INTRO == true){
   csvLogs = []
+  }
+  else {
+
+  }
   score = 0;
   correctKey = null;
   timer = new clock(TIME_LIMIT_MS[TIME_RANDOM], showResults);
-
+  if (INTRO == true){
+  showIntroduction();
+  }
+  else if (INTRO == false){
   /* Setup state for instructions */
   showInstructions();
+  }
 }
 
 /*
