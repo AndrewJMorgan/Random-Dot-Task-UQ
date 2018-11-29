@@ -556,7 +556,7 @@ function keyPress(event) {
       GOAL_RANDOM = Math.floor((Math.random() * (GOAL_LENGTH-TRIAL_COUNT)));
       console.log(TIME_LIMIT_MS, GOAL);
       INTRO = false;
-      drawInstructions();
+      instructions = drawInstructions();
       showInstructions();
       main();
     }
