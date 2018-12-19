@@ -115,6 +115,7 @@ function clock(remaining, callback) {
         var newTime = Date.now();
         self.remaining += self.oldTime - newTime;
         self.oldTime = newTime;
+        
       } else {
         callback();
         return;
@@ -125,6 +126,7 @@ function clock(remaining, callback) {
     setTimeout(self.loop, CLOCK_INTERVAL_MS);
   }
   setTimeout(this.loop, CLOCK_INTERVAL_MS);
+  
 }
 
 /*
@@ -154,7 +156,15 @@ function exportCSV(values, filename) {
 function drawIntroduction() {
   var introText = document.createElement("p");
   introText.innerHTML = `
-  INTRODUCTION PLACEHOLDER TEXT - PRESS ANY KEY
+  This is a random dot task. Your screen will show a group of dots that are moving in many directions.<br /><br />
+On each trial, 30% of the dots will be moving in a coherent direction (left or right) and the other 70% will move randomly.<br /><br />
+You need to determine if the dots are moving left or right.<br /><br />
+If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
+You will have a separate goal for each block of trials.<br /><br />
+In some trials, you will have to reach a certain score before your opponent, while in others you will need to have more points than them by the end of the time limit. <br /><br />
+For each correct response, you will gain a point. For each incorrect response, you will lose a point. Points can go into the negatives.<br /><br />
+Once you have completed all the blocks of trials, the experiment will end and a copy will be saved locally in a .csv file.<br /><br />
+Press any key to continue.
   `
   return introText;
 }
@@ -165,7 +175,7 @@ function drawSurvey() {
 function drawDebrief() {
   var debriefText = document.createElement("p");
   debriefText.innerHTML = `
-  DEBRIEF PLACEHOLDER TEXT - EXIT THE EXPERIMENT
+  DEBRIEF TEXT
   `
   return debriefText;
 }
@@ -173,13 +183,8 @@ function drawDebrief() {
 function drawInstructions() {
   var text = document.createElement("p");
   text.innerHTML = `
-This is a random dot task. Your screen will show a group of dots that are moving in many directions.<br /><br />
-On each trial, 30% of the dots will be moving in a coherent direction (left or right) and the other 70% will move randomly.<br /><br />
-You need to determine if the dots are moving left or right.<br /><br />
-If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 You will have ${TIME_LIMIT_MS[TIME_RANDOM]/1000} seconds to acheive a score of ${GOAL[GOAL_RANDOM]}.<br /><br />
-For each correct response, you will gain a point. For each incorrect response, you will lose a point. Points can go into the negatives.<br /><br />
-Once the time runs out, the experiment will end and a copy will be saved locally in a .csv file.<br /><br />
+If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Press any key to continue.
 `
   return text;
@@ -291,7 +296,10 @@ function drawResults() {
   var faceImg = document.createElement("IMG");
   var faceText = document.createElement("div");
   var timerBar = results.querySelector(`#${TIMER_BAR_ID}`);
+  //var restart = document.createElement("div");
 
+  //restart.InnerHTML = "</br> </br></br> </br>Press 'r' to restart";
+  //restart.Id = FACE_TEXT_ID;
   faceImg.id = FACE_IMG_ID;
   faceText.id = FACE_TEXT_ID;
   faceImg.setAttribute("width", "110");
@@ -299,7 +307,8 @@ function drawResults() {
   faceImg.setAttribute("alt", "face");
   timerBar.appendChild(faceText);
   timerBar.appendChild(faceImg);
-
+  //faceImg.appendChild(restart);
+  
   return results;
 }
 
@@ -391,7 +400,7 @@ function updateResults(itiScreen) {
     faceText.innerHTML = '</br> </br> You achieved your goal!';
   } else {
     faceImg.setAttribute("src", "./Images/face1.png");
-    faceText.innerHTML = '</br> </br> You did not achieve your goal.';
+    faceText.innerHTML = '</br> </br> You did not achieve your goal.</br> </br> Please press R to continue';
   }
 
   return itiScreen;
@@ -464,6 +473,7 @@ function showResults() {
   document.body.style.backgroundColor = "gray";
   document.body.appendChild(updateResults(updateITI(results)));
   
+
   /* Generate and export the CSV */
   if (INTRO == true){
   csvLogs.unshift(CSV_HEADER);
