@@ -1,3 +1,5 @@
+
+
 /* Constants */ 
 const apertureShape = {
   CIRCLE: 0,
@@ -15,6 +17,7 @@ const direction = {
 
 const uiStates = {
   INTRODUCTION: "INTRODUCTION",
+  SURVEY: "SURVEY",
   INSTRUCTIONS: "INSTRUCTIONS",
   TRIAL: "TRIAL",
   ITI:  "ITI",
@@ -60,6 +63,7 @@ var FACE_IMG_ID = "faceImg";
 var FACE_TEXT_ID = "faceText"
 var INTRODUCTION_ID = "instructions";
 var DEBRIEF_ID = "instructions";
+var DURVEY_ID = "survey";
 
 /*** UTILITIES ****************************************************************/
 
@@ -155,6 +159,9 @@ function drawIntroduction() {
   return introText;
 }
 
+function drawSurvey() {
+
+}
 function drawDebrief() {
   var debriefText = document.createElement("p");
   debriefText.innerHTML = `
@@ -399,6 +406,13 @@ function showIntroduction() {
   document.body.appendChild(introduction);
 }
 
+function showSurvey() {
+  removeBody();
+  uiState = uiStates.SURVEY;
+  document.body.style.backgroundColor = "white";
+  document.body.appendChild(survey);
+}
+
 function showDebrief() {
   removeBody();
   uiState = uiStates.DEBRIEF;
@@ -517,6 +531,7 @@ function keyPress(event) {
   }
   stopPress = true;
   if (uiState == uiStates.INTRODUCTION) {
+  
     showInstructions();
   }
   else if (uiState == uiStates.INSTRUCTIONS) {
@@ -627,6 +642,7 @@ activeAperture = null;
 
 /* UI trees */
 introduction = drawIntroduction();
+survey = drawSurvey();
 instructions = drawInstructions();
 trial = drawTrial();
 iti = drawITI();
