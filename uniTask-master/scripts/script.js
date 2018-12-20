@@ -42,6 +42,7 @@ var GOAL_INDEX = GOAL.indexOf(GOAL_RANDOM);
 var TRIAL_COUNT = 0;
 var DOT_COHERENCE = 0.3;
 var INTRO = true;
+var OPPONENT_SCORE = 0;
 
 var FAIL_SOUND = new sound("./Sounds/trial-fail.mp3");
 var SUCCESS_SOUND = new sound("./Sounds/trial-success.mp3");
@@ -386,6 +387,9 @@ function updateITI(itiScreen) {
   } else {
     console.log('SCORE ERROR: ' + score);
   }
+
+  OPPONENT_SCORE = Math.floor((1 - (timer.remaining/TIME_LIMIT_MS[TIME_RANDOM])) * GOAL[GOAL_RANDOM]);
+  console.log(OPPONENT_SCORE);
 
   return itiScreen;
 }
