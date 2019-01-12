@@ -15,39 +15,6 @@ html {
   margin: 50px auto 50px auto;
 }
 
-#myProgress {
-  width: 100%;
-  background-color: #ddd;
-  text-align: center;
-  text-decoration-color: black;
-}
-
-#myBar {
-  width: 100%;
-  height: 30px;
-  background-color: #4CAF50;
-  text-align: center;
-  line-height: 30px;
-  color: white;
-}
-
-#myProgress2 {
-  width: 100%;
-  background-color: #ddd;
-}
-
-#myBar2 {
-  width: 0%;
-  height: 30px;
-  background-color: #4CAF50;
-  text-align: center;
-  line-height: 30px;
-  color: white;
-}
-
-
-/*jsPsych css */
-
 #myTimingProgress {
   width: 32%;
   background-color: rgb(213, 213, 213);
@@ -85,7 +52,15 @@ html {
   font-size: 150%;
 }
 
-#myScore1Progress {
+.scoreBar {
+  width: 100%;
+  background-color:  rgb(213, 213, 213);
+  display: inline-block;
+  position: relative;
+  word-spacing: 32%;
+}
+
+.scoreBarProgress1 {
   width: 32%;
   height: 30px;
   background-color: red;
@@ -95,7 +70,7 @@ html {
   position: relative;
 }
 
-#myScore2Progress {
+.scoreBarProgress2 {
   width: 32%;
   height: 30px;
   background-color:  rgb(213, 213, 213);
@@ -105,7 +80,7 @@ html {
   position: relative;
 }
 
-#myScore3Progress {
+.scoreBarProgress3 {
   width: 32%;
   height: 30px;
   background-color:  rgb(213, 213, 213);
@@ -115,15 +90,7 @@ html {
   position: relative;
 }
 
-#scoreBarMaster {
-  width: 100%;
-  background-color:  rgb(213, 213, 213);
-  display: inline-block;
-  position: relative;
-  word-spacing: 32%;
-}
-
-#myScoreBar1 {
+.scoreBar1 {
   width: 100%;
   height: 30px;
   background-color:  rgb(213, 213, 213);
@@ -134,7 +101,7 @@ html {
   font-size: 150%;
 }
 
-#myScoreBar1Text {
+.scoreBar1Text {
   width: 104%;
   position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
   top: 0;
@@ -146,7 +113,7 @@ html {
   font-size: 150%;
 }
 
-#myScoreBar1Text2 {
+.scoreBar1Text2 {
   width: 103%;
   position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
   top: 0;
@@ -158,7 +125,7 @@ html {
   font-size: 150%;
 }
 
-#myScoreBar2 {
+.scoreBar2 {
   width: 0%;
   height: 30px;
   background-color: #4CAF50;
@@ -172,7 +139,7 @@ html {
   font-size: 150%;
 }
 
-#myScoreBar2Text {
+.scoreBar2Text {
   width: 100%;
   position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
   top: 0;
@@ -184,7 +151,7 @@ html {
   font-size: 150%;
 }
 
-#myScoreBar2Text2 {
+.scoreBar2Text2 {
   width: 103%;
   position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
   top: 0;
@@ -196,7 +163,7 @@ html {
   font-size: 150%;
 }
 
-#myScoreBar3 {
+.scoreBar3 {
   width: 0%;
   height: 30px;
   background-color: #4CAF50;
@@ -207,7 +174,7 @@ html {
   font-size: 150%;
 }
 
-#myScoreBar3Text {
+.scoreBar3Text {
   width: 104%;
   position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
   top: 0;
@@ -219,7 +186,7 @@ html {
   font-size: 150%;
 }
 
-#myScoreBar3Text2 {
+.scoreBar3Text2 {
   width: 103%;
   position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
   top: 0;
@@ -231,7 +198,7 @@ html {
   font-size: 150%;
 }
 
-#myScoreBar3Text3 {
+.scoreBar3Text3 {
   width: 116%;
   position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
   top: -28px;
@@ -243,32 +210,27 @@ html {
   font-size: 150%;
 }
 
-#myNegScoreBar {
-  width: 50%;
-  height: 30px;
-  background-color: red;
-  display: inline-block;
-  position: relative;
-}
-
 #flagimage {
   margin-left: 457px;
 }
 
-#faceImg {
-  position: absolute;
-  top: 25%;
-  left: 100%;
+#resultsImg {
+  float: left;
 }
 
-#faceText {
-  position: absolute;
+#resultsTxt {
+  float: left;
+  padding-left: 90px;
   white-space: nowrap;
-  top: 0;
-  right: 0;
   text-align: center;
   z-index: 2;
   color: white;
   text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
-  font-size: 100%;
+  font-size: 120%;
+}
+
+#resultsDiv {
+  display: table;
+  padding-top: 70px;
+  margin: 0 auto;
 }

@@ -1,5 +1,3 @@
-
-
 /* Constants */ 
 const apertureShape = {
   CIRCLE: 0,
@@ -25,28 +23,31 @@ const uiStates = {
   DEBRIEF: "DEBRIEF",
 }
 
+/* ITI Configuration */
+var CONFIGS = []
+/* Duration in MS, Goal, Show Timer, Show Opponent */
+addConfig(4000, 30, true, true);
+addConfig(5000, 40, true, false);
+addConfig(6000, 50, false, true);
+addConfig(6000, 50, false, false);
+var CONFIG_RANDOM = Math.floor((Math.random() * CONFIGS.length));
+
+/* Configuration / Global State */
 var CLOCK_INTERVAL_MS = 50;
 var ITI_DURATION_MS = 1000;
-var TIME_LIMIT_MS = [4000, 5000, 6000];
-var TIME_LENGTH = TIME_LIMIT_MS.length;
 var LEFT_KEY = 65;
 var RIGHT_KEY = 76;
-var GOAL = [30, 40, 50];
-var GOAL_LENGTH = GOAL.length;
 var CSV_HEADER = ["trial number", "direction", "input", "correct", "reaction_time", "score", "goal", "distance", "time limit", "coherence"];
 var CSV_FILENAME = "testSave.csv"
-var TIME_RANDOM = Math.floor((Math.random() * TIME_LENGTH));
-var GOAL_RANDOM = Math.floor((Math.random() * GOAL_LENGTH));
-var TIME_INDEX = TIME_LIMIT_MS.indexOf(TIME_RANDOM);
-var GOAL_INDEX = GOAL.indexOf(GOAL_RANDOM);
-var TRIAL_COUNT = 0;
+var TRIAL_COUNT = 1;
 var DOT_COHERENCE = 0.3;
-var INTRO = true;
 var OPPONENT_SCORE = 0;
 
+/* Resources */
 var FAIL_SOUND = new sound("./Sounds/trial-fail.mp3");
 var SUCCESS_SOUND = new sound("./Sounds/trial-success.mp3");
 
+/* HTML IDs */
 var CANVAS_ID = "dotCanvas";
 var INSTRUCTIONS_ID = "instructions";
 var TIMER_BAR_ID =  "myTimingBar";
@@ -60,11 +61,14 @@ var SCORE_BAR_2_TEXT_ID   = "myScoreBar2Text";
 var SCORE_BAR_3_TEXT_ID   = "myScoreBar3Text";
 var SCORE_BAR_3_1_TEXT_ID = "myScoreBar3Text2";
 var SCORE_BAR_3_2_TEXT_ID = "myScoreBar3Text3";
-var FACE_IMG_ID = "faceImg";
-var FACE_TEXT_ID = "faceText"
 var INTRODUCTION_ID = "instructions";
 var DEBRIEF_ID = "instructions";
-var DURVEY_ID = "survey";
+var SURVEY_ID = "survey";
+var TIMING_PROGRESS_DIV_ID = "myTimingProgress";
+var OPPONENT_SCORE_BAR_DIV_ID = "opponentScoreBar";
+var RESULTS_DIV_ID = "resultsDiv";
+var RESULTS_IMG_ID = "resultsImg";
+var RESULTS_TXT_ID = "resultsTxt";
 
 /*** UTILITIES ****************************************************************/
 
@@ -130,6 +134,117 @@ function clock(remaining, callback) {
   
 }
 
+function scoreBar(opponent) {
+  this.mainDiv = document.createElement("div");
+  if (opponent) {
+    this.mainDiv.style.paddingTop = "200px"
+  }
+
+  this.scoreBar1 = document.createElement("div");
+  this.scoreBar1.setAttribute("class", "scoreBar1");
+  this.scoreBar1Text = document.createElement("div");
+  this.scoreBar1Text.setAttribute("class", "scoreBar1Text");
+  this.scoreBar1Text2 = document.createElement("div");
+  this.scoreBar1Text2.setAttribute("class", "scoreBar1Text2");
+  this.scoreBar1Progress = document.createElement("div");
+  this.scoreBar1Progress.setAttribute("class", "scoreBarProgress1");
+  this.scoreBar1Progress.appendChild(this.scoreBar1);
+  this.scoreBar1Progress.appendChild(this.scoreBar1Text);
+  this.scoreBar1Progress.appendChild(this.scoreBar1Text2);
+
+  this.scoreBar2 = document.createElement("div");
+  this.scoreBar2.setAttribute("class", "scoreBar2");
+  this.scoreBar2Text = document.createElement("div");
+  this.scoreBar2Text.setAttribute("class", "scoreBar2Text");
+  this.scoreBar2Text2 = document.createElement("div");
+  this.scoreBar2Text2.setAttribute("class", "scoreBar2Text2");
+  this.scoreBar2Progress = document.createElement("div");
+  this.scoreBar2Progress.setAttribute("class", "scoreBarProgress2");
+  this.scoreBar2Progress.appendChild(this.scoreBar2);
+  this.scoreBar2Progress.appendChild(this.scoreBar2Text);
+  this.scoreBar2Progress.appendChild(this.scoreBar2Text2);
+
+  this.scoreBar3 = document.createElement("div");
+  this.scoreBar3.setAttribute("class", "scoreBar3");
+  this.scoreBar3Text = document.createElement("div");
+  this.scoreBar3Text.setAttribute("class", "scoreBar3Text");
+  this.scoreBar3Text2 = document.createElement("div");
+  this.scoreBar3Text2.setAttribute("class", "scoreBar3Text2");
+  this.scoreBar3Text3 = document.createElement("div");
+  this.scoreBar3Text3.setAttribute("class", "scoreBar3Text3");
+  this.scoreBar3Progress = document.createElement("div");
+  this.scoreBar3Progress.setAttribute("class", "scoreBarProgress3");
+  this.scoreBar3Progress.appendChild(this.scoreBar3);
+  this.scoreBar3Progress.appendChild(this.scoreBar3Text);
+  this.scoreBar3Progress.appendChild(this.scoreBar3Text2);
+  this.scoreBar3Progress.appendChild(this.scoreBar3Text3);
+
+  this.mainDiv.appendChild(this.scoreBar1Progress);
+  this.mainDiv.appendChild(this.scoreBar2Progress);
+  this.mainDiv.appendChild(this.scoreBar3Progress);
+
+  this.visibility = function (visible) {
+    this.mainDiv.style.visibility = visible ? "visible" : "hidden";
+  }
+
+  this.updateScore = function (score, goal) {
+    if (opponent) {
+      this.scoreBar2Text.innerHTML = 'Opponent: ' + score;
+    } else {
+      this.scoreBar1Text.innerHTML = '<br/><br/>' + '0';
+      this.scoreBar1Text2.innerHTML = '<br/><br/>' + '-' + goal;
+      this.scoreBar3Text.innerHTML = '<br/><br/>' + 2 * goal;
+      this.scoreBar3Text2.innerHTML = '<br/><br/>' + goal;
+      this.scoreBar3Text3.innerHTML = 'GOAL';
+      this.scoreBar2Text.innerHTML = 'Score: ' + score;
+    }
+
+    if (score < 0) {
+      if (score <= -goal) {
+        this.scoreBar1.style.width = '0%';
+        this.scoreBar1.style.borderWidth = '0px 0px 0px 0px';
+        this.scoreBar1Progress.style.borderWidth = '0px 2px 4px 0px';
+      } else {
+        this.scoreBar1.style.width = (100 - (100 * (-score / goal))) + '%'; 
+        this.scoreBar1Progress.style.borderWidth = '0px 2px 4px 4px';
+      }
+      this.scoreBar2.style.width = '0%';
+      this.scoreBar3.style.width = '0%';
+      this.scoreBar1.style.border = '4px black solid';
+      this.scoreBar1.style.borderWidth = '0px 4px 0px 0px';
+      this.scoreBar2.style.border = '0px';
+    } else if (score == 0) { 
+      this.scoreBar1.style.width = '100%';
+      this.scoreBar2.style.width = '0%'; 
+      this.scoreBar3.style.width = '0%';
+      this.scoreBar1.style.border = '0px';
+      this.scoreBar2.style.border = '0px';
+      this.scoreBar3.style.border = '0px';
+    } else if (score > 0 && score <= goal) {
+      this.scoreBar1.style.width = '100%';
+      this.scoreBar2.style.width = (100 * (score / goal)) + '%'; 
+      this.scoreBar3.style.width = '0%';
+      this.scoreBar3.style.border = '0';
+      this.scoreBar1.style.border = '0';
+      this.scoreBar2.style.border = '4px black solid';
+      this.scoreBar2.style.borderWidth = '0px 4px 0px 0px';
+    } else if (score > goal) {
+      this.scoreBar1.style.width = '100%';
+      this.scoreBar2.style.width = '100%';
+      this.scoreBar1.style.border = '0';
+      if (score > goal * 2) {
+        this.scoreBar3.style.width = '100%';
+      } else {
+        this.scoreBar3.style.width = (100 * ((score - goal) / goal)) + '%';
+      }
+      this.scoreBar3.style.border = '4px black solid';
+      this.scoreBar3.style.borderWidth = '0px 4px 0px 0px';
+    } else {
+      console.log('SCORE ERROR: ' + score);
+    }
+  }
+}
+
 /*
  * Generate a CSV from a 2D array
  * The CSV is immediately downloaded
@@ -173,6 +288,7 @@ Press any key to continue.
 function drawSurvey() {
 
 }
+
 function drawDebrief() {
   var debriefText = document.createElement("p");
   debriefText.innerHTML = `
@@ -182,13 +298,7 @@ function drawDebrief() {
 }
 
 function drawInstructions() {
-  var text = document.createElement("p");
-  text.innerHTML = `
-You will have ${TIME_LIMIT_MS[TIME_RANDOM]/1000} seconds to acheive a score of ${GOAL[GOAL_RANDOM]}.<br /><br />
-If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
-Press any key to continue.
-`
-  return text;
+  return updateInstructions(document.createElement("p"));
 }
 
 function drawTrial() {
@@ -202,77 +312,21 @@ function drawTrial() {
 }
 
 function drawITI() {
-  var itiScreen = document.createElement("div");
 
-  itiScreen.appendChild(document.createElement("br"));
-  itiScreen.appendChild(document.createElement("br"));
-  itiScreen.appendChild(document.createElement("br"));
-  itiScreen.appendChild(document.createElement("br"));
-  itiScreen.appendChild(document.createElement("br"));
-  itiScreen.appendChild(document.createElement("br"));
-  itiScreen.appendChild(document.createElement("br"));
-
+  /* Build the timing bar and counter */
   var timingBar = document.createElement("div");
   timingBar.id = TIMER_BAR_ID;
-  var timingBarProgress = document.createElement("div");
-  timingBarProgress.id = "myTimingProgress";
-  timingBarProgress.appendChild(timingBar);
-  itiScreen.appendChild(timingBarProgress);
-
   var timingBarText = document.createElement("div");
   timingBarText.id = TIMER_BAR_TEXT_ID;
+
+  var timingBarProgress = document.createElement("div");
+  timingBarProgress.id = TIMING_PROGRESS_DIV_ID;
+  timingBarProgress.appendChild(timingBar);
   timingBarProgress.appendChild(timingBarText);
 
-  itiScreen.appendChild(document.createElement("br"));
-  itiScreen.appendChild(document.createElement("br"));
-  itiScreen.appendChild(document.createElement("br"));
-  itiScreen.appendChild(document.createElement("br"));
-  itiScreen.appendChild(document.createElement("br"));
-
-  var scoreBarMaster = document.createElement("div");
-  scoreBarMaster.id = "myScoreMaster";
-
-  var scoreBar1 = document.createElement("div");
-  scoreBar1.id = "myScoreBar1";
-  var scoreBar1Text = document.createElement("div");
-  scoreBar1Text.id = "myScoreBar1Text";
-  var scoreBar1Text2 = document.createElement("div");
-  scoreBar1Text2.id = "myScoreBar1Text2";
-  var scoreBar1Progress = document.createElement("div");
-  scoreBar1Progress.id = "myScore1Progress";
-  scoreBar1Progress.appendChild(scoreBar1);
-  scoreBar1Progress.appendChild(scoreBar1Text);
-  scoreBar1Progress.appendChild(scoreBar1Text2);
-
-  var scoreBar2 = document.createElement("div");
-  scoreBar2.id = "myScoreBar2";
-  var scoreBar2Text = document.createElement("div");
-  scoreBar2Text.id = "myScoreBar2Text";
-  var scoreBar2Text2 = document.createElement("div");
-  scoreBar2Text2.id = "myScoreBar2Text2";
-  var scoreBar2Progress = document.createElement("div");
-  scoreBar2Progress.id = "myScore2Progress";
-  scoreBar2Progress.appendChild(scoreBar2);
-  scoreBar2Progress.appendChild(scoreBar2Text);
-  scoreBar2Progress.appendChild(scoreBar2Text2);
-
-  var scoreBar3 = document.createElement("div");
-  scoreBar3.id = "myScoreBar3";
-  var scoreBar3Text = document.createElement("div");
-  scoreBar3Text.id = "myScoreBar3Text";
-  var scoreBar3Text2 = document.createElement("div");
-  scoreBar3Text2.id = "myScoreBar3Text2";
-  var scoreBar3Text3 = document.createElement("div");
-  scoreBar3Text3.id = "myScoreBar3Text3";
-  var scoreBar3Progress = document.createElement("div");
-  scoreBar3Progress.id = "myScore3Progress";
-  scoreBar3Progress.appendChild(scoreBar3);
-  scoreBar3Progress.appendChild(scoreBar3Text);
-  scoreBar3Progress.appendChild(scoreBar3Text2);
-  scoreBar3Progress.appendChild(scoreBar3Text3);
-
-  var myImage = new Image(100, 200);
-  myImage.src = './Images/flags.png';
+  /* Build the score bars */
+  mainScoreBar = new scoreBar(false);
+  opponentScoreBar = new scoreBar(true);
 
   var flagImg = document.createElement("IMG");
   flagImg.id = "flagimage";
@@ -280,132 +334,86 @@ function drawITI() {
   flagImg.setAttribute("width", "129");
   flagImg.setAttribute("height", "110");
   flagImg.setAttribute("alt", "flags");
+
+  /* Build the result elements - hidden by default */
+  var resultsTxt = document.createElement("div");
+  resultsTxt.id = RESULTS_TXT_ID;
+  var resultsImg = document.createElement("img");
+  resultsImg.id = RESULTS_IMG_ID;
+  resultsImg.setAttribute("width", "110");
+  resultsImg.setAttribute("height", "110");
+  resultsImg.setAttribute("alt", "face");
+  var resultsDiv = document.createElement("div");
+  resultsDiv.id = RESULTS_DIV_ID;
+  resultsDiv.appendChild(resultsTxt);
+  resultsDiv.appendChild(resultsImg);
+
+  /* Attach divs to itiScreen in display order */
+  var itiScreen = document.createElement("div");
+  itiScreen.style.paddingTop = '150px';
+  itiScreen.appendChild(timingBarProgress);
+  itiScreen.appendChild(resultsDiv);
   itiScreen.appendChild(flagImg);
-
-  scoreBarMaster.appendChild(scoreBar1Progress);
-  scoreBarMaster.appendChild(scoreBar2Progress);
-  scoreBarMaster.appendChild(scoreBar3Progress);
-
-  itiScreen.appendChild(scoreBarMaster);
+  itiScreen.appendChild(mainScoreBar.mainDiv);
+  itiScreen.appendChild(opponentScoreBar.mainDiv);
 
   return itiScreen;
 }
 
-function drawResults() {
-  var results = drawITI();
-
-  var faceImg = document.createElement("IMG");
-  var faceText = document.createElement("div");
-  var timerBar = results.querySelector(`#${TIMER_BAR_ID}`);
-  //var restart = document.createElement("div");
-
-  //restart.InnerHTML = "</br> </br></br> </br>Press 'r' to restart";
-  //restart.Id = FACE_TEXT_ID;
-  faceImg.id = FACE_IMG_ID;
-  faceText.id = FACE_TEXT_ID;
-  faceImg.setAttribute("width", "110");
-  faceImg.setAttribute("height", "110");
-  faceImg.setAttribute("alt", "face");
-  timerBar.appendChild(faceText);
-  timerBar.appendChild(faceImg);
-  //faceImg.appendChild(restart);
-  
-  return results;
-}
-
 /*** UPDATE *******************************************************************/
 
-function updateITI(itiScreen) {
-  var scoreBar1Progress = itiScreen.querySelector("#myScore1Progress");
-  var scoreBar1 = itiScreen.querySelector(`#${SCORE_BAR_1_ID}`);
-  var scoreBar2 = itiScreen.querySelector(`#${SCORE_BAR_2_ID}`);
-  var scoreBar3 = itiScreen.querySelector(`#${SCORE_BAR_3_ID}`);
+function updateInstructions(instructions) {
+  var config = getCurrentConfig();
+  instructions.innerHTML = `
+You will have ${config.duration/1000} seconds to acheive a score of ${config.goal}.<br /><br />
+If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
+Press any key to continue.
+`;
 
+  return instructions;
+}
+
+function updateITI(itiScreen) {
+  var config = getCurrentConfig();
   var timingBar = itiScreen.querySelector(`#${TIMER_BAR_ID}`);
   var timingBarText = itiScreen.querySelector(`#${TIMER_BAR_TEXT_ID}`);
-  var scoreBar1Text = itiScreen.querySelector(`#${SCORE_BAR_1_TEXT_ID}`);
-  var scoreBar1Text2 = itiScreen.querySelector(`#${SCORE_BAR_1_2_TEXT_ID}`);
-  var scoreBar2Text = itiScreen.querySelector(`#${SCORE_BAR_2_TEXT_ID}`);
-  var scoreBar3Text = itiScreen.querySelector(`#${SCORE_BAR_3_TEXT_ID}`);
-  var scoreBar3Text2 = itiScreen.querySelector(`#${SCORE_BAR_3_1_TEXT_ID}`);
-  var scoreBar3Text3 = itiScreen.querySelector(`#${SCORE_BAR_3_2_TEXT_ID}`);
 
-  // UI for remaining time
+  /* UI for remaining time */
   remaining = timer.remaining < 0 ? 0 : timer.remaining;
-  width = 100 - (100 * (remaining / TIME_LIMIT_MS[TIME_RANDOM])); 
+  width = 100 - (100 * (remaining / config.duration)); 
   timingBar.style.width = width + '%'; 
   timingBarText.innerHTML = Math.round(remaining / 1000) + 's remaining';
 
-  // UI for score
-  scoreBar1Text.innerHTML = '<br/><br/>' + '0';
-  scoreBar1Text2.innerHTML = '<br/><br/>' + '-' + GOAL[GOAL_RANDOM];
-  scoreBar2Text.innerHTML = 'Score: ' + score;
-  scoreBar3Text.innerHTML = '<br/><br/>' + 2 * GOAL[GOAL_RANDOM];
-  scoreBar3Text2.innerHTML = '<br/><br/>' + GOAL[GOAL_RANDOM];
-  scoreBar3Text3.innerHTML = 'GOAL';
+  /* UI for score bars */
+  mainScoreBar.updateScore(score, config.goal);
+  opponentScoreBar.updateScore(getOpponentScore(), config.goal);
 
-  if (score < 0) {
-    if (score <= (GOAL[GOAL_RANDOM]) * -1) {
-      scoreBar1.style.width = '0%';
-      scoreBar1.style.borderWidth = '0px 0px 0px 0px';
-      scoreBar1Progress.style.borderWidth = '0px 2px 4px 0px';
-    } else {
-      scoreBar1.style.width = (100 - (100 * ((score * -1) / GOAL[GOAL_RANDOM]))) + '%'; 
-      scoreBar1Progress.style.borderWidth = '0px 2px 4px 4px';
-    }
-    scoreBar2.style.width = '0%';
-    scoreBar3.style.width = '0%';
-    scoreBar1.style.border = '4px black solid';
-    scoreBar1.style.borderWidth = '0px 4px 0px 0px';
-    scoreBar2.style.border = '0px';
-  } else if (score == 0) { 
-    scoreBar1.style.width = '100%';
-    scoreBar2.style.width = '0%'; 
-    scoreBar3.style.width = '0%';
-    scoreBar1.style.border = '0px';
-    scoreBar2.style.border = '0px';
-    scoreBar3.style.border = '0px';
-  } else if (score > 0 && score <= GOAL[GOAL_RANDOM]) {
-    scoreBar1.style.width = '100%';
-    scoreBar2.style.width = (100 * ((score) / GOAL[GOAL_RANDOM])) + '%'; 
-    scoreBar3.style.width = '0%';
-    scoreBar3.style.border = '0';
-    scoreBar1.style.border = '0';
-    scoreBar2.style.border = '4px black solid';
-    scoreBar2.style.borderWidth = '0px 4px 0px 0px';
-  } else if (score > GOAL) {
-    scoreBar1.style.width = '100%';
-    scoreBar2.style.width = '100%';
-    scoreBar1.style.border = '0';
-    if (score > GOAL * 2) {
-      scoreBar3.style.width = '100%';
-    } else {
-      scoreBar3.style.width = (100 * ((score - GOAL[GOAL_RANDOM]) / GOAL[GOAL_RANDOM])) + '%';
-    }
-    scoreBar3.style.border = '4px black solid';
-    scoreBar3.style.borderWidth = '0px 4px 0px 0px';
-  } else {
-    console.log('SCORE ERROR: ' + score);
-  }
-
-  OPPONENT_SCORE = Math.floor((1 - (timer.remaining/TIME_LIMIT_MS[TIME_RANDOM])) * GOAL[GOAL_RANDOM]);
-  console.log(OPPONENT_SCORE);
+  /* Determine which elements to display */
+  itiScreen.querySelector(`#${RESULTS_DIV_ID}`).style.visibility = "hidden";
+  var timingDiv = itiScreen.querySelector(`#${TIMING_PROGRESS_DIV_ID}`);
+  timingDiv.style.visibility = config.showTiming ? "visible" : "hidden";
+  opponentScoreBar.visibility(config.showOpponent);
 
   return itiScreen;
 }
 
 function updateResults(itiScreen) {
-  var faceImg = itiScreen.querySelector(`#${FACE_IMG_ID}`);
-  var faceText = itiScreen.querySelector(`#${FACE_TEXT_ID}`);
+  itiScreen = updateITI(itiScreen);
+  var img = itiScreen.querySelector(`#${RESULTS_IMG_ID}`);
+  var txt = itiScreen.querySelector(`#${RESULTS_TXT_ID}`);
 
   /* Customize based on score */
-  if (score >= GOAL[GOAL_RANDOM]) {
-    faceImg.setAttribute("src", "./Images/face0.png");
-    faceText.innerHTML = '</br> </br> You achieved your goal!';
+  if (score >= getCurrentConfig().goal) {
+    img.setAttribute("src", "./Images/face0.png");
+    var message = 'You achieved your goal!';
   } else {
-    faceImg.setAttribute("src", "./Images/face1.png");
-    faceText.innerHTML = '</br> </br> You did not achieve your goal.</br> </br> Please press R to continue';
+    img.setAttribute("src", "./Images/face1.png");
+    var message = 'You did not achieve your goal.';
   }
+  txt.innerHTML = message + '</br> </br> Please press R to continue';
+
+  /* Show the results elements */
+  itiScreen.querySelector(`#${RESULTS_DIV_ID}`).style.visibility = "visible";
 
   return itiScreen;
 }
@@ -438,7 +446,7 @@ function showInstructions() {
   removeBody();
   uiState = uiStates.INSTRUCTIONS;
   document.body.style.backgroundColor = "white";
-  document.body.appendChild(instructions);
+  document.body.appendChild(updateInstructions(instructions));
 }
 
 function showTrial() {
@@ -475,18 +483,39 @@ function showResults() {
   activeAperture = [false, false];
   uiState = uiStates.RESULTS;
   document.body.style.backgroundColor = "gray";
-  document.body.appendChild(updateResults(updateITI(results)));
-  
+  document.body.appendChild(updateResults(iti));
 
   /* Generate and export the CSV */
-  if (INTRO == true){
-  csvLogs.unshift(CSV_HEADER);
+  if (csvLogs.length == 0) {
+    csvLogs.unshift(CSV_HEADER);
   }
-  else {}
-  
 }
 
 /*** MISC *********************************************************************/
+
+function addConfig(duration, goal, showTiming, showOpponent) {
+  var newConfig = {
+    "duration": duration,
+    "goal": goal,
+    "showTiming": showTiming,
+    "showOpponent": showOpponent
+  }
+  CONFIGS.push(newConfig)
+}
+
+function getCurrentConfig() {
+  return CONFIGS[CONFIG_RANDOM];
+}
+
+function nextConfig() {
+  CONFIGS.splice(CONFIG_RANDOM, 1);
+  CONFIG_RANDOM = Math.floor(Math.random() * CONFIGS.length);
+}
+
+function getOpponentScore() {
+  var config = getCurrentConfig();
+  return Math.floor((1 - (timer.remaining/config.duration)) * config.goal);
+}
 
 function logGuess(correct) {
   /* Determine the trial time */
@@ -495,39 +524,41 @@ function logGuess(correct) {
   trialStart = trialEnd;
 
   /* Generate a record for the guess */
-  var guess = []
-  guess.push(TRIAL_COUNT+1);
+  var guess = [];
+  var config = getCurrentConfig();
+  guess.push(TRIAL_COUNT);
   guess.push(correctKey == LEFT_KEY ? "left" : "right");
   guess.push(event.keyCode);
   guess.push(correct);
   guess.push(reaction);
   guess.push(score);
-  guess.push(GOAL[GOAL_RANDOM]);
-  guess.push(GOAL[GOAL_RANDOM]-(score));
-  guess.push(TIME_LIMIT_MS[TIME_RANDOM]);
+  guess.push(config.goal);
+  guess.push(config.goal - (score));
+  guess.push(config.duration);
   guess.push(DOT_COHERENCE);
   return guess;
 }
 
 function logTimeout() {
-    /* Determine the trial time */
-    var trialEnd = new Date().getTime();
-    var reaction = trialEnd - trialStart;
-    trialStart = trialEnd;
+  /* Determine the trial time */
+  var trialEnd = new Date().getTime();
+  var reaction = trialEnd - trialStart;
+  trialStart = trialEnd;
   
-    /* Generate a record for the guess */
-    var guess = []
-    guess.push(TRIAL_COUNT+1);
-    guess.push(correctKey == LEFT_KEY ? "left" : "right");
-    guess.push("NA");
-    guess.push("NA");
-    guess.push(reaction);
-    guess.push(score);
-    guess.push(GOAL[GOAL_RANDOM]);
-    guess.push(GOAL[GOAL_RANDOM]-(score));
-    guess.push(TIME_LIMIT_MS[TIME_RANDOM]);
-    guess.push(DOT_COHERENCE);
-    return guess;
+  /* Generate a record for the guess */
+  var guess = [];
+  var config = getCurrentConfig();
+  guess.push(TRIAL_COUNT);
+  guess.push(correctKey == LEFT_KEY ? "left" : "right");
+  guess.push("NA");
+  guess.push("NA");
+  guess.push(reaction);
+  guess.push(score);
+  guess.push(config.goal);
+  guess.push(config.goal - (score));
+  guess.push(config.duration);
+  guess.push(DOT_COHERENCE);
+  return guess;
 }
 
 /*
@@ -568,32 +599,17 @@ function keyPress(event) {
       showITI();
     }
   } else if (uiState == uiStates.RESULTS) {
-    
     /* Restart the trials */
     if (event.keyCode == 82) {
-      if (TRIAL_COUNT < TIME_LENGTH-1) {
-            TRIAL_COUNT++;
-            TIME_INDEX = TIME_LIMIT_MS.indexOf(TIME_LIMIT_MS[TIME_RANDOM]);
-        if (TIME_INDEX > -1) {
-              TIME_LIMIT_MS.splice(TIME_INDEX, 1);
-          }
-      GOAL_INDEX = GOAL.indexOf(GOAL[GOAL_RANDOM]);
-      if (GOAL_INDEX > -1) {
-        GOAL.splice(GOAL_INDEX, 1);
+      if (CONFIGS.length > 1) {
+        TRIAL_COUNT++;
+        nextConfig();
+        main();
+      } else {
+        exportCSV(csvLogs, CSV_FILENAME);
+        showDebrief();
       }
-      TIME_RANDOM = Math.floor((Math.random() * (TIME_LENGTH-TRIAL_COUNT)));
-      GOAL_RANDOM = Math.floor((Math.random() * (GOAL_LENGTH-TRIAL_COUNT)));
-      console.log(TIME_LIMIT_MS, GOAL);
-      INTRO = false;
-      instructions = drawInstructions();
-      showInstructions();
-      main();
     }
-    else {
-      exportCSV(csvLogs, CSV_FILENAME);
-      showDebrief();
-    }
-  }
   }
 }
 
@@ -601,25 +617,15 @@ function keyPress(event) {
  * Main body of the script
  * Sets up initial state and registers events
  */
-
-
 function main() {
-  /* UI state */
-  if (INTRO == true){
-  csvLogs = []
-  }
-  else {
-
-  }
   score = 0;
   correctKey = null;
-  timer = new clock(TIME_LIMIT_MS[TIME_RANDOM], showResults);
-  if (INTRO == true){
-  showIntroduction();
-  }
-  else if (INTRO == false){
-  /* Setup state for instructions */
-  showInstructions();
+  timer = new clock(getCurrentConfig().duration, showResults);
+
+  if (csvLogs.length == 0) {
+    showIntroduction();
+  } else {
+    showInstructions();
   }
 }
 
@@ -660,12 +666,12 @@ survey = drawSurvey();
 instructions = drawInstructions();
 trial = drawTrial();
 iti = drawITI();
-results = drawResults();
 debrief = drawDebrief();
 
 /* Start the trials */
 document.addEventListener('keydown', keyPress);
 document.addEventListener('keyup', keyUp);
+csvLogs = []
 main();
 
 /*** EXTERNAL CODE ************************************************************/
