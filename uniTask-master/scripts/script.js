@@ -37,7 +37,7 @@ var CLOCK_INTERVAL_MS = 50;
 var ITI_DURATION_MS = 1000;
 var LEFT_KEY = 65;
 var RIGHT_KEY = 76;
-var CSV_HEADER = ["trial number", "direction", "input", "correct", "reaction_time", "score", "goal", "distance", "time limit", "coherence"];
+var CSV_HEADER = ["trial number", "direction", "input", "correct", "reaction_time", "score", "goal", "distance", "time limit", "coherence", "show timer", "show opponent"];
 var CSV_FILENAME = "testSave.csv"
 var TRIAL_COUNT = 1;
 var DOT_COHERENCE = 0.3;
@@ -536,6 +536,8 @@ function logGuess(correct) {
   guess.push(config.goal - (score));
   guess.push(config.duration);
   guess.push(DOT_COHERENCE);
+  guess.push(config.showOpponent);
+  guess.push(config.showTiming);
   return guess;
 }
 
