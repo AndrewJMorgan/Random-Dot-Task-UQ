@@ -23,6 +23,8 @@ const uiStates = {
   DEBRIEF: "DEBRIEF",
 }
 
+var COMPTYPE = null;
+
 /* ITI Configuration */
 var CONFIGS = []
 /* Duration in MS, Goal, Show Timer, Show Opponent */
@@ -31,6 +33,8 @@ addConfig(5000, 40, true, false);
 addConfig(6000, 50, false, true);
 addConfig(6000, 50, false, false);
 var CONFIG_RANDOM = Math.floor((Math.random() * CONFIGS.length));
+
+
 
 /* Configuration / Global State */
 var CLOCK_INTERVAL_MS = 50;
@@ -280,6 +284,7 @@ You will have a separate goal for each block of trials.<br /><br />
 In some trials, you will have to reach a certain score before your opponent, while in others you will need to have more points than them by the end of the time limit. <br /><br />
 For each correct response, you will gain a point. For each incorrect response, you will lose a point. Points can go into the negatives.<br /><br />
 Once you have completed all the blocks of trials, the experiment will end and a copy will be saved locally in a .csv file.<br /><br />
+PLEASE MAKE SURE YOU ARE USING GOOGLE CHROME | THE EXPERIMENT MAY NOT WORK ON MICROSOFT EDGE<br /><br />
 Press any key to continue.
   `
   return introText;
@@ -292,7 +297,7 @@ function drawSurvey() {
 function drawDebrief() {
   var debriefText = document.createElement("p");
   debriefText.innerHTML = `
-  DEBRIEF TEXT
+  DEBRIEF TEXT | Thank you for completing the experiment.
   `
   return debriefText;
 }
@@ -364,12 +369,48 @@ function drawITI() {
 
 function updateInstructions(instructions) {
   var config = getCurrentConfig();
-  instructions.innerHTML = `
+  if (config.showTiming == true) {
+    if (config.showOpponent == true) {
+      COMPTYPE = 1;
+    }
+      else {
+      COMPTYPE = 2;
+      }
+    }
+    else {
+    if (config.showOpponent == true) {
+      COMPTYPE = 3;
+    } 
+    else {
+      COMPTYPE = 4;
+    } 
+    };
+  console.log(COMPTYPE);
+  if (COMPTYPE == 1){
+    instructions.innerHTML = `
+You will have ${config.duration/1000} seconds to achieve a higher score than your opponent.<br /><br />
+If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
+Press any key to continue.
+`;
+  } else if (COMPTYPE == 2){
+    instructions.innerHTML = `
 You will have ${config.duration/1000} seconds to acheive a score of ${config.goal}.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Press any key to continue.
 `;
-
+  } else if (COMPTYPE == 3){
+    instructions.innerHTML = `
+You have to acheive a score of ${config.goal} before your opponent does.<br /><br />
+If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
+Press any key to continue.
+`;
+  } else if (COMPTYPE == 4){
+  instructions.innerHTML = `
+You have to acheive a score of ${config.goal}.<br /><br />
+If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
+Press any key to continue.
+`;
+  };
   return instructions;
 }
 
@@ -487,6 +528,7 @@ function showResults() {
 
   /* Generate and export the CSV */
   if (csvLogs.length == 0) {
+    console.log('TEST');
     csvLogs.unshift(CSV_HEADER);
   }
 }
@@ -560,6 +602,8 @@ function logTimeout() {
   guess.push(config.goal - (score));
   guess.push(config.duration);
   guess.push(DOT_COHERENCE);
+  guess.push(config.showOpponent);
+  guess.push(config.showTiming);
   return guess;
 }
 
@@ -604,10 +648,13 @@ function keyPress(event) {
     /* Restart the trials */
     if (event.keyCode == 82) {
       if (CONFIGS.length > 1) {
+        console.log(CONFIGS.length);
         TRIAL_COUNT++;
         nextConfig();
         main();
       } else {
+        console.log(CONFIGS.length);
+        csvLogs.unshift(CSV_HEADER);
         exportCSV(csvLogs, CSV_FILENAME);
         showDebrief();
       }
