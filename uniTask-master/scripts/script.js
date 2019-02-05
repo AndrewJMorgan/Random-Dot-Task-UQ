@@ -25,6 +25,8 @@ const uiStates = {
 
 var COMPTYPE = null;
 
+var uniqueCode = null;
+
 /* ITI Configuration */
 var CONFIGS = []
 /* Duration in MS, Goal, Show Timer, Show Opponent */
@@ -41,7 +43,7 @@ var CLOCK_INTERVAL_MS = 50;
 var ITI_DURATION_MS = 1000;
 var LEFT_KEY = 65;
 var RIGHT_KEY = 76;
-var CSV_HEADER = ["trial number", "direction", "input", "correct", "reaction_time", "score", "goal", "distance", "time limit", "coherence", "show timer", "show opponent"];
+var CSV_HEADER = ["unique code", "trial number", "direction", "input", "correct", "reaction_time", "score", "goal", "distance", "time limit", "coherence", "show timer", "show opponent", "competition type"];
 var CSV_FILENAME = "testSave.csv"
 var TRIAL_COUNT = 1;
 var DOT_COHERENCE = 0.3;
@@ -568,6 +570,7 @@ function logGuess(correct) {
   /* Generate a record for the guess */
   var guess = [];
   var config = getCurrentConfig();
+  guess.push(uniqueCode)
   guess.push(TRIAL_COUNT);
   guess.push(correctKey == LEFT_KEY ? "left" : "right");
   guess.push(event.keyCode);
@@ -580,6 +583,7 @@ function logGuess(correct) {
   guess.push(DOT_COHERENCE);
   guess.push(config.showOpponent);
   guess.push(config.showTiming);
+  guess.push(COMPTYPE);
   return guess;
 }
 
@@ -592,6 +596,7 @@ function logTimeout() {
   /* Generate a record for the guess */
   var guess = [];
   var config = getCurrentConfig();
+  guess.push(uniqueCode)
   guess.push(TRIAL_COUNT);
   guess.push(correctKey == LEFT_KEY ? "left" : "right");
   guess.push("NA");
@@ -604,6 +609,7 @@ function logTimeout() {
   guess.push(DOT_COHERENCE);
   guess.push(config.showOpponent);
   guess.push(config.showTiming);
+  guess.push(COMPTYPE);
   return guess;
 }
 
@@ -662,6 +668,13 @@ function keyPress(event) {
   }
 }
 
+function code() {
+  do{
+    uniqueCode = prompt("Please enter your unique code", "");
+  } while (uniqueCode == null || uniqueCode == "")
+  
+  };
+
 /*
  * Main body of the script
  * Sets up initial state and registers events
@@ -670,8 +683,11 @@ function main() {
   score = 0;
   correctKey = null;
   timer = new clock(getCurrentConfig().duration, showResults);
+  
 
+  
   if (csvLogs.length == 0) {
+    code();
     showIntroduction();
   } else {
     showInstructions();
