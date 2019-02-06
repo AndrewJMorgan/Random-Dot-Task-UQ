@@ -299,7 +299,9 @@ function drawSurvey() {
 function drawDebrief() {
   var debriefText = document.createElement("p");
   debriefText.innerHTML = `
-  DEBRIEF TEXT | Thank you for completing the experiment.
+  DEBRIEF TEXT | Thank you for completing the experiment. <br /><br />
+  Please follow this link and answer a few more questions <br /><br />
+  <a href="http://qualtrics.com">www.qualtrics.com</a>
   `
   return debriefText;
 }
@@ -671,7 +673,7 @@ function keyPress(event) {
 function code() {
   do{
     uniqueCode = prompt("Please enter your unique code", "");
-  } while (uniqueCode == null || uniqueCode == "")
+  } while (uniqueCode == null || uniqueCode == "" || uniqueCode.length != 8)
   
   };
 
