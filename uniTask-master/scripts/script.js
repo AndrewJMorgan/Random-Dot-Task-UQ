@@ -651,9 +651,11 @@ function keyPress(event) {
       }
       csvLogs.push(logGuess(correct));
       
-      if ((COMPTYPE == 3 || 4) && (score == getCurrentConfig().goal)) { //needs to be fixed. Currently ends all conditions with goal being reached
+      if ((COMPTYPE == 3 ) && (score == getCurrentConfig().goal)) { 
         showResults();
-      } else if (COMPTYPE !== 3 || 4){
+      } else if ((COMPTYPE == 4 ) && (score == getCurrentConfig().goal)) {
+        showResults();
+      } else {
         showITI();
       };
     };
