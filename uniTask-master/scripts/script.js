@@ -30,10 +30,10 @@ var uniqueCode = null;
 /* ITI Configuration */
 var CONFIGS = []
 /* Duration in MS, Goal, Show Timer, Show Opponent */
-addConfig(4000, 30, true, true);
-addConfig(5000, 40, true, false);
-addConfig(6000, 50, false, true);
-addConfig(6000, 50, false, false);
+addConfig(4000, 5, true, true);
+addConfig(5000, 5, true, false);
+addConfig(6000, 5, false, true);
+addConfig(6000, 5, false, false);
 var CONFIG_RANDOM = Math.floor((Math.random() * CONFIGS.length));
 
 
@@ -681,13 +681,24 @@ function code() {
  * Main body of the script
  * Sets up initial state and registers events
  */
+
+
+
 function main() {
+  console.log(getCurrentConfig().goal);
   score = 0;
   correctKey = null;
+  if (COMPTYPE != 4){
   timer = new clock(getCurrentConfig().duration, showResults);
-  
-
-  
+  } else if (COMPTYPE == 4){
+    timer = new clock(getCurrentConfig().duration,); //SUccessfully stops timer from showing results, but only if COMPTYPE 4 is presented first
+  }
+  if (COMPTYPE == 3 || 4){
+    while (score == getCurrentConfig().goal) { //While this recognises the current goal, it does not trigger results
+      showResults();
+    };
+  };
+  //csv should be saved to the experiment webspace https://staff.psy.uq.edu.au/tools/webfiles/manage/?v=files/5c5fcb4c6e78e
   if (csvLogs.length == 0) {
     code();
     showIntroduction();
