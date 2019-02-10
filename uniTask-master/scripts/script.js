@@ -650,8 +650,14 @@ function keyPress(event) {
         FAIL_SOUND.play();
       }
       csvLogs.push(logGuess(correct));
-      showITI();
-    }
+      
+      if ((COMPTYPE == 3 || 4) && (score == getCurrentConfig().goal)) { //needs to be fixed. Currently ends all conditions with goal being reached
+        showResults();
+      } else if (COMPTYPE !== 3 || 4){
+        showITI();
+      };
+    };
+
   } else if (uiState == uiStates.RESULTS) {
     /* Restart the trials */
     if (event.keyCode == 82) {
@@ -691,13 +697,9 @@ function main() {
   if (COMPTYPE != 4){
   timer = new clock(getCurrentConfig().duration, showResults);
   } else if (COMPTYPE == 4){
-    timer = new clock(getCurrentConfig().duration,); //SUccessfully stops timer from showing results, but only if COMPTYPE 4 is presented first
+    timer = new clock(getCurrentConfig().duration,); //Successfully stops timer from showing results, but only if COMPTYPE 4 is presented first
   }
-  if (COMPTYPE == 3 || 4){
-    while (score == getCurrentConfig().goal) { //While this recognises the current goal, it does not trigger results
-      showResults();
-    };
-  };
+  
   //csv should be saved to the experiment webspace https://staff.psy.uq.edu.au/tools/webfiles/manage/?v=files/5c5fcb4c6e78e
   if (csvLogs.length == 0) {
     code();
