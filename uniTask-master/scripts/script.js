@@ -522,6 +522,7 @@ function showITI() {
 }
 
 function showResults() {
+  if (COMPTYPE !== 4){
   csvLogs.push(logTimeout());
   /* Reset state, stop drawing */
   removeBody();
@@ -529,7 +530,16 @@ function showResults() {
   uiState = uiStates.RESULTS;
   document.body.style.backgroundColor = "gray";
   document.body.appendChild(updateResults(iti));
-
+  } else if (COMPTYPE == 4) {
+    if ((COMPTYPE == 4 ) && (score == getCurrentConfig().goal)){
+        /* Reset state, stop drawing */
+        removeBody();
+        activeAperture = [false, false];
+        uiState = uiStates.RESULTS;
+        document.body.style.backgroundColor = "gray";
+        document.body.appendChild(updateResults(iti));
+    };
+  };
   /* Generate and export the CSV */
   if (csvLogs.length == 0) {
     console.log('TEST');
@@ -696,11 +706,8 @@ function main() {
   console.log(getCurrentConfig().goal);
   score = 0;
   correctKey = null;
-  if (COMPTYPE != 4){
   timer = new clock(getCurrentConfig().duration, showResults);
-  } else if (COMPTYPE == 4){
-    timer = new clock(getCurrentConfig().duration,); //Successfully stops timer from showing results, but only if COMPTYPE 4 is presented first
-  }
+  
   
   //csv should be saved to the experiment webspace https://staff.psy.uq.edu.au/tools/webfiles/manage/?v=files/5c5fcb4c6e78e
   if (csvLogs.length == 0) {
