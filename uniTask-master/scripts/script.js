@@ -1,4 +1,4 @@
-/* Constants */ 
+/* Constants */
 const apertureShape = {
   CIRCLE: 0,
   ELLIPSE: 1,
@@ -126,7 +126,7 @@ function clock(remaining, callback) {
         var newTime = Date.now();
         self.remaining += self.oldTime - newTime;
         self.oldTime = newTime;
-        
+
       } else {
         callback();
         return;
@@ -137,7 +137,7 @@ function clock(remaining, callback) {
     setTimeout(self.loop, CLOCK_INTERVAL_MS);
   }
   setTimeout(this.loop, CLOCK_INTERVAL_MS);
-  
+
 }
 
 function scoreBar(opponent) {
@@ -211,7 +211,7 @@ function scoreBar(opponent) {
         this.scoreBar1.style.borderWidth = '0px 0px 0px 0px';
         this.scoreBar1Progress.style.borderWidth = '0px 2px 4px 0px';
       } else {
-        this.scoreBar1.style.width = (100 - (100 * (-score / goal))) + '%'; 
+        this.scoreBar1.style.width = (100 - (100 * (-score / goal))) + '%';
         this.scoreBar1Progress.style.borderWidth = '0px 2px 4px 4px';
       }
       this.scoreBar2.style.width = '0%';
@@ -219,16 +219,16 @@ function scoreBar(opponent) {
       this.scoreBar1.style.border = '4px black solid';
       this.scoreBar1.style.borderWidth = '0px 4px 0px 0px';
       this.scoreBar2.style.border = '0px';
-    } else if (score == 0) { 
+    } else if (score == 0) {
       this.scoreBar1.style.width = '100%';
-      this.scoreBar2.style.width = '0%'; 
+      this.scoreBar2.style.width = '0%';
       this.scoreBar3.style.width = '0%';
       this.scoreBar1.style.border = '0px';
       this.scoreBar2.style.border = '0px';
       this.scoreBar3.style.border = '0px';
     } else if (score > 0 && score <= goal) {
       this.scoreBar1.style.width = '100%';
-      this.scoreBar2.style.width = (100 * (score / goal)) + '%'; 
+      this.scoreBar2.style.width = (100 * (score / goal)) + '%';
       this.scoreBar3.style.width = '0%';
       this.scoreBar3.style.border = '0';
       this.scoreBar1.style.border = '0';
@@ -263,7 +263,7 @@ function exportCSV(values, filename) {
   values.forEach(function(rowArray){
     row = rowArray.join(",");
     csvContent += row + "\r\n";
-  }); 
+  });
   var encodedUri = encodeURI(csvContent);
 
   var link = document.createElement("a");
@@ -272,6 +272,50 @@ function exportCSV(values, filename) {
   document.body.appendChild(link);
   link.click();
 }
+
+
+/**
+    Export data to UQ psych server
+     - Paul Jackson 20/2/2019
+     - assumes global 'CSV_HEADER' array variable contains all column names
+     - assumes data in 'values' columns match 'CSV_HEADER'
+     - will warn if there is a problem saving the data (and data will be lost)
+ */
+function uqpsychExportData(values) {
+    // Server receiver
+    var url = 'https://exp.psy.uq.edu.au/s4322866/bin/record.htm';    // Change this if not on the www2.psy.uq.edu.au domain
+
+    // Prepare data as json
+    var jsonValues = JSON.stringify(values);
+    var jsonKeys = JSON.stringify(CSV_HEADER);
+
+    // Create chr for request
+    var xhr = new XMLHttpRequest();
+
+    // Handle xhr events
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if ( xhr.status == 200 ) {
+                if (xhr.responseText==="OK") {
+                    console.log('Data saved');
+                } else {
+                    alert('Problem saving data - ' + xhr.responseText);
+                }
+            } else {
+                alert('Problem saving data - Response Status' + xhr.status);
+            }
+        }
+    };
+    xhr.onerror = function () {
+        alert('Problem saving data - Response Status' + xhr.status);
+    };
+
+    // Prepare and send
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send('values=' + encodeURI(jsonValues) + '&' + 'keys=' + encodeURI(jsonKeys));
+}
+
 
 /*** DRAW *********************************************************************/
 
@@ -384,10 +428,10 @@ function updateInstructions(instructions) {
     else {
     if (config.showOpponent == true) {
       COMPTYPE = 3;
-    } 
+    }
     else {
       COMPTYPE = 4;
-    } 
+    }
     };
   console.log(COMPTYPE);
   if (COMPTYPE == 1){
@@ -425,8 +469,8 @@ function updateITI(itiScreen) {
 
   /* UI for remaining time */
   remaining = timer.remaining < 0 ? 0 : timer.remaining;
-  width = 100 - (100 * (remaining / config.duration)); 
-  timingBar.style.width = width + '%'; 
+  width = 100 - (100 * (remaining / config.duration));
+  timingBar.style.width = width + '%';
   timingBarText.innerHTML = Math.round(remaining / 1000) + 's remaining';
 
   /* UI for score bars */
@@ -604,7 +648,7 @@ function logTimeout() {
   var trialEnd = new Date().getTime();
   var reaction = trialEnd - trialStart;
   trialStart = trialEnd;
-  
+
   /* Generate a record for the guess */
   var guess = [];
   var config = getCurrentConfig();
@@ -640,18 +684,18 @@ function keyPress(event) {
   }
   stopPress = true;
   if (uiState == uiStates.INTRODUCTION) {
-  
+
     showInstructions();
   }
   else if (uiState == uiStates.INSTRUCTIONS) {
-    showTrial(); 
+    showTrial();
   } else if (uiState == uiStates.TRIAL) {
     if (event.keyCode == LEFT_KEY || event.keyCode == RIGHT_KEY) {
       timer.pause();
 
       /* Update score state and play sound */
       var correct = event.keyCode == correctKey;
-      
+
       if (correct) {
         score++;
         SUCCESS_SOUND.play();
@@ -660,8 +704,8 @@ function keyPress(event) {
         FAIL_SOUND.play();
       }
       csvLogs.push(logGuess(correct));
-      
-      if ((COMPTYPE == 3 ) && (score == getCurrentConfig().goal)) { 
+
+      if ((COMPTYPE == 3 ) && (score == getCurrentConfig().goal)) {
         showResults();
       } else if ((COMPTYPE == 4 ) && (score == getCurrentConfig().goal)) {
         showResults();
@@ -679,9 +723,11 @@ function keyPress(event) {
         nextConfig();
         main();
       } else {
-        console.log(CONFIGS.length);
-        csvLogs.unshift(CSV_HEADER);
-        exportCSV(csvLogs, CSV_FILENAME);
+        // Removed in favour of server side saves via uqpsychExportData()
+        // console.log(CONFIGS.length);
+        // csvLogs.unshift(CSV_HEADER);
+        // exportCSV(csvLogs, CSV_FILENAME);
+        uqpsychExportData(csvLogs);
         showDebrief();
       }
     }
@@ -692,7 +738,7 @@ function code() {
   do{
     uniqueCode = prompt("Please enter your unique code", "");
   } while (uniqueCode == null || uniqueCode == "" || uniqueCode.length != 8)
-  
+
   };
 
 /*
@@ -707,8 +753,8 @@ function main() {
   score = 0;
   correctKey = null;
   timer = new clock(getCurrentConfig().duration, showResults);
-  
-  
+
+
   //csv should be saved to the experiment webspace https://staff.psy.uq.edu.au/tools/webfiles/manage/?v=files/5c5fcb4c6e78e
   if (csvLogs.length == 0) {
     code();
