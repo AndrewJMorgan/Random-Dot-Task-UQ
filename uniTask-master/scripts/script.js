@@ -75,6 +75,7 @@ var OPPONENT_SCORE_BAR_DIV_ID = "opponentScoreBar";
 var RESULTS_DIV_ID = "resultsDiv";
 var RESULTS_IMG_ID = "resultsImg";
 var RESULTS_TXT_ID = "resultsTxt";
+var LABEL = "label";
 
 /*** UTILITIES ****************************************************************/
 
@@ -143,7 +144,7 @@ function clock(remaining, callback) {
 function scoreBar(opponent) {
   this.mainDiv = document.createElement("div");
   if (opponent) {
-    this.mainDiv.style.paddingTop = "200px"
+    this.mainDiv.style.paddingTop = "75px"
   }
 
   this.scoreBar1 = document.createElement("div");
@@ -154,9 +155,12 @@ function scoreBar(opponent) {
   this.scoreBar1Text2.setAttribute("class", "scoreBar1Text2");
   this.scoreBar1Progress = document.createElement("div");
   this.scoreBar1Progress.setAttribute("class", "scoreBarProgress1");
+  this.label = document.createElement("div");
+  this.label.setAttribute("class", "label");
   this.scoreBar1Progress.appendChild(this.scoreBar1);
   this.scoreBar1Progress.appendChild(this.scoreBar1Text);
   this.scoreBar1Progress.appendChild(this.scoreBar1Text2);
+  this.scoreBar1Progress.appendChild(this.label);
 
   this.scoreBar2 = document.createElement("div");
   this.scoreBar2.setAttribute("class", "scoreBar2");
@@ -196,6 +200,9 @@ function scoreBar(opponent) {
   this.updateScore = function (score, goal) {
     if (opponent) {
       this.scoreBar2Text.innerHTML = 'Opponent: ' + score;
+      this.scoreBar2.setAttribute("class", "scoreBar2Opp")
+      this.scoreBar3.setAttribute("class", "scoreBar3Opp")
+      this.label.innerHTML = 'OPPONENT';
     } else {
       this.scoreBar1Text.innerHTML = '<br/><br/>' + '0';
       this.scoreBar1Text2.innerHTML = '<br/><br/>' + '-' + goal;
@@ -203,6 +210,7 @@ function scoreBar(opponent) {
       this.scoreBar3Text2.innerHTML = '<br/><br/>' + goal;
       this.scoreBar3Text3.innerHTML = 'GOAL';
       this.scoreBar2Text.innerHTML = 'Score: ' + score;
+      this.label.innerHTML = 'YOU';
     }
 
     if (score < 0) {
@@ -326,10 +334,9 @@ function drawIntroduction() {
 On each trial, 30% of the dots will be moving in a coherent direction (left or right) and the other 70% will move randomly.<br /><br />
 You need to determine if the dots are moving left or right.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
-You will have a separate goal for each block of trials.<br /><br />
+You will have a separate objective for each block of trials. In some trials, you will have an opponent, while in others, you will not.<br /><br />
 In some trials, you will have to reach a certain score before your opponent, while in others you will need to have more points than them by the end of the time limit. <br /><br />
 For each correct response, you will gain a point. For each incorrect response, you will lose a point. Points can go into the negatives.<br /><br />
-Once you have completed all the blocks of trials, the experiment will end and a copy will be saved locally in a .csv file.<br /><br />
 PLEASE MAKE SURE YOU ARE USING GOOGLE CHROME | THE EXPERIMENT MAY NOT WORK ON MICROSOFT EDGE<br /><br />
 Press any key to continue.
   `
@@ -403,7 +410,7 @@ function drawITI() {
 
   /* Attach divs to itiScreen in display order */
   var itiScreen = document.createElement("div");
-  itiScreen.style.paddingTop = '150px';
+  itiScreen.style.paddingTop = '75px';
   itiScreen.appendChild(timingBarProgress);
   itiScreen.appendChild(resultsDiv);
   itiScreen.appendChild(flagImg);
@@ -436,24 +443,28 @@ function updateInstructions(instructions) {
   console.log(COMPTYPE);
   if (COMPTYPE == 1){
     instructions.innerHTML = `
+In this block, you will have an opponent. <br /> <br />
 You will have ${config.duration/1000} seconds to achieve a higher score than your opponent.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Press any key to continue.
 `;
   } else if (COMPTYPE == 2){
     instructions.innerHTML = `
+In this block, you will NOT have an opponent. <br /> <br />
 You will have ${config.duration/1000} seconds to acheive a score of ${config.goal}.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Press any key to continue.
 `;
   } else if (COMPTYPE == 3){
     instructions.innerHTML = `
+In this block, you will have an opponent. <br /> <br />    
 You have to acheive a score of ${config.goal} before your opponent does.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Press any key to continue.
 `;
   } else if (COMPTYPE == 4){
   instructions.innerHTML = `
+In this block, you will NOT have an opponent. <br /> <br />
 You have to acheive a score of ${config.goal}.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Press any key to continue.
