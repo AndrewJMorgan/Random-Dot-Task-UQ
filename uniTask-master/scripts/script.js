@@ -23,8 +23,6 @@ const uiStates = {
   DEBRIEF: "DEBRIEF",
 }
 
-var COMPTYPE = null;
-
 var uniqueCode = null;
 
 /* ITI Configuration */
@@ -35,8 +33,6 @@ addConfig(5000, 5, true, false);
 addConfig(6000, 5, false, true);
 addConfig(6000, 5, false, false);
 var CONFIG_RANDOM = Math.floor((Math.random() * CONFIGS.length));
-
-
 
 /* Configuration / Global State */
 var CLOCK_INTERVAL_MS = 50;
@@ -138,125 +134,238 @@ function clock(remaining, callback) {
     setTimeout(self.loop, CLOCK_INTERVAL_MS);
   }
   setTimeout(this.loop, CLOCK_INTERVAL_MS);
-
 }
 
-function scoreBar(opponent) {
+/*
+ * Class to represent one of the score bar sections
+ * Configurable to represent padding, player or opponent score
+ */
+function scoreBarSection(bgColor, fgColor, firstColumn, firstRow) {
   this.mainDiv = document.createElement("div");
-  if (opponent) {
-    this.mainDiv.style.paddingTop = "75px"
+  this.mainDiv.setAttribute("class", "scoreBarSection")
+
+  // Configure the borders, by default drawing top and left
+  // Draw other sections based on arguments
+  this.mainDiv.style.padding = 
+    (firstRow ? "4" : "0") + "px 0.6% 4px " + (firstColumn ? "0.6%" : "0px")
+
+ 
+  // Background div, always displayed
+  this.bgBar = document.createElement("div");
+  this.bgBar.setAttribute("class", "scoreBarBackground")
+  this.bgBar.style.backgroundColor = bgColor
+
+  // Divider div, varies with score
+  this.divider = document.createElement("div");
+  this.divider.setAttribute("class", "scoreBarDivider")
+  this.divider.style.backgroundColor = "black"
+
+  // Foreground div, varies with score
+  this.fgBar = document.createElement("div");
+  this.fgBar.setAttribute("class", "scoreBarForeground")
+  this.fgBar.style.backgroundColor = fgColor
+
+
+  // Attach the background and foreground divs based on the direction
+  if (firstColumn) {
+    this.mainDiv.appendChild(this.bgBar);
+    this.mainDiv.appendChild(this.divider);
+    this.mainDiv.appendChild(this.fgBar);
+  } else {
+    this.mainDiv.appendChild(this.fgBar);
+    this.mainDiv.appendChild(this.divider);
+    this.mainDiv.appendChild(this.bgBar);
   }
 
-  this.scoreBar1 = document.createElement("div");
-  this.scoreBar1.setAttribute("class", "scoreBar1");
-  this.scoreBar1Text = document.createElement("div");
-  this.scoreBar1Text.setAttribute("class", "scoreBar1Text");
-  this.scoreBar1Text2 = document.createElement("div");
-  this.scoreBar1Text2.setAttribute("class", "scoreBar1Text2");
-  this.scoreBar1Progress = document.createElement("div");
-  this.scoreBar1Progress.setAttribute("class", "scoreBarProgress1");
+  this.updateScore = function(per) {
+    var skip = false;
+    var bgBar  = this.bgBar
+    var fgBar = this.fgBar
+    var divider = this.divider
+    var dividerWidth = 3;
+
+    if (per > 100) {
+      skip = true;
+      per = 100;
+    }
+    if (per < 0) {
+      skip = true;
+      per = 0;
+    }
+
+    if (skip) {
+      if (per == 0) {
+        bgBar.style.width = "100%";
+        fgBar.style.width = "0%";
+        divider.style.width = "0%";
+      } else if (per == 100) {
+        bgBar.style.width = "0%";
+        fgBar.style.width = "100%";
+        divider.style.width = "0%";
+      } else {
+        bgBar.style.width = (100 - dividerWidth - per) + "%";
+        fgBar.style.width = per + "%";
+        divider.style.width = dividerWidth + "%";
+      }
+    } else {
+      setTimeout(function(){
+        if (per == 0) {
+          bgBar.style.width = "100%";
+          fgBar.style.width = "0%";
+          divider.style.width = "0%";
+        } else if (per == 100) {
+          bgBar.style.width = "0%";
+          fgBar.style.width = "100%";
+          divider.style.width = "0%";
+        } else {
+          bgBar.style.width = (100 - dividerWidth - per) + "%";
+          fgBar.style.width = per + "%";
+          divider.style.width = dividerWidth + "%";
+        }
+      }, 0);
+    }
+  }
+}
+
+/*
+ * Class to represent one of the rows in the score bar
+ */
+function scoreBarRow(bgColor, fgColor, firstRow, label) {
+  this.mainDiv = document.createElement("div");
+  this.sects = document.createElement("div");
+  this.sections = [];
+
+  // Label
+  this.mainDiv.style.width = "120%";
+  this.mainDiv.style.marginLeft = "-20%";
+
+  this.sects.style.display = "inline-block";
+  this.sects.style.width = "83%";
+
   this.label = document.createElement("div");
-  this.label.setAttribute("class", "label");
-  this.scoreBar1Progress.appendChild(this.scoreBar1);
-  this.scoreBar1Progress.appendChild(this.scoreBar1Text);
-  this.scoreBar1Progress.appendChild(this.scoreBar1Text2);
-  this.scoreBar1Progress.appendChild(this.label);
+  this.label.setAttribute("class", "goalText");
+  this.label.innerHTML = '<span>' + label + '</span>';
+  this.label.style.width = "17%";
+  this.label.style.height = "30px";
+  this.label.style.position = "relative";
+  this.label.style.bottom = "5px";
+  this.mainDiv.append(this.label);
 
-  this.scoreBar2 = document.createElement("div");
-  this.scoreBar2.setAttribute("class", "scoreBar2");
-  this.scoreBar2Text = document.createElement("div");
-  this.scoreBar2Text.setAttribute("class", "scoreBar2Text");
-  this.scoreBar2Text2 = document.createElement("div");
-  this.scoreBar2Text2.setAttribute("class", "scoreBar2Text2");
-  this.scoreBar2Progress = document.createElement("div");
-  this.scoreBar2Progress.setAttribute("class", "scoreBarProgress2");
-  this.scoreBar2Progress.appendChild(this.scoreBar2);
-  this.scoreBar2Progress.appendChild(this.scoreBar2Text);
-  this.scoreBar2Progress.appendChild(this.scoreBar2Text2);
-
-  this.scoreBar3 = document.createElement("div");
-  this.scoreBar3.setAttribute("class", "scoreBar3");
-  this.scoreBar3Text = document.createElement("div");
-  this.scoreBar3Text.setAttribute("class", "scoreBar3Text");
-  this.scoreBar3Text2 = document.createElement("div");
-  this.scoreBar3Text2.setAttribute("class", "scoreBar3Text2");
-  this.scoreBar3Text3 = document.createElement("div");
-  this.scoreBar3Text3.setAttribute("class", "scoreBar3Text3");
-  this.scoreBar3Progress = document.createElement("div");
-  this.scoreBar3Progress.setAttribute("class", "scoreBarProgress3");
-  this.scoreBar3Progress.appendChild(this.scoreBar3);
-  this.scoreBar3Progress.appendChild(this.scoreBar3Text);
-  this.scoreBar3Progress.appendChild(this.scoreBar3Text2);
-  this.scoreBar3Progress.appendChild(this.scoreBar3Text3);
-
-  this.mainDiv.appendChild(this.scoreBar1Progress);
-  this.mainDiv.appendChild(this.scoreBar2Progress);
-  this.mainDiv.appendChild(this.scoreBar3Progress);
-
-  this.visibility = function (visible) {
-    this.mainDiv.style.visibility = visible ? "visible" : "hidden";
+  var i;
+  for (i = 0; i < 5; i++) { 
+    var section = new scoreBarSection(bgColor, fgColor, i == 0, firstRow);
+    this.sects.appendChild(section.mainDiv);
+    this.sections.push(section);
   }
+  this.mainDiv.append(this.sects);
 
-  this.updateScore = function (score, goal) {
-    if (opponent) {
-      this.scoreBar2Text.innerHTML = 'Opponent: ' + score;
-      this.scoreBar2.setAttribute("class", "scoreBar2Opp")
-      this.scoreBar3.setAttribute("class", "scoreBar3Opp")
-      this.label.innerHTML = 'OPPONENT';
-    } else {
-      this.scoreBar1Text.innerHTML = '<br/><br/>' + '0';
-      this.scoreBar1Text2.innerHTML = '<br/><br/>' + '-' + goal;
-      this.scoreBar3Text.innerHTML = '<br/><br/>' + 2 * goal;
-      this.scoreBar3Text2.innerHTML = '<br/><br/>' + goal;
-      this.scoreBar3Text3.innerHTML = 'GOAL';
-      this.scoreBar2Text.innerHTML = 'Score: ' + score;
-      this.label.innerHTML = 'YOU';
-    }
-
-    if (score < 0) {
-      if (score <= -goal) {
-        this.scoreBar1.style.width = '0%';
-        this.scoreBar1.style.borderWidth = '0px 0px 0px 0px';
-        this.scoreBar1Progress.style.borderWidth = '0px 2px 4px 0px';
-      } else {
-        this.scoreBar1.style.width = (100 - (100 * (-score / goal))) + '%';
-        this.scoreBar1Progress.style.borderWidth = '0px 2px 4px 4px';
-      }
-      this.scoreBar2.style.width = '0%';
-      this.scoreBar3.style.width = '0%';
-      this.scoreBar1.style.border = '4px black solid';
-      this.scoreBar1.style.borderWidth = '0px 4px 0px 0px';
-      this.scoreBar2.style.border = '0px';
-    } else if (score == 0) {
-      this.scoreBar1.style.width = '100%';
-      this.scoreBar2.style.width = '0%';
-      this.scoreBar3.style.width = '0%';
-      this.scoreBar1.style.border = '0px';
-      this.scoreBar2.style.border = '0px';
-      this.scoreBar3.style.border = '0px';
-    } else if (score > 0 && score <= goal) {
-      this.scoreBar1.style.width = '100%';
-      this.scoreBar2.style.width = (100 * (score / goal)) + '%';
-      this.scoreBar3.style.width = '0%';
-      this.scoreBar3.style.border = '0';
-      this.scoreBar1.style.border = '0';
-      this.scoreBar2.style.border = '4px black solid';
-      this.scoreBar2.style.borderWidth = '0px 4px 0px 0px';
-    } else if (score > goal) {
-      this.scoreBar1.style.width = '100%';
-      this.scoreBar2.style.width = '100%';
-      this.scoreBar1.style.border = '0';
-      if (score > goal * 2) {
-        this.scoreBar3.style.width = '100%';
-      } else {
-        this.scoreBar3.style.width = (100 * ((score - goal) / goal)) + '%';
-      }
-      this.scoreBar3.style.border = '4px black solid';
-      this.scoreBar3.style.borderWidth = '0px 4px 0px 0px';
-    } else {
-      console.log('SCORE ERROR: ' + score);
+  this.updateScore = function(score) {
+    this.sections[0].updateScore(-score * 10);
+    var i;
+    for (i = 1; i < 5; i++) { 
+      this.sections[i].updateScore(score * 10);
+      score -= 10;
     }
   }
+}
+
+/*
+ * Generate row of numbers along the score bar
+ */
+function scoreBarNums() {
+  this.mainDiv = document.createElement("div");
+  this.mainDiv.style.width = "120%"
+  this.mainDiv.style.marginLeft = "-10%"
+
+  var i;
+  var s = -10;
+  for (i = 0; i < 6; i++) {
+    var text = document.createElement("div");
+    text.setAttribute("class", "scoreBarText");
+    text.innerHTML = '' + s;
+    this.mainDiv.append(text);
+    s += 10;
+  }
+}
+
+function flags() {
+  this.mainDiv = document.createElement("div");
+  this.mainDiv.style.width = "129px";
+ 
+  // Goal Flag
+  this.flagImg = document.createElement("IMG");
+  this.flagImg.id = "flagimage";
+  this.flagImg.setAttribute("src", "./Images/flags.png");
+  this.flagImg.setAttribute("width", "129");
+  this.flagImg.setAttribute("height", "110");
+  this.flagImg.setAttribute("alt", "flags");
+  this.mainDiv.append(this.flagImg);
+
+  // Goal Text
+  this.text = document.createElement("div");
+  this.text.setAttribute("class", "goalText");
+  this.text.innerHTML = "GOAL: ";
+  this.mainDiv.append(this.text);
+ 
+  this.updateGoal = function (goal) {
+    this.text.innerHTML = "GOAL: " + goal
+  }
+}
+
+function scoreBar() {
+  this.mainDiv = document.createElement("div");
+
+  // Goal Flags
+  this.goalFlags = new flags();
+  this.mainDiv.append(this.goalFlags.mainDiv);
+
+  // Row of numbers
+  this.text = new scoreBarNums();
+  this.mainDiv.append(this.text.mainDiv);
+
+  // Rows of boxes
+  var darkGrey = "rgb(153, 153, 153)";
+  var lightGrey = "rgb(213, 213, 213)";
+  var green = "#4CAF50";
+  var red = "red";
+
+  this.scoreBox = document.createElement("div");
+  this.scoreBox.setAttribute("class", "scoreBox");
+  this.mainDiv.append(this.scoreBox);
+
+  this.padding1 = new scoreBarRow(darkGrey, darkGrey, true, "");
+  this.scoreBar = new scoreBarRow(lightGrey, green, false, "YOU");
+  this.padding2 = new scoreBarRow(darkGrey, darkGrey, false, "");
+  this.opponentScoreBar = new scoreBarRow(lightGrey, red, false, "OPPONENT");
+  this.padding3 = new scoreBarRow(darkGrey, darkGrey, false, "");
+
+  this.scoreBox.append(this.padding1.mainDiv);
+  this.scoreBox.append(this.scoreBar.mainDiv);
+  this.scoreBox.append(this.padding2.mainDiv);
+  this.scoreBox.append(this.opponentScoreBar.mainDiv);
+  this.scoreBox.append(this.padding3.mainDiv);
+
+  this.showOpponent = function (visible) {
+    this.opponentScoreBar.mainDiv.style.visibility = visible ? "visible" : "hidden";
+    this.padding3.mainDiv.style.visibility = visible ? "visible" : "hidden";
+  }
+
+  this.updateScore = function (score, opponent) {
+    this.scoreBar.updateScore(score);
+    this.opponentScoreBar.updateScore(opponent);
+  }
+
+  this.updateGoal = function (goal) {
+    this.goalFlags.updateGoal(goal);
+    var pw = this.mainDiv.offsetWidth;
+    var w = this.goalFlags.mainDiv.offsetWidth;
+    console.log(pw)
+    console.log(w)
+    this.goalFlags.mainDiv.style.marginLeft =
+      (pw / 5.0 * (1 + 4.0 * goal / 40.0) - w / 2) + "px"; 
+  }
+    // this.scoreBar2Text.innerHTML = 'Score: ' + score;
+    // this.scoreBar2Text.innerHTML = 'Opponent: ' + score;
 }
 
 /*
@@ -372,7 +481,6 @@ function drawTrial() {
 }
 
 function drawITI() {
-
   /* Build the timing bar and counter */
   var timingBar = document.createElement("div");
   timingBar.id = TIMER_BAR_ID;
@@ -385,15 +493,7 @@ function drawITI() {
   timingBarProgress.appendChild(timingBarText);
 
   /* Build the score bars */
-  mainScoreBar = new scoreBar(false);
-  opponentScoreBar = new scoreBar(true);
-
-  var flagImg = document.createElement("IMG");
-  flagImg.id = "flagimage";
-  flagImg.setAttribute("src", "./Images/flags.png");
-  flagImg.setAttribute("width", "129");
-  flagImg.setAttribute("height", "110");
-  flagImg.setAttribute("alt", "flags");
+  mainScoreBar = new scoreBar();
 
   /* Build the result elements - hidden by default */
   var resultsTxt = document.createElement("div");
@@ -413,9 +513,7 @@ function drawITI() {
   itiScreen.style.paddingTop = '75px';
   itiScreen.appendChild(timingBarProgress);
   itiScreen.appendChild(resultsDiv);
-  itiScreen.appendChild(flagImg);
   itiScreen.appendChild(mainScoreBar.mainDiv);
-  itiScreen.appendChild(opponentScoreBar.mainDiv);
 
   return itiScreen;
 }
@@ -424,57 +522,43 @@ function drawITI() {
 
 function updateInstructions(instructions) {
   var config = getCurrentConfig();
-  if (config.showTiming == true) {
-    if (config.showOpponent == true) {
-      COMPTYPE = 1;
-    }
-      else {
-      COMPTYPE = 2;
-      }
-    }
-    else {
-    if (config.showOpponent == true) {
-      COMPTYPE = 3;
-    }
-    else {
-      COMPTYPE = 4;
-    }
-    };
-  console.log(COMPTYPE);
-  if (COMPTYPE == 1){
+  var COMPTYPE = getCompType();
+
+  if (COMPTYPE == 1) {
     instructions.innerHTML = `
 In this block, you will have an opponent. <br /> <br />
 You will have ${config.duration/1000} seconds to achieve a higher score than your opponent.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Press any key to continue.
 `;
-  } else if (COMPTYPE == 2){
+  } else if (COMPTYPE == 2) {
     instructions.innerHTML = `
 In this block, you will NOT have an opponent. <br /> <br />
 You will have ${config.duration/1000} seconds to acheive a score of ${config.goal}.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Press any key to continue.
 `;
-  } else if (COMPTYPE == 3){
+  } else if (COMPTYPE == 3) { 
     instructions.innerHTML = `
 In this block, you will have an opponent. <br /> <br />    
 You have to acheive a score of ${config.goal} before your opponent does.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Press any key to continue.
 `;
-  } else if (COMPTYPE == 4){
+  } else if (COMPTYPE == 4)  {
   instructions.innerHTML = `
 In this block, you will NOT have an opponent. <br /> <br />
 You have to acheive a score of ${config.goal}.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Press any key to continue.
 `;
-  };
+  }
   return instructions;
 }
 
 function updateITI(itiScreen) {
   var config = getCurrentConfig();
+  mainScoreBar.showOpponent(config.showOpponent);
   var timingBar = itiScreen.querySelector(`#${TIMER_BAR_ID}`);
   var timingBarText = itiScreen.querySelector(`#${TIMER_BAR_TEXT_ID}`);
 
@@ -485,20 +569,17 @@ function updateITI(itiScreen) {
   timingBarText.innerHTML = Math.round(remaining / 1000) + 's remaining';
 
   /* UI for score bars */
-  mainScoreBar.updateScore(score, config.goal);
-  opponentScoreBar.updateScore(getOpponentScore(), config.goal);
+  mainScoreBar.updateScore(score, getOpponentScore());
+  mainScoreBar.updateGoal(config.goal);
 
   /* Determine which elements to display */
   itiScreen.querySelector(`#${RESULTS_DIV_ID}`).style.visibility = "hidden";
   var timingDiv = itiScreen.querySelector(`#${TIMING_PROGRESS_DIV_ID}`);
   timingDiv.style.visibility = config.showTiming ? "visible" : "hidden";
-  opponentScoreBar.visibility(config.showOpponent);
-
-  return itiScreen;
 }
 
 function updateResults(itiScreen) {
-  itiScreen = updateITI(itiScreen);
+  updateITI(itiScreen);
   var img = itiScreen.querySelector(`#${RESULTS_IMG_ID}`);
   var txt = itiScreen.querySelector(`#${RESULTS_TXT_ID}`);
 
@@ -514,8 +595,6 @@ function updateResults(itiScreen) {
 
   /* Show the results elements */
   itiScreen.querySelector(`#${RESULTS_DIV_ID}`).style.visibility = "visible";
-
-  return itiScreen;
 }
 
 /*** SHOW *********************************************************************/
@@ -570,31 +649,36 @@ function showITI() {
   activeAperture = [false, false];
   uiState = uiStates.ITI;
   document.body.style.backgroundColor = "gray";
-  document.body.appendChild(updateITI(iti));
+  document.body.appendChild(iti);
+  updateITI(iti);
 
   /* Launch the next trial when needed */
   setTimeout(showTrial, ITI_DURATION_MS);
 }
 
 function showResults() {
-  if (COMPTYPE !== 4){
-  csvLogs.push(logTimeout());
-  /* Reset state, stop drawing */
-  removeBody();
-  activeAperture = [false, false];
-  uiState = uiStates.RESULTS;
-  document.body.style.backgroundColor = "gray";
-  document.body.appendChild(updateResults(iti));
-  } else if (COMPTYPE == 4) {
-    if ((COMPTYPE == 4 ) && (score == getCurrentConfig().goal)){
+  if (getCompType() !== 4) {
+    csvLogs.push(logTimeout());
+
+    /* Reset state, stop drawing */
+    removeBody();
+    activeAperture = [false, false];
+    uiState = uiStates.RESULTS;
+    document.body.style.backgroundColor = "gray";
+    document.body.appendChild(iti);
+    updateResults(iti);
+  } else {
+    if (score >= getCurrentConfig().goal) {
         /* Reset state, stop drawing */
         removeBody();
         activeAperture = [false, false];
         uiState = uiStates.RESULTS;
         document.body.style.backgroundColor = "gray";
-        document.body.appendChild(updateResults(iti));
+        document.body.appendChild(iti);
+        updateResults(iti);
     };
   };
+
   /* Generate and export the CSV */
   if (csvLogs.length == 0) {
     console.log('TEST');
@@ -616,6 +700,24 @@ function addConfig(duration, goal, showTiming, showOpponent) {
 
 function getCurrentConfig() {
   return CONFIGS[CONFIG_RANDOM];
+}
+
+function getCompType() {
+  var config = getCurrentConfig();
+  if (config.showTiming == true) {
+    if (config.showOpponent == true) {
+      return 1;
+    } else {
+      return 2;
+    }
+  } else {
+    if (config.showOpponent == true) {
+      return 3;
+    }
+    else {
+      return 4;
+    }
+  }
 }
 
 function nextConfig() {
@@ -650,7 +752,7 @@ function logGuess(correct) {
   guess.push(DOT_COHERENCE);
   guess.push(config.showOpponent);
   guess.push(config.showTiming);
-  guess.push(COMPTYPE);
+  guess.push(getCompType());
   return guess;
 }
 
@@ -676,7 +778,7 @@ function logTimeout() {
   guess.push(DOT_COHERENCE);
   guess.push(config.showOpponent);
   guess.push(config.showTiming);
-  guess.push(COMPTYPE);
+  guess.push(getCompType());
   return guess;
 }
 
@@ -716,9 +818,7 @@ function keyPress(event) {
       }
       csvLogs.push(logGuess(correct));
 
-      if ((COMPTYPE == 3 ) && (score == getCurrentConfig().goal)) {
-        showResults();
-      } else if ((COMPTYPE == 4 ) && (score == getCurrentConfig().goal)) {
+      if (!getCurrentConfig().showTiming && score >= getCurrentConfig().goal) {
         showResults();
       } else {
         showITI();
@@ -749,22 +849,17 @@ function code() {
   do{
     uniqueCode = prompt("Please enter your unique code", "");
   } while (uniqueCode == null || uniqueCode == "" || uniqueCode.length != 8)
-
-  };
+};
 
 /*
  * Main body of the script
  * Sets up initial state and registers events
  */
-
-
-
 function main() {
   console.log(getCurrentConfig().goal);
   score = 0;
   correctKey = null;
   timer = new clock(getCurrentConfig().duration, showResults);
-
 
   //csv should be saved to the experiment webspace https://staff.psy.uq.edu.au/tools/webfiles/manage/?v=files/5c5fcb4c6e78e
   if (csvLogs.length == 0) {
