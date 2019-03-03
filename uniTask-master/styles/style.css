@@ -19,7 +19,7 @@ html {
   width: 32%;
   background-color: rgb(213, 213, 213);
   border: 4px black solid;
-  border-width: 4px 4px 0px 4px;
+  border-width: 4px 4px 4px 4px;
   position: relative;
   left: 32.5%;
 }
@@ -27,7 +27,7 @@ html {
 #myTimingBar {
   width: 0%;
   height: 30px;
-  background-color: #4CAF50;
+  background-color: blue;
   white-space: nowrap;
   text-align: center;
   position: relative;
@@ -38,7 +38,6 @@ html {
   text-indent: 16%;
   font-size: 150%;
 }
-
 
 #myTimingBarText {
   width: 100%;
@@ -53,6 +52,71 @@ html {
   font-size: 150%;
 }
 
+.scoreBox {
+  font-size: 0px;
+  line-height: 0;
+}
+
+.scoreBarSection {
+  width: 19.28%;
+  height: 30px;
+  display: inline-block;
+  border: 0px black solid;
+  background-color: black;
+  padding: 4px 0.6% 0px 0px;
+}
+
+.scoreBarBackground {
+  width: 100%;
+  height: 30px;
+  display: inline-block;
+  border: 0px black solid;
+  transition-property: background-color, height, width;
+  transition:300ms linear;
+}
+
+.scoreBarForeground {
+  width: 0%;
+  height: 30px;
+  display: inline-block;
+  border: 0px black solid;
+  transition-property: background-color, height, width;
+  transition:300ms linear;
+}
+
+.scoreBarDivider {
+  width: 0%;
+  height: 30px;
+  display: inline-block;
+  border: 0px black solid;
+  transition-property: background-color, height, width;
+  transition:300ms linear;
+}
+
+.scoreBarText {
+  width: 16.6%;
+  color: white;
+  display: inline-block;
+  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+  font-size: 150%;
+  text-align: center;
+}
+
+.goalText{
+  width: 100%;
+  color: white;
+  display: inline-block;
+  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+  font-size: 27px;
+  text-align: center;
+  line-height: 1.6em;
+}
+
+
+
+
+
+
 .scoreBar {
   width: 100%;
   background-color:  rgb(213, 213, 213);
@@ -61,159 +125,7 @@ html {
   word-spacing: 32%;
 }
 
-.scoreBarProgress1 {
-  width: 32%;
-  height: 30px;
-  background-color: #4CAF50;
-  border: 4px black solid;
-  border-width: 0px 2px 4px 4px;
-  display: inline-block;
-  position: relative;
-}
 
-.scoreBarProgress2 {
-  width: 32%;
-  height: 30px;
-  background-color:  rgb(213, 213, 213);
-  border: 4px black solid;
-  border-width: 0px 2px 4px 2px;
-  display: inline-block;
-  position: relative;
-}
-
-.scoreBarProgress3 {
-  width: 32%;
-  height: 30px;
-  background-color:  rgb(213, 213, 213);
-  border: 4px black solid;
-  border-width: 0px 4px 4px 2px;
-  display: inline-block;
-  position: relative;
-}
-
-.scoreBar1 {
-  width: 100%;
-  height: 30px;
-  background-color:  rgb(213, 213, 213);
-  border: 0px black solid;
-  display: inline-block;
-  position: relative;
-  text-align: left;
-  font-size: 150%;
-}
-
-.scoreBar1Text {
-  width: 104%;
-  position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
-  top: 0;
-  left: 0;
-  text-align: right;
-  z-index: 2;
-  color: white;
-  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
-  font-size: 150%;
-}
-
-.scoreBar1Text2 {
-  width: 103%;
-  position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
-  top: 0;
-  right: 0;
-  text-align: left;
-  z-index: 2;
-  color: white;
-  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
-  font-size: 150%;
-}
-
-.scoreBar2 {
-  width: 0%;
-  height: 30px;
-  background-color: #4CAF50;
-  display: inline-block;
-  border: 4px black solid;
-  border-width: 0px 4px 0px 0px;
-  position: relative;
-  top: 0;
-  left: 0;
-  text-align: left;
-  font-size: 150%;
-}
-
-.scoreBar2Text {
-  width: 100%;
-  position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
-  top: 0;
-  left: 0;
-  text-align: center;
-  z-index: 2;
-  color: white;
-  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
-  font-size: 150%;
-}
-
-.scoreBar2Text2 {
-  width: 103%;
-  position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
-  top: 0;
-  right: 0;
-  text-align: right;
-  z-index: 2;
-  color: white;
-  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
-  font-size: 150%;
-}
-
-.scoreBar3 {
-  width: 0%;
-  height: 30px;
-  background-color: #4CAF50;
-  border: 0px black solid;
-  display: inline-block;
-  position: relative;
-  text-align: left;
-  font-size: 150%;
-}
-
-.scoreBar3Text {
-  width: 104%;
-  position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
-  top: 0;
-  left: 0;
-  text-align: right;
-  z-index: 2;
-  color: white;
-  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
-  font-size: 150%;
-}
-
-.scoreBar3Text2 {
-  width: 103%;
-  position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
-  top: 0;
-  right: 0;
-  text-align: left;
-  z-index: 2;
-  color: white;
-  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
-  font-size: 150%;
-}
-
-.scoreBar3Text3 {
-  width: 116%;
-  position: absolute; /*made all other elements relative, allowing the text to keep absolute, now it aligns properly*/
-  top: -28px;
-  right: 0;
-  text-align: left;
-  z-index: 2;
-  color: white;
-  text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
-  font-size: 150%;
-}
-
-#flagimage {
-  margin-left: 457px;
-}
 
 #resultsImg {
   float: left;
@@ -234,42 +146,6 @@ html {
   display: table;
   padding-top: 70px;
   margin: 0 auto;
-}
-
-
-.scoreBarProgress1Opp {
-  width: 32%;
-  height: 30px;
-  background-color: red;
-  border: 4px black solid;
-  border-width: 0px 2px 4px 4px;
-  display: inline-block;
-  position: relative;
-}
-
-.scoreBar2Opp {
-  width: 0%;
-  height: 30px;
-  background-color: red;
-  display: inline-block;
-  border: 4px black solid;
-  border-width: 0px 4px 0px 0px;
-  position: relative;
-  top: 0;
-  left: 0;
-  text-align: left;
-  font-size: 150%;
-}
-
-.scoreBar3Opp {
-  width: 0%;
-  height: 30px;
-  background-color: red;
-  border: 0px black solid;
-  display: inline-block;
-  position: relative;
-  text-align: left;
-  font-size: 150%;
 }
 
 .label {
