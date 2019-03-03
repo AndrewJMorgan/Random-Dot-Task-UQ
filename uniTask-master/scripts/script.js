@@ -350,6 +350,10 @@ function scoreBar() {
     this.padding3.mainDiv.style.visibility = visible ? "visible" : "hidden";
   }
 
+  this.showFlags = function (visible) {
+    this.goalFlags.mainDiv.style.visibility = visible ? "visible" : "hidden";
+  }
+
   this.updateScore = function (score, opponent) {
     this.scoreBar.updateScore(score);
     this.opponentScoreBar.updateScore(opponent);
@@ -364,8 +368,8 @@ function scoreBar() {
     this.goalFlags.mainDiv.style.marginLeft =
       (pw / 5.0 * (1 + 4.0 * goal / 40.0) - w / 2) + "px"; 
   }
-    // this.scoreBar2Text.innerHTML = 'Score: ' + score;
-    // this.scoreBar2Text.innerHTML = 'Opponent: ' + score;
+  // this.scoreBar2Text.innerHTML = 'Score: ' + score;
+  // this.scoreBar2Text.innerHTML = 'Opponent: ' + score;
 }
 
 /*
@@ -559,6 +563,7 @@ Press any key to continue.
 function updateITI(itiScreen) {
   var config = getCurrentConfig();
   mainScoreBar.showOpponent(config.showOpponent);
+  mainScoreBar.showFlags(getCompType() !== 1);
   var timingBar = itiScreen.querySelector(`#${TIMER_BAR_ID}`);
   var timingBarText = itiScreen.querySelector(`#${TIMER_BAR_TEXT_ID}`);
 
