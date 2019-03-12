@@ -28,7 +28,7 @@ var uniqueCode = null;
 /* ITI Configuration */
 var CONFIGS = []
 /* Duration in MS, Goal, dot coherence, Show Timer, Show Opponent, practice */
-addConfig(5000, 5, 0.3, true, false, true);
+addConfig(5000, 5, 1, true, false, true);
 addConfig(4000, 5, 0.3, true, true, false);
 addConfig(5000, 5, 0.3, true, false, false);
 addConfig(6000, 5, 0.3, false, true, false);
@@ -44,7 +44,7 @@ var RIGHT_KEY = 76;
 var CSV_HEADER = ["unique code", "trial number", "direction", "input", "correct", "reaction_time", "score", "goal", "distance", "time limit", "coherence", "show timer", "show opponent", "competition type", "practice"];
 var CSV_FILENAME = "testSave.csv"
 var TRIAL_COUNT = 1;
-var DOT_COHERENCE = 0.3;
+var DOT_COHERENCE = 1;
 var OPPONENT_SCORE = 0;
 
 /* Resources */
@@ -704,7 +704,7 @@ function addConfig(duration, goal, dotCoherence, showTiming, showOpponent, pract
   var newConfig = {
     "duration": duration,
     "goal": goal,
-    "dot coherence": dotCoherence,
+    "dotCoherence": dotCoherence,
     "showTiming": showTiming,
     "showOpponent": showOpponent,
     "practice": practice
@@ -853,6 +853,7 @@ function keyPress(event) {
         console.log(CONFIGS.length);
         TRIAL_COUNT++;
         nextConfig();
+        DOT_COHERENCE = getCurrentConfig().dotCoherence;
         main();
       } else {
         // Removed in favour of server side saves via uqpsychExportData()
