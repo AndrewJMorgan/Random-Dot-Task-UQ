@@ -27,11 +27,13 @@ var uniqueCode = null;
 
 /* ITI Configuration */
 var CONFIGS = []
-/* Duration in MS, Goal, Show Timer, Show Opponent */
-addConfig(4000, 5, true, true);
-addConfig(5000, 5, true, false);
-addConfig(6000, 5, false, true);
-addConfig(6000, 5, false, false);
+/* Duration in MS, Goal, dot coherence, Show Timer, Show Opponent, practice */
+addConfig(5000, 5, 0.3, true, false, true);
+addConfig(4000, 5, 0.3, true, true, false);
+addConfig(5000, 5, 0.3, true, false, false);
+addConfig(6000, 5, 0.3, false, true, false);
+addConfig(6000, 5, 0.3, false, false, false);
+var totalTrials = CONFIGS.length;
 var CONFIG_RANDOM = Math.floor((Math.random() * CONFIGS.length));
 
 /* Configuration / Global State */
@@ -39,7 +41,7 @@ var CLOCK_INTERVAL_MS = 50;
 var ITI_DURATION_MS = 1000;
 var LEFT_KEY = 65;
 var RIGHT_KEY = 76;
-var CSV_HEADER = ["unique code", "trial number", "direction", "input", "correct", "reaction_time", "score", "goal", "distance", "time limit", "coherence", "show timer", "show opponent", "competition type"];
+var CSV_HEADER = ["unique code", "trial number", "direction", "input", "correct", "reaction_time", "score", "goal", "distance", "time limit", "coherence", "show timer", "show opponent", "competition type", "practice"];
 var CSV_FILENAME = "testSave.csv"
 var TRIAL_COUNT = 1;
 var DOT_COHERENCE = 0.3;
@@ -528,6 +530,10 @@ function updateInstructions(instructions) {
   var config = getCurrentConfig();
   var COMPTYPE = getCompType();
 
+  if (config.practice == true){
+    instructions.innerHTML = `
+    PRACTICE (TEXT TO BE UPDATED)`
+  } else {
   if (COMPTYPE == 1) {
     instructions.innerHTML = `
 In this block, you will have an opponent. <br /> <br />
@@ -556,7 +562,8 @@ You have to acheive a score of ${config.goal}.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Press any key to continue.
 `;
-  }
+  };
+}
   return instructions;
 }
 
@@ -693,18 +700,25 @@ function showResults() {
 
 /*** MISC *********************************************************************/
 
-function addConfig(duration, goal, showTiming, showOpponent) {
+function addConfig(duration, goal, dotCoherence, showTiming, showOpponent, practice) {
   var newConfig = {
     "duration": duration,
     "goal": goal,
+    "dot coherence": dotCoherence,
     "showTiming": showTiming,
-    "showOpponent": showOpponent
+    "showOpponent": showOpponent,
+    "practice": practice
   }
   CONFIGS.push(newConfig)
 }
 
 function getCurrentConfig() {
-  return CONFIGS[CONFIG_RANDOM];
+  if (CONFIGS.length == totalTrials) {
+    CONFIGS[CONFIG_RANDOM = 0];
+    return CONFIGS[CONFIG_RANDOM];
+      } else {
+        return CONFIGS[CONFIG_RANDOM];
+      };
 }
 
 function getCompType() {
@@ -758,6 +772,7 @@ function logGuess(correct) {
   guess.push(config.showOpponent);
   guess.push(config.showTiming);
   guess.push(getCompType());
+  guess.push(config.practice);
   return guess;
 }
 
@@ -784,6 +799,7 @@ function logTimeout() {
   guess.push(config.showOpponent);
   guess.push(config.showTiming);
   guess.push(getCompType());
+  guess.push(config.practice);
   return guess;
 }
 
@@ -863,6 +879,7 @@ function code() {
 function main() {
   console.log(getCurrentConfig().goal);
   score = 0;
+  
   correctKey = null;
   timer = new clock(getCurrentConfig().duration, showResults);
 
