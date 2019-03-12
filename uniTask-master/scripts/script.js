@@ -44,7 +44,7 @@ var RIGHT_KEY = 76;
 var CSV_HEADER = ["unique code", "trial number", "direction", "input", "correct", "reaction_time", "score", "goal", "distance", "time limit", "coherence", "show timer", "show opponent", "competition type", "practice"];
 var CSV_FILENAME = "testSave.csv"
 var TRIAL_COUNT = 1;
-var DOT_COHERENCE = 1;
+//var DOT_COHERENCE = 1;
 var OPPONENT_SCORE = 0;
 
 /* Resources */
@@ -768,7 +768,7 @@ function logGuess(correct) {
   guess.push(config.goal);
   guess.push(config.goal - (score));
   guess.push(config.duration);
-  guess.push(DOT_COHERENCE);
+  guess.push(config.dotCoherence);
   guess.push(config.showOpponent);
   guess.push(config.showTiming);
   guess.push(getCompType());
@@ -795,7 +795,7 @@ function logTimeout() {
   guess.push(config.goal);
   guess.push(config.goal - (score));
   guess.push(config.duration);
-  guess.push(DOT_COHERENCE);
+  guess.push(config.dotCoherence);
   guess.push(config.showOpponent);
   guess.push(config.showTiming);
   guess.push(getCompType());
@@ -853,7 +853,7 @@ function keyPress(event) {
         console.log(CONFIGS.length);
         TRIAL_COUNT++;
         nextConfig();
-        DOT_COHERENCE = getCurrentConfig().dotCoherence;
+        //DOT_COHERENCE = getCurrentConfig().dotCoherence;
         main();
       } else {
         // Removed in favour of server side saves via uqpsychExportData()
@@ -945,7 +945,7 @@ function runTest(canvas) {
   var nDots = 200; //Number of dots per set (equivalent to number of dots per frame)
   var nSets = 1; //Number of sets to cycle through per frame
   var coherentDirection = [direction.LEFT, direction.RIGHT]; //The direction of the coherentDots in degrees. Starts at 3 o'clock and goes counterclockwise (0 == rightwards, 90 == upwards, 180 == leftwards, 270 == downwards), range 0 - 360
-  var coherence = DOT_COHERENCE; //Proportion of dots to move together, range from 0 to 1
+  var coherence = getCurrentConfig().dotCoherence; //Proportion of dots to move together, range from 0 to 1
   var oppositeCoherence = 0; // The coherence for the dots going the opposite direction as the coherent dots
   var dotRadius = 2; //Radius of each dot in pixels
   var dotLife = 20;//How many frames a dot will keep following its trajectory before it is redrawn at a random location. -1 denotes infinite life (the dot will only be redrawn if it reaches the end of the aperture).
