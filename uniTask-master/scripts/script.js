@@ -27,12 +27,12 @@ var uniqueCode = null;
 
 /* ITI Configuration */
 var CONFIGS = []
-/* Duration in MS, Goal, dot coherence, Show Timer, Show Opponent, practice */
-addConfig(5000, 5, 1, true, false, true);
-addConfig(4000, 5, 0.3, true, true, false);
-addConfig(5000, 5, 0.3, true, false, false);
-addConfig(6000, 5, 0.3, false, true, false);
-addConfig(6000, 5, 0.3, false, false, false);
+/* Duration in MS, Goal, dot coherence, Show Timer, Show Opponent, practice, show goal */
+addConfig(5000, 5, 1, true, false, true, true);
+addConfig(4000, 5, 0.3, true, true, false, false);
+addConfig(5000, 5, 0.3, true, false, false, true);
+addConfig(6000, 5, 0.3, false, true, false, true);
+addConfig(6000, 5, 0.3, false, false, false, false);
 var totalTrials = CONFIGS.length;
 var CONFIG_RANDOM = Math.floor((Math.random() * CONFIGS.length));
 
@@ -302,6 +302,8 @@ function flags() {
   this.flagImg.setAttribute("height", "110");
   this.flagImg.setAttribute("alt", "flags");
   this.mainDiv.append(this.flagImg);
+  
+
 
   // Goal Text
   this.text = document.createElement("div");
@@ -558,7 +560,7 @@ Press any key to continue.
   } else if (COMPTYPE == 4)  {
   instructions.innerHTML = `
 In this block, you will NOT have an opponent. <br /> <br />
-You have to acheive a score of ${config.goal}.<br /><br />
+You will have ${config.duration/1000} seconds to score as many points as possible.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Press any key to continue.
 `;
@@ -570,7 +572,7 @@ Press any key to continue.
 function updateITI(itiScreen) {
   var config = getCurrentConfig();
   mainScoreBar.showOpponent(config.showOpponent);
-  mainScoreBar.showFlags(getCompType() !== 1);
+  mainScoreBar.showFlags(getCurrentConfig().showGoal == true);
   var timingBar = itiScreen.querySelector(`#${TIMER_BAR_ID}`);
   var timingBarText = itiScreen.querySelector(`#${TIMER_BAR_TEXT_ID}`);
 
@@ -587,7 +589,11 @@ function updateITI(itiScreen) {
   /* Determine which elements to display */
   itiScreen.querySelector(`#${RESULTS_DIV_ID}`).style.visibility = "hidden";
   var timingDiv = itiScreen.querySelector(`#${TIMING_PROGRESS_DIV_ID}`);
+  if (getCompType() !== 4) {
   timingDiv.style.visibility = config.showTiming ? "visible" : "hidden";
+  } else if (getCompType() == 4) {
+    timingDiv.style.visibility = "visible"
+  };
 }
 
 function updateResults(itiScreen) {
@@ -669,7 +675,7 @@ function showITI() {
 }
 
 function showResults() {
-  if (getCompType() !== 4) {
+  
     csvLogs.push(logTimeout());
 
     /* Reset state, stop drawing */
@@ -679,35 +685,36 @@ function showResults() {
     document.body.style.backgroundColor = "gray";
     document.body.appendChild(iti);
     updateResults(iti);
-  } else {
-    if (score >= getCurrentConfig().goal) {
+   //else {
+    //if (score >= getCurrentConfig().goal) {
         /* Reset state, stop drawing */
-        removeBody();
-        activeAperture = [false, false];
-        uiState = uiStates.RESULTS;
-        document.body.style.backgroundColor = "gray";
-        document.body.appendChild(iti);
-        updateResults(iti);
-    };
-  };
+       // removeBody();
+       // activeAperture = [false, false];
+       // uiState = uiStates.RESULTS;
+       // document.body.style.backgroundColor = "gray";
+       // document.body.appendChild(iti);
+       // updateResults(iti);
+    //};
+  
 
   /* Generate and export the CSV */
   if (csvLogs.length == 0) {
     console.log('TEST');
     csvLogs.unshift(CSV_HEADER);
-  }
+  };
 }
 
 /*** MISC *********************************************************************/
 
-function addConfig(duration, goal, dotCoherence, showTiming, showOpponent, practice) {
+function addConfig(duration, goal, dotCoherence, showTiming, showOpponent, practice, showGoal) {
   var newConfig = {
     "duration": duration,
     "goal": goal,
     "dotCoherence": dotCoherence,
     "showTiming": showTiming,
     "showOpponent": showOpponent,
-    "practice": practice
+    "practice": practice,
+    "showGoal": showGoal
   }
   CONFIGS.push(newConfig)
 }
@@ -839,7 +846,7 @@ function keyPress(event) {
       }
       csvLogs.push(logGuess(correct));
 
-      if (!getCurrentConfig().showTiming && score >= getCurrentConfig().goal) {
+      if (getCompType() == 3 && score >= getCurrentConfig().goal) {
         showResults();
       } else {
         showITI();
