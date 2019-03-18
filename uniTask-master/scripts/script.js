@@ -534,35 +534,45 @@ function updateInstructions(instructions) {
 
   if (config.practice == true){
     instructions.innerHTML = `
-    PRACTICE (TEXT TO BE UPDATED)`
+    PRACTICE (TEXT TO BE UPDATED) <br /> <br />
+    <img src='\Images/COMPTYPE4.png'>
+    `
   } else {
   if (COMPTYPE == 1) {
     instructions.innerHTML = `
 In this block, you will have an opponent. <br /> <br />
 You will have ${config.duration/1000} seconds to achieve a higher score than your opponent.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
-Press any key to continue.
+Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
+Press any key to continue. <br /> <br />
+<img src='\Images/COMPTYPE1.png'>
 `;
   } else if (COMPTYPE == 2) {
     instructions.innerHTML = `
 In this block, you will NOT have an opponent. <br /> <br />
 You will have ${config.duration/1000} seconds to acheive a score of ${config.goal}.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
-Press any key to continue.
+Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
+Press any key to continue. <br /> <br />
+<img src='\Images/COMPTYPE2.png'>
 `;
   } else if (COMPTYPE == 3) { 
     instructions.innerHTML = `
 In this block, you will have an opponent. <br /> <br />    
 You have to acheive a score of ${config.goal} before your opponent does.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
-Press any key to continue.
+Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
+Press any key to continue. <br /> <br />
+<img src='\Images/COMPTYPE3.png'>
 `;
   } else if (COMPTYPE == 4)  {
   instructions.innerHTML = `
 In this block, you will NOT have an opponent. <br /> <br />
 You will have ${config.duration/1000} seconds to score as many points as possible.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
-Press any key to continue.
+Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
+Press any key to continue. <br /> <br />
+<img src='\Images/COMPTYPE4.png'>
 `;
   };
 }

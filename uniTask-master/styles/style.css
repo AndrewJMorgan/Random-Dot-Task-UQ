@@ -144,7 +144,7 @@ html {
 
 #resultsDiv {
   display: table;
-  padding-top: 70px;
+  padding-top: 0px;
   margin: 0 auto;
 }
 
