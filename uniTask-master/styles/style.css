@@ -111,11 +111,14 @@ html {
   text-align: center;
   line-height: 1.6em;
 }
-
-
-
-
-
+ 
+.finishLine{
+  width: 4px;
+  height: 100%;
+  background-color: black;
+  position: absolute;
+  z-index: 10;
+}
 
 .scoreBar {
   width: 100%;

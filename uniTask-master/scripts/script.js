@@ -28,13 +28,19 @@ var uniqueCode = null;
 /* ITI Configuration */
 var CONFIGS = []
 /* Duration in MS, Goal, dot coherence, Show Timer, Show Opponent, practice, show goal */
-addConfig(5000, 5, 1, true, false, true, true);
+addConfig(5000, 1, 1, true, false, true, true);
 addConfig(4000, 5, 0.3, true, true, false, false);
 addConfig(5000, 5, 0.3, true, false, false, true);
 addConfig(6000, 5, 0.3, false, true, false, true);
 addConfig(6000, 5, 0.3, false, false, false, false);
 var totalTrials = CONFIGS.length;
 var CONFIG_RANDOM = Math.floor((Math.random() * CONFIGS.length));
+var FIRST_ITI = true;
+
+/* Aperture control variables, set COUGHH and DIRGHH, then UPDGHH to true */
+UPDGHH = false;
+COUGHH = null; /* coherence ratio */
+DIRGHH = null; /* direction */
 
 /* Configuration / Global State */
 var CLOCK_INTERVAL_MS = 50;
@@ -179,8 +185,7 @@ function scoreBarSection(bgColor, fgColor, firstColumn, firstRow) {
     this.mainDiv.appendChild(this.bgBar);
   }
 
-  this.updateScore = function(per) {
-    var skip = false;
+  this.updateScore = function(per, skip) {
     var bgBar  = this.bgBar
     var fgBar = this.fgBar
     var divider = this.divider
@@ -261,11 +266,11 @@ function scoreBarRow(bgColor, fgColor, firstRow, label) {
   }
   this.mainDiv.append(this.sects);
 
-  this.updateScore = function(score) {
-    this.sections[0].updateScore(-score * 10);
+  this.updateScore = function(score, skip) {
+    this.sections[0].updateScore(-score * 10, skip);
     var i;
     for (i = 1; i < 5; i++) { 
-      this.sections[i].updateScore(score * 10);
+      this.sections[i].updateScore(score * 10, skip);
       score -= 10;
     }
   }
@@ -293,7 +298,7 @@ function scoreBarNums() {
 function flags() {
   this.mainDiv = document.createElement("div");
   this.mainDiv.style.width = "129px";
- 
+
   // Goal Flag
   this.flagImg = document.createElement("IMG");
   this.flagImg.id = "flagimage";
@@ -302,8 +307,6 @@ function flags() {
   this.flagImg.setAttribute("height", "110");
   this.flagImg.setAttribute("alt", "flags");
   this.mainDiv.append(this.flagImg);
-  
-
 
   // Goal Text
   this.text = document.createElement("div");
@@ -316,6 +319,11 @@ function flags() {
   }
 }
 
+function finishLine() {
+  this.mainDiv = document.createElement("div");
+  this.mainDiv.setAttribute("class", "finishLine");
+} 
+
 function scoreBar() {
   this.mainDiv = document.createElement("div");
 
@@ -326,6 +334,10 @@ function scoreBar() {
   // Row of numbers
   this.text = new scoreBarNums();
   this.mainDiv.append(this.text.mainDiv);
+
+  // Finish line
+  this.finishLine = new finishLine();
+  this.mainDiv.append(this.finishLine.mainDiv);
 
   // Rows of boxes
   var darkGrey = "rgb(153, 153, 153)";
@@ -352,28 +364,34 @@ function scoreBar() {
   this.showOpponent = function (visible) {
     this.opponentScoreBar.mainDiv.style.visibility = visible ? "visible" : "hidden";
     this.padding3.mainDiv.style.visibility = visible ? "visible" : "hidden";
+
+    this.finishLine.mainDiv.style.height = visible ? "174px" : "106px";
   }
 
   this.showFlags = function (visible) {
     this.goalFlags.mainDiv.style.visibility = visible ? "visible" : "hidden";
+    this.finishLine.mainDiv.style.visibility = visible ? "visible" : "hidden";
   }
 
-  this.updateScore = function (score, opponent) {
-    this.scoreBar.updateScore(score);
-    this.opponentScoreBar.updateScore(opponent);
+  this.updateScore = function (score, opponent, skip) {
+    this.scoreBar.updateScore(score, skip);
+    this.opponentScoreBar.updateScore(opponent, skip);
   }
 
   this.updateGoal = function (goal) {
     this.goalFlags.updateGoal(goal);
-    var pw = this.mainDiv.offsetWidth;
+
+    var pw = this.mainDiv.offsetWidth - 2;
     var w = this.goalFlags.mainDiv.offsetWidth;
-    console.log(pw)
-    console.log(w)
     this.goalFlags.mainDiv.style.marginLeft =
       (pw / 5.0 * (1 + 4.0 * goal / 40.0) - w / 2) + "px"; 
+
+    var i = goal + 10;
+    var pw = (158 - 4)/10;//this.scoreBar.sections[1].width;
+    var w = this.finishLine.mainDiv.offsetWidth;
+    this.finishLine.mainDiv.style.marginLeft = 
+      (pw + 4) * Math.ceil(i/10) + pw * (i - Math.ceil(i/10)) + 5 + "px"
   }
-  // this.scoreBar2Text.innerHTML = 'Score: ' + score;
-  // this.scoreBar2Text.innerHTML = 'Opponent: ' + score;
 }
 
 /*
@@ -397,7 +415,6 @@ function exportCSV(values, filename) {
   document.body.appendChild(link);
   link.click();
 }
-
 
 /**
     Export data to UQ psych server
@@ -484,7 +501,9 @@ function drawTrial() {
   canvas.style.top = 0;
   canvas.style.left = 0;
   canvas.style.position = "absolute";
-  runTest(canvas);
+
+  CANVAS = new runTest(canvas);
+
   return canvas;
 }
 
@@ -593,7 +612,11 @@ function updateITI(itiScreen) {
   timingBarText.innerHTML = Math.round(remaining / 1000) + 's remaining';
 
   /* UI for score bars */
-  mainScoreBar.updateScore(score, getOpponentScore());
+  if (FIRST_ITI) {
+    mainScoreBar.updateScore(0, 0, true);
+    FIRST_ITI = false;
+  }
+  mainScoreBar.updateScore(score, getOpponentScore(), false);
   mainScoreBar.updateGoal(config.goal);
 
   /* Determine which elements to display */
@@ -608,6 +631,7 @@ function updateITI(itiScreen) {
 
 function updateResults(itiScreen) {
   updateITI(itiScreen);
+  FIRST_ITI = true;
   var img = itiScreen.querySelector(`#${RESULTS_IMG_ID}`);
   var txt = itiScreen.querySelector(`#${RESULTS_TXT_ID}`);
 
@@ -665,7 +689,11 @@ function showTrial() {
 
   /* Launch the test */
   ran = Math.random() >= 0.5;
-  activeAperture = [ran, !ran];
+
+  DIRGHH = ran ? direction.LEFT : direction.RIGHT;
+  COUGHH = getCurrentConfig().dotCoherence;
+  UPDGHH = true;
+
   correctKey = ran ? LEFT_KEY : RIGHT_KEY;
   timer.resume();
   trialStart = new Date().getTime();
@@ -674,7 +702,7 @@ function showTrial() {
 function showITI() {
   /* Reset state */
   removeBody();
-  activeAperture = [false, false];
+  //activeAperture = [false, false];
   uiState = uiStates.ITI;
   document.body.style.backgroundColor = "gray";
   document.body.appendChild(iti);
@@ -690,7 +718,7 @@ function showResults() {
 
     /* Reset state, stop drawing */
     removeBody();
-    activeAperture = [false, false];
+    //activeAperture = [false, false];
     uiState = uiStates.RESULTS;
     document.body.style.backgroundColor = "gray";
     document.body.appendChild(iti);
@@ -870,7 +898,8 @@ function keyPress(event) {
         console.log(CONFIGS.length);
         TRIAL_COUNT++;
         nextConfig();
-        //DOT_COHERENCE = getCurrentConfig().dotCoherence;
+
+
         main();
       } else {
         // Removed in favour of server side saves via uqpsychExportData()
@@ -905,6 +934,9 @@ function main() {
   if (csvLogs.length == 0) {
     code();
     showIntroduction();
+    //trialStart = 0;
+    //score = getCurrentConfig().goal;
+    //showResults();
   } else {
     showInstructions();
   }
@@ -958,10 +990,10 @@ main();
 /*** EXTERNAL CODE ************************************************************/
 
 function runTest(canvas) {
-  var nApertures = 2; //The number of apertures
+  var nApertures = 1; //The number of apertures
   var nDots = 200; //Number of dots per set (equivalent to number of dots per frame)
   var nSets = 1; //Number of sets to cycle through per frame
-  var coherentDirection = [direction.LEFT, direction.RIGHT]; //The direction of the coherentDots in degrees. Starts at 3 o'clock and goes counterclockwise (0 == rightwards, 90 == upwards, 180 == leftwards, 270 == downwards), range 0 - 360
+  var coherentDirection = [direction.LEFT]; //The direction of the coherentDots in degrees. Starts at 3 o'clock and goes counterclockwise (0 == rightwards, 90 == upwards, 180 == leftwards, 270 == downwards), range 0 - 360
   var coherence = getCurrentConfig().dotCoherence; //Proportion of dots to move together, range from 0 to 1
   var oppositeCoherence = 0; // The coherence for the dots going the opposite direction as the coherent dots
   var dotRadius = 2; //Radius of each dot in pixels
@@ -975,8 +1007,8 @@ function runTest(canvas) {
   var apertureCenterY = window.innerHeight/2; // The y-coordinate of center of the aperture on the screen, in pixels
 
   /* Global flag to pick which apertures are active */
-  activeAperture = [false, false];
-  var drawnAperture = [false, false];
+  //activeAperture = [false, false];
+  //var drawnAperture = [false, false];
 
   /* RDK type parameter
    ** See Fig. 1 in Scase, Braddick, and Raymond (1996) for a visual depiction of these different signal selection rules and noise types
@@ -1361,24 +1393,68 @@ function runTest(canvas) {
     return tempArray;
   }
 
+  function updateDirection () {
+    if (!UPDGHH) {
+      return; 
+    }
+    UPDGHH = false;
+    coherence = COUGHH;
+    coherentDirection = DIRGHH;
+
+    //Calculate the number of coherent, opposite coherent, and incoherent dots
+    nCoherentDots = nDots * coherence;
+    nOppositeCoherentDots = nDots * oppositeCoherence;
+    nIncoherentDots = nDots - (nCoherentDots + nOppositeCoherentDots);
+
+    coherentJumpSizeX = calculateCoherentJumpSizeX(coherentDirection);
+    coherentJumpSizeY = calculateCoherentJumpSizeY(coherentDirection);
+
+    dotArray = dotArray2d[currentSetArray[currentApertureNumber]]; //Global variable, so the updateDots and draw functions also uses this array
+
+    for (var i = 0; i < nDots; i++) {
+      dot = dotArray[i];
+
+      //For the same && random direction RDK type
+      if (RDK == 3) {
+        //For coherent dots
+        if (i < nCoherentDots) {
+          dot = setvxvy(dot); // Set dot.vx and dot.vy
+          dot.updateType = "constant direction";
+        }
+        //For opposite coherent dots
+        else if(i >= nCoherentDots && i < (nCoherentDots + nOppositeCoherentDots)){
+          dot = setvxvy(dot); // Set dot.vx and dot.vy
+          dot.updateType = "opposite direction";
+        }
+        //For incoherent dots
+        else {
+          setvx2vy2(dot); // Set dot.vx2 and dot.vy2
+          dot.updateType = "random direction";
+        }
+      } //End of RDK==3
+    }
+  }
+
   //Function to update all the dots all the apertures and then draw them
   function updateAndDraw(){
     // Go through the array, update the dots, and draw them on the canvas
-    for(currentApertureNumber = 0; currentApertureNumber < nApertures; currentApertureNumber++){
-      if (!activeAperture[currentApertureNumber] && drawnAperture[currentApertureNumber]) {
-        initializeCurrentApertureParameters(currentApertureNumber);
-        clearDots();
-        drawnAperture[currentApertureNumber] = false;
-      }
-    }
+    //for(currentApertureNumber = 0; currentApertureNumber < nApertures; currentApertureNumber++){
+    //  if (!activeAperture[currentApertureNumber] && drawnAperture[currentApertureNumber]) {
+    //    initializeCurrentApertureParameters(currentApertureNumber);
+    //    clearDots();
+    //    drawnAperture[currentApertureNumber] = false;
+    //  }
+    //}
 
     for(currentApertureNumber = 0; currentApertureNumber < nApertures; currentApertureNumber++){
-      if (activeAperture[currentApertureNumber]) {
+      //if (activeAperture[currentApertureNumber]) {
         //Initialize the variables for each parameter
         initializeCurrentApertureParameters(currentApertureNumber);
 
         //Clear the canvas by drawing over the current dots
         clearDots();
+
+        updateDirection();
 
         //Update the dots
         updateDots();
@@ -1386,8 +1462,8 @@ function runTest(canvas) {
         //Draw on the canvas
         draw();
 
-        drawnAperture[currentApertureNumber] = true;
-      }
+        //drawnAperture[currentApertureNumber] = true;
+      //}
     }
   }
 
