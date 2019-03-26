@@ -37,10 +37,10 @@ var totalTrials = CONFIGS.length;
 var CONFIG_RANDOM = Math.floor((Math.random() * CONFIGS.length));
 var FIRST_ITI = true;
 
-/* Aperture control variables, set COUGHH and DIRGHH, then UPDGHH to true */
-UPDGHH = false;
-COUGHH = null; /* coherence ratio */
-DIRGHH = null; /* direction */
+/* Aperture control variables, set COHRAT and DIRECT, then UPDATE to true */
+UPDATE = false;
+COHRAT = null; /* coherence ratio */
+DIRECT = null; /* direction */
 
 /* Configuration / Global State */
 var CLOCK_INTERVAL_MS = 50;
@@ -690,9 +690,9 @@ function showTrial() {
   /* Launch the test */
   ran = Math.random() >= 0.5;
 
-  DIRGHH = ran ? direction.LEFT : direction.RIGHT;
-  COUGHH = getCurrentConfig().dotCoherence;
-  UPDGHH = true;
+  DIRECT = ran ? direction.LEFT : direction.RIGHT;
+  COHRAT = getCurrentConfig().dotCoherence;
+  UPDATE = true;
 
   correctKey = ran ? LEFT_KEY : RIGHT_KEY;
   timer.resume();
@@ -1394,12 +1394,12 @@ function runTest(canvas) {
   }
 
   function updateDirection () {
-    if (!UPDGHH) {
+    if (!UPDATE) {
       return; 
     }
-    UPDGHH = false;
-    coherence = COUGHH;
-    coherentDirection = DIRGHH;
+    UPDATE = false;
+    coherence = COHRAT;
+    coherentDirection = DIRECT;
 
     //Calculate the number of coherent, opposite coherent, and incoherent dots
     nCoherentDots = nDots * coherence;
