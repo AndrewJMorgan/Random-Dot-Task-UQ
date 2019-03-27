@@ -28,11 +28,11 @@ var uniqueCode = null;
 /* ITI Configuration */
 var CONFIGS = []
 /* Duration in MS, Goal, dot coherence, Show Timer, Show Opponent, practice, show goal */
-addConfig(5000, 1, 1, true, false, true, true);
-addConfig(4000, 5, 0.3, true, true, false, false);
-addConfig(5000, 5, 0.3, true, false, false, true);
-addConfig(6000, 5, 0.3, false, true, false, true);
-addConfig(6000, 5, 0.3, false, false, false, false);
+addConfig(10000, 5, 0.5, true, false, true, true);
+addConfig(9000, 7, 0.8, true, true, false, false);
+addConfig(8000, 6, 0.1, true, false, false, true);
+addConfig(7000, 9, 1, false, true, false, true);
+addConfig(6000, 0, 0.6, false, false, false, false);
 var totalTrials = CONFIGS.length;
 var CONFIG_RANDOM = Math.floor((Math.random() * CONFIGS.length));
 var FIRST_ITI = true;
@@ -508,6 +508,8 @@ function drawTrial() {
 }
 
 function drawITI() {
+  
+  
   /* Build the timing bar and counter */
   var timingBar = document.createElement("div");
   timingBar.id = TIMER_BAR_ID;
@@ -538,9 +540,9 @@ function drawITI() {
   /* Attach divs to itiScreen in display order */
   var itiScreen = document.createElement("div");
   itiScreen.style.paddingTop = '75px';
-  itiScreen.appendChild(timingBarProgress);
   itiScreen.appendChild(resultsDiv);
   itiScreen.appendChild(mainScoreBar.mainDiv);
+  itiScreen.appendChild(timingBarProgress);
 
   return itiScreen;
 }
@@ -554,7 +556,7 @@ function updateInstructions(instructions) {
   if (config.practice == true){
     instructions.innerHTML = `
     PRACTICE (TEXT TO BE UPDATED) <br /> <br />
-    <img src='\Images/COMPTYPE4.png'>
+    <img src='\Images/COMPTYPE2.png' width= '800px'>
     `
   } else {
   if (COMPTYPE == 1) {
@@ -564,7 +566,7 @@ You will have ${config.duration/1000} seconds to achieve a higher score than you
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
 Press any key to continue. <br /> <br />
-<img src='\Images/COMPTYPE1.png'>
+<img src='\Images/COMPTYPE1.png' width= '800px'>
 `;
   } else if (COMPTYPE == 2) {
     instructions.innerHTML = `
@@ -573,7 +575,7 @@ You will have ${config.duration/1000} seconds to acheive a score of ${config.goa
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
 Press any key to continue. <br /> <br />
-<img src='\Images/COMPTYPE2.png'>
+<img src='\Images/COMPTYPE2.png' width= '800px'>
 `;
   } else if (COMPTYPE == 3) { 
     instructions.innerHTML = `
@@ -582,7 +584,7 @@ You have to acheive a score of ${config.goal} before your opponent does.<br /><b
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
 Press any key to continue. <br /> <br />
-<img src='\Images/COMPTYPE3.png'>
+<img src='\Images/COMPTYPE3.png' width= '800px'>
 `;
   } else if (COMPTYPE == 4)  {
   instructions.innerHTML = `
@@ -591,7 +593,7 @@ You will have ${config.duration/1000} seconds to score as many points as possibl
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
 Press any key to continue. <br /> <br />
-<img src='\Images/COMPTYPE4.png'>
+<img src='\Images/COMPTYPE4.png' width= '800px'>
 `;
   };
 }

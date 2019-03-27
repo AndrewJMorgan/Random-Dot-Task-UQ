@@ -11,17 +11,18 @@ html {
 }
 
 #instructions {
-  width: 800px;
+  width: 1000px;
   margin: 50px auto 50px auto;
 }
 
 #myTimingProgress {
-  width: 32%;
+  width: 57%;
+  margin-top: 10px;
   background-color: rgb(213, 213, 213);
   border: 4px black solid;
   border-width: 4px 4px 4px 4px;
   position: relative;
-  left: 32.5%;
+  left: 21%;
 }
 
 #myTimingBar {
@@ -115,7 +116,7 @@ html {
 .finishLine{
   width: 4px;
   height: 100%;
-  background-color: rgba(185, 185, 185, 0.75);
+  background-color: rgba(199, 179, 0, 0.75);
   position: absolute;
   z-index: 10;
 }
