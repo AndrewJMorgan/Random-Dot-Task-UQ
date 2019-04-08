@@ -484,7 +484,7 @@ function drawSurvey() {
 function drawDebrief() {
   var debriefText = document.createElement("p");
   debriefText.innerHTML = `
-  DEBRIEF TEXT | Thank you for completing the experiment. <br /><br />
+  Thank you for completing the experiment. <br /><br />
   Please follow this link and answer a few more questions <br /><br />
   <a href="http://qualtrics.com">www.qualtrics.com</a>
   `
@@ -555,7 +555,14 @@ function updateInstructions(instructions) {
 
   if (config.practice == true){
     instructions.innerHTML = `
-    PRACTICE (TEXT TO BE UPDATED) <br /> <br />
+    THIS IS A PRACTICE ROUND.<br /> <br />
+    Please use this round to familiarise yourself with the task. <br /> <br />
+    In this block, you will NOT have an opponent. <br /> <br />
+    You will have ${config.duration/1000} seconds to acheive a score of ${config.goal}.<br /><br />
+    If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
+    Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
+    The screen will show your score (GREEN), your remaining time (BLUE), and your goal (YELLOW). <br /><br />
+    Press any key to continue. <br /> <br />
     <img src='\Images/COMPTYPE2.png' width= '800px'>
     `
   } else {
@@ -565,6 +572,7 @@ In this block, you will have an opponent. <br /> <br />
 You will have ${config.duration/1000} seconds to achieve a higher score than your opponent.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
+The screen will show your score (GREEN), your opponent's score (RED), and your remaining time (BLUE). <br /><br />
 Press any key to continue. <br /> <br />
 <img src='\Images/COMPTYPE1.png' width= '800px'>
 `;
@@ -574,6 +582,7 @@ In this block, you will NOT have an opponent. <br /> <br />
 You will have ${config.duration/1000} seconds to acheive a score of ${config.goal}.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
+The screen will show your score (GREEN), your remaining time (BLUE), and your goal (YELLOW). <br /><br />
 Press any key to continue. <br /> <br />
 <img src='\Images/COMPTYPE2.png' width= '800px'>
 `;
@@ -583,6 +592,7 @@ In this block, you will have an opponent. <br /> <br />
 You have to acheive a score of ${config.goal} before your opponent does.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
+The screen will show your score (GREEN), your opponent's score (RED), and your goal (YELLOW). <br /><br />
 Press any key to continue. <br /> <br />
 <img src='\Images/COMPTYPE3.png' width= '800px'>
 `;
@@ -592,6 +602,7 @@ In this block, you will NOT have an opponent. <br /> <br />
 You will have ${config.duration/1000} seconds to score as many points as possible.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
+The screen will show your score (GREEN) and your remaining time (BLUE). <br /><br />
 Press any key to continue. <br /> <br />
 <img src='\Images/COMPTYPE4.png' width= '800px'>
 `;
@@ -611,7 +622,8 @@ function updateITI(itiScreen) {
   remaining = timer.remaining < 0 ? 0 : timer.remaining;
   width = 100 - (100 * (remaining / config.duration));
   timingBar.style.width = width + '%';
-  timingBarText.innerHTML = Math.round(remaining / 1000) + 's remaining';
+  var remainingDecimal = remaining/1000;
+  timingBarText.innerHTML = (remainingDecimal.toFixed(2)) + 's remaining';
 
   /* UI for score bars */
   if (FIRST_ITI) {
@@ -639,8 +651,12 @@ function updateResults(itiScreen) {
 
   /* Customize based on score */
   if (score >= getCurrentConfig().goal) {
+    if (score == getCurrentConfig().goal && getCompType() == 1) {
+      img.setAttribute("src", "./Images/face2.png");
+      var message = 'You have tied.';
+    } else {
     img.setAttribute("src", "./Images/face0.png");
-    var message = 'You achieved your goal!';
+    var message = 'You achieved your goal!'; }
   } else {
     img.setAttribute("src", "./Images/face1.png");
     var message = 'You did not achieve your goal.';
