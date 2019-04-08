@@ -933,7 +933,7 @@ function keyPress(event) {
 
 function code() {
   do{
-    uniqueCode = prompt("Please enter your unique code", "");
+    uniqueCode = prompt("Please enter your unique code. It should consist of the first two letters of your mother's name, the first two letters of your fathers name, and the day and month of your birthday (e.g. Mary, David, 22nd of November becomes MADA2211)", "");
   } while (uniqueCode == null || uniqueCode == "" || uniqueCode.length != 8)
 };
 
