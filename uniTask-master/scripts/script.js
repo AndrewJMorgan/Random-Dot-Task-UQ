@@ -477,8 +477,22 @@ Press any key to continue.
   return introText;
 }
 
-function drawSurvey() {
+function savePrime() {
+  var prime = document.getElementById("myText").value;
+  showInstructions();
+  }
 
+function drawSurvey() {
+  var surveyText = document.createElement("p");
+  surveyText.innerHTML = `
+
+  
+  <input type="text" id="myText" value="">
+  <p>Click on the button to proceed. </p>
+  <button onclick="savePrime()">Proceed</button>
+  
+  `
+  return surveyText;
 }
 
 function drawDebrief() {
