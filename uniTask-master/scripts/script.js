@@ -25,14 +25,17 @@ const uiStates = {
 
 var uniqueCode = null;
 
+var trialsCheck = 0;
+var trialRepetitions = 5; /*how many times the trials repeat*/
+
 /* ITI Configuration */
 var CONFIGS = []
 /* Duration in MS, Goal, dot coherence, Show Timer, Show Opponent, practice, show goal */
-addConfig(10000, 5, 0.5, true, false, true, true);
-addConfig(9000, 7, 0.8, true, true, false, false);
-addConfig(8000, 6, 0.1, true, false, false, true);
-addConfig(7000, 9, 1, false, true, false, true);
-addConfig(6000, 0, 0.6, false, false, false, false);
+addConfig(5000, 5, 0.5, true, false, true, true);
+addConfig(5000, 7, 0.8, true, true, false, false);
+addConfig(5000, 6, 0.1, true, false, false, true);
+addConfig(5000, 9, 1, false, true, false, true);
+addConfig(5000, 0, 0.6, false, false, false, false);/*COMPTYPE 4 is a special case where showTimer must be false, even though a timer is shown*/
 var totalTrials = CONFIGS.length;
 var CONFIG_RANDOM = Math.floor((Math.random() * CONFIGS.length));
 var FIRST_ITI = true;
@@ -790,7 +793,7 @@ function addConfig(duration, goal, dotCoherence, showTiming, showOpponent, pract
 }
 
 function getCurrentConfig() {
-  if (CONFIGS.length == totalTrials) {
+  if (CONFIGS.length == totalTrials) { /* first trial always practice*/
     CONFIGS[CONFIG_RANDOM = 0];
     return CONFIGS[CONFIG_RANDOM];
       } else {
@@ -817,8 +820,13 @@ function getCompType() {
 }
 
 function nextConfig() {
+if (getCurrentConfig().practice == false)
+  trialsCheck++;
+if (trialsCheck == trialRepetitions || getCurrentConfig().practice == true) {
+  trialsCheck = 0;
   CONFIGS.splice(CONFIG_RANDOM, 1);
   CONFIG_RANDOM = Math.floor(Math.random() * CONFIGS.length);
+}
 }
 
 function getOpponentScore() {
@@ -933,13 +941,22 @@ function keyPress(event) {
 
 
         main();
-      } else {
+      } else if (CONFIGS.length == 1) {
+        if (trialsCheck < (trialRepetitions - 1)){
+          console.log(CONFIGS.length);
+          TRIAL_COUNT++;
+          nextConfig();
+  
+  
+          main();
+        } else if (trialsCheck == (trialRepetitions - 1)){
         // Removed in favour of server side saves via uqpsychExportData()
         // console.log(CONFIGS.length);
         // csvLogs.unshift(CSV_HEADER);
         // exportCSV(csvLogs, CSV_FILENAME);
         uqpsychExportData(csvLogs);
         showDebrief();
+        }
       }
     }
   }
@@ -956,7 +973,6 @@ function code() {
  * Sets up initial state and registers events
  */
 function main() {
-  console.log(getCurrentConfig().goal);
   score = 0;
   
   correctKey = null;
