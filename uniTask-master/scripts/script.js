@@ -25,17 +25,19 @@ const uiStates = {
 
 var uniqueCode = null;
 
+var prime = null;
+
 var trialsCheck = 0;
 var trialRepetitions = 5; /*how many times the trials repeat*/
 
 /* ITI Configuration */
 var CONFIGS = []
 /* Duration in MS, Goal, dot coherence, Show Timer, Show Opponent, practice, show goal */
-addConfig(5000, 5, 0.5, true, false, true, true);
-addConfig(5000, 7, 0.8, true, true, false, false);
-addConfig(5000, 6, 0.1, true, false, false, true);
-addConfig(5000, 9, 1, false, true, false, true);
-addConfig(5000, 0, 0.6, false, false, false, false);/*COMPTYPE 4 is a special case where showTimer must be false, even though a timer is shown*/
+addConfig(1000, 1, 0.5, true, false, true, true);
+addConfig(1000, 1, 0.8, true, true, false, false);
+addConfig(1000, 1, 0.1, true, false, false, true);
+addConfig(1000, 1, 1, false, true, false, true);
+addConfig(1000, 0, 0.6, false, false, false, false);/*COMPTYPE 4 is a special case where showTimer must be false, even though a timer is shown*/
 var totalTrials = CONFIGS.length;
 var CONFIG_RANDOM = Math.floor((Math.random() * CONFIGS.length));
 var FIRST_ITI = true;
@@ -50,7 +52,7 @@ var CLOCK_INTERVAL_MS = 50;
 var ITI_DURATION_MS = 1000;
 var LEFT_KEY = 65;
 var RIGHT_KEY = 76;
-var CSV_HEADER = ["unique code", "trial number", "direction", "input", "correct", "reaction_time", "score", "goal", "distance", "time limit", "coherence", "show timer", "show opponent", "competition type", "practice"];
+var CSV_HEADER = ["unique code", "trial number", "direction", "input", "correct", "reaction_time", "score", "goal", "distance", "time limit", "coherence", "show timer", "show opponent", "competition type", "practice", "repetition", "prime"];
 var CSV_FILENAME = "testSave.csv"
 var TRIAL_COUNT = 1;
 //var DOT_COHERENCE = 1;
@@ -482,15 +484,16 @@ Press any key to continue.
 
 function savePrime() {
   var prime = document.getElementById("myText").value;
+  console.log(prime);
   showInstructions();
   }
 
 function drawSurvey() {
   var surveyText = document.createElement("p");
   surveyText.innerHTML = `
-
+  Please write about a time when you <br /><br />
   
-  <input type="text" id="myText" value="">
+  <textarea id="myText" rows="20" cols="60"></textarea>
   <p>Click on the button to proceed. </p>
   <button onclick="savePrime()">Proceed</button>
   
@@ -858,6 +861,8 @@ function logGuess(correct) {
   guess.push(config.showTiming);
   guess.push(getCompType());
   guess.push(config.practice);
+  guess.push(trialsCheck);
+  guess.push(prime);
   return guess;
 }
 
@@ -885,6 +890,8 @@ function logTimeout() {
   guess.push(config.showTiming);
   guess.push(getCompType());
   guess.push(config.practice);
+  guess.push(trialsCheck);
+  guess.push(prime);
   return guess;
 }
 
@@ -905,7 +912,8 @@ function keyPress(event) {
   if (uiState == uiStates.INTRODUCTION) {
 
     showInstructions();
-  }
+    }
+  
   else if (uiState == uiStates.INSTRUCTIONS) {
     showTrial();
   } else if (uiState == uiStates.TRIAL) {
@@ -985,6 +993,8 @@ function main() {
     //trialStart = 0;
     //score = getCurrentConfig().goal;
     //showResults();
+  }    else if (trialsCheck == 0 && getCurrentConfig().practice == false) {
+    showSurvey();
   } else {
     showInstructions();
   }
