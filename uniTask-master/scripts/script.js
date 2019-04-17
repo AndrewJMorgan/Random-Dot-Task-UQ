@@ -21,23 +21,30 @@ const uiStates = {
   ITI:  "ITI",
   RESULTS: "RESULTS",
   DEBRIEF: "DEBRIEF",
+  MANIPULATIONCHECK: "MANIPULATIONCHECK"
 }
 
 var uniqueCode = null;
 
 var prime = null;
 
+var MC1 = null;
+var MC2 = null;
+var MC3 = null;
+var MC4 = null;
+
 var trialsCheck = 0;
 var trialRepetitions = 5; /*how many times the trials repeat*/
 
 /* ITI Configuration */
 var CONFIGS = []
-/* Duration in MS, Goal, dot coherence, Show Timer, Show Opponent, practice, show goal */
-addConfig(1000, 1, 0.5, true, false, true, true);
-addConfig(1000, 1, 0.8, true, true, false, false);
-addConfig(1000, 1, 0.1, true, false, false, true);
-addConfig(1000, 1, 1, false, true, false, true);
-addConfig(1000, 0, 0.6, false, false, false, false);/*COMPTYPE 4 is a special case where showTimer must be false, even though a timer is shown*/
+/* Duration in MS, Goal, dot coherence, Show Timer, Show Opponent, practice, show goal, rival*/
+addConfig(10000, 5, 0.5, true, false, true, true, false); /*practice*/
+addConfig(10000, 5, 0.5, true, true, false, false, false); /*COMPTYPE 1*/
+addConfig(10000, 5, 0.5, true, true, false, false, true); /*COMPTYPE 1 with rival*/
+addConfig(10000, 5, 0.5, true, false, false, true, false); /*COMPTYPE 2*/
+/*addConfig(1000, 1, 1, false, true, false, true);*/ /*COMPTYPE 3*/
+addConfig(10000, 0, 0.5, false, false, false, false, false);/*COMPTYPE 4 is a special case where showTimer must be false, even though a timer is shown - goal is 0 as there is no goal*/
 var totalTrials = CONFIGS.length;
 var CONFIG_RANDOM = Math.floor((Math.random() * CONFIGS.length));
 var FIRST_ITI = true;
@@ -52,7 +59,7 @@ var CLOCK_INTERVAL_MS = 50;
 var ITI_DURATION_MS = 1000;
 var LEFT_KEY = 65;
 var RIGHT_KEY = 76;
-var CSV_HEADER = ["unique code", "trial number", "direction", "input", "correct", "reaction_time", "score", "goal", "distance", "time limit", "coherence", "show timer", "show opponent", "competition type", "practice", "repetition", "prime"];
+var CSV_HEADER = ["unique code", "trial number", "direction", "input", "correct", "reaction_time", "score", "goal", "distance", "time limit", "coherence", "show timer", "show opponent", "competition type", "practice", "repetition", "prime", "rival", "MC1", "MC2", "MC3", "MC4"];
 var CSV_FILENAME = "testSave.csv"
 var TRIAL_COUNT = 1;
 //var DOT_COHERENCE = 1;
@@ -78,6 +85,7 @@ var SCORE_BAR_3_1_TEXT_ID = "myScoreBar3Text2";
 var SCORE_BAR_3_2_TEXT_ID = "myScoreBar3Text3";
 var INTRODUCTION_ID = "instructions";
 var DEBRIEF_ID = "instructions";
+var MANIPULATIONCHECK_ID = "instructions";
 var SURVEY_ID = "survey";
 var TIMING_PROGRESS_DIV_ID = "myTimingProgress";
 var OPPONENT_SCORE_BAR_DIV_ID = "opponentScoreBar";
@@ -428,7 +436,37 @@ function exportCSV(values, filename) {
      - assumes data in 'values' columns match 'CSV_HEADER'
      - will warn if there is a problem saving the data (and data will be lost)
  */
-function uqpsychExportData(values) {
+function logMC(){
+console.log("test");
+  var guess = [];
+    guess.push("NA")
+    guess.push("NA");
+    guess.push("NA");
+    guess.push("NA");
+    guess.push("NA");
+    guess.push("NA");
+    guess.push("NA");
+    guess.push("NA");
+    guess.push("NA");
+    guess.push("NA");
+    guess.push("NA");
+    guess.push("NA");
+    guess.push("NA");
+    guess.push("NA");
+    guess.push("NA");
+    guess.push("NA");
+    guess.push("NA");
+    guess.push("NA");
+    guess.push(MC1);
+    guess.push(MC2);
+    guess.push(MC3);
+    guess.push(MC4);
+    console.log("test");
+    return guess;
+   }
+
+
+ function uqpsychExportData(values) {
     // Server receiver
     var url = 'https://exp.psy.uq.edu.au/s4322866/bin/record.htm';    // Change this if not on the www2.psy.uq.edu.au domain
 
@@ -483,15 +521,20 @@ Press any key to continue.
 }
 
 function savePrime() {
-  var prime = document.getElementById("myText").value;
+  prime = document.getElementById("myText").value;
   console.log(prime);
   showInstructions();
   }
 
-function drawSurvey() {
+function updateSurvey(survey) {
+  var config = getCurrentConfig();
+  var COMPTYPE = getCompType();
   var surveyText = document.createElement("p");
+  if (COMPTYPE == 4) {
   surveyText.innerHTML = `
-  Please write about a time when you <br /><br />
+  Please think of a time you have had to do your best. <br /><br />
+  By do your best, we mean a situation or task where you did not have an explicit performance target, but simply had to achieve the most you could within certain amount of time. <br /><br />
+  Please briefly describe the nature of this situation and how you approached it. <br /><br />
   
   <textarea id="myText" rows="20" cols="60"></textarea>
   <p>Click on the button to proceed. </p>
@@ -499,9 +542,48 @@ function drawSurvey() {
   
   `
   return surveyText;
+  } else if (COMPTYPE == 2) {
+    surveyText.innerHTML = `
+    Please think of a time you have had to achieve a goal. <br /><br />
+    By goal, we mean a desired state or performance that you aspire to achieve within a certain amount of time. <br /><br />
+    Please briefly describe the nature of the goal and how you attempted to achieve it.<br /><br />
+    
+    <textarea id="myText" rows="20" cols="60"></textarea>
+    <p>Click on the button to proceed. </p>
+    <button onclick="savePrime()">Proceed</button>
+    
+    `
+    return surveyText;
+    } else if (COMPTYPE == 1) {
+      if (getCurrentConfig().rival == false) {
+        surveyText.innerHTML = `
+	
+        Please think of a person you have recently completed against. <br /><br />
+        Please briefly describe the person and the time you first had to compete against them.<br /><br />
+        
+        <textarea id="myText" rows="20" cols="60"></textarea>
+        <p>Click on the button to proceed. </p>
+        <button onclick="savePrime()">Proceed</button>
+        
+        `
+        return surveyText;
+      } else if (getCurrentConfig().rival == true){
+      surveyText.innerHTML = `
+      Please think of someone that you have competed against who you consider(ed) to be a personal rival. <br /><br />
+      By a personal rival, we mean someone against whom competitions are of greater importance or significance to you, due to the relationship or past history that you have with this person. <br /><br />
+      Please briefly describe this personal rival and the things you have competed on.<br /><br />
+      
+      <textarea id="myText" rows="20" cols="60"></textarea>
+      <p>Click on the button to proceed. </p>
+      <button onclick="savePrime()">Proceed</button>
+      
+      `
+      return surveyText;
+      }
+    }
 }
 
-function drawDebrief() {
+function updateDebrief(debrief) {
   var debriefText = document.createElement("p");
   debriefText.innerHTML = `
   Thank you for completing the experiment. <br /><br />
@@ -511,8 +593,100 @@ function drawDebrief() {
   return debriefText;
 }
 
+function saveMC() {
+  MC1 = ((document.getElementById("MC1").value));
+  console.log(MC1);
+  MC2 = ((document.getElementById("MC2").value));
+  console.log(MC2);
+  MC3 = ((document.getElementById("MC3").value));
+  console.log(MC3);
+  MC4 = ((document.getElementById("MC4").value));
+  console.log(MC4);
+  csvLogs.push(logMC());
+  if (CONFIGS.length > 1) {
+    console.log(CONFIGS.length);
+    TRIAL_COUNT++;
+    nextConfig();
+    main();
+  } else if (CONFIGS.length == 1){
+  // Removed in favour of server side saves via uqpsychExportData()
+  // console.log(CONFIGS.length);
+  // csvLogs.unshift(CSV_HEADER);
+  // exportCSV(csvLogs, CSV_FILENAME);
+  uqpsychExportData(csvLogs);
+  showDebrief();
+}
+}
+
+function updateManipulationCheck(manipulationCheck) {
+  var manipulationCheckText = document.createElement("p");
+  manipulationCheckText.innerHTML = `
+  1 = Strongly Disagree, 2 = Disagree, 3 = Slightly Disagree, 4 = Neutral, 5 = Slightly Agree, 6 = Agree, 7 = Strongly Agree <br />
+Check 1 <br />
+  <select id="MC1">
+  <option>1</option>
+  <option>2</option>
+  <option>3</option>
+  <option>4</option>
+  <option>5</option>
+  <option>6</option>
+  <option>7</option>
+</select><br />
+
+Check 2 <br />
+  <select id="MC2">
+  <option>1</option>
+  <option>2</option>
+  <option>3</option>
+  <option>4</option>
+  <option>5</option>
+  <option>6</option>
+  <option>7</option>
+</select><br />
+
+Check 3 <br />
+  <select id="MC3">
+  <option>1</option>
+  <option>2</option>
+  <option>3</option>
+  <option>4</option>
+  <option>5</option>
+  <option>6</option>
+  <option>7</option>
+</select><br />
+
+Check 4 <br />
+  <select id="MC4">
+  <option>1</option>
+  <option>2</option>
+  <option>3</option>
+  <option>4</option>
+  <option>5</option>
+  <option>6</option>
+  <option>7</option>
+</select><br />
+
+  <p>Click on the button to proceed. </p>
+  <button onclick="saveMC()">Proceed</button>
+
+  `
+  return manipulationCheckText;
+}
+
 function drawInstructions() {
   return updateInstructions(document.createElement("p"));
+}
+
+function drawSurvey() {
+  return updateSurvey(document.createElement("p"));
+}
+
+function drawDebrief(){
+  return updateDebrief(document.createElement("p"));
+}
+
+function drawManipulationCheck() {
+  return updateManipulationCheck(document.createElement("p"));
 }
 
 function drawTrial() {
@@ -700,14 +874,23 @@ function showSurvey() {
   removeBody();
   uiState = uiStates.SURVEY;
   document.body.style.backgroundColor = "white";
-  document.body.appendChild(survey);
+  document.body.appendChild(updateSurvey(survey));
 }
 
 function showDebrief() {
+  console.log("one");
   removeBody();
   uiState = uiStates.DEBRIEF;
   document.body.style.backgroundColor = "white";
-  document.body.appendChild(debrief);
+  document.body.appendChild(updateDebrief(debrief));
+  console.log("two");
+}
+
+function showManipulationCheck() {
+  removeBody();
+  uiState = uiStates.MANIPULATIONCHECK;
+  document.body.style.backgroundColor = "white";
+  document.body.appendChild(updateManipulationCheck(manipulationCheck));
 }
 
 function showInstructions() {
@@ -782,7 +965,7 @@ function showResults() {
 
 /*** MISC *********************************************************************/
 
-function addConfig(duration, goal, dotCoherence, showTiming, showOpponent, practice, showGoal) {
+function addConfig(duration, goal, dotCoherence, showTiming, showOpponent, practice, showGoal, rival) {
   var newConfig = {
     "duration": duration,
     "goal": goal,
@@ -790,7 +973,8 @@ function addConfig(duration, goal, dotCoherence, showTiming, showOpponent, pract
     "showTiming": showTiming,
     "showOpponent": showOpponent,
     "practice": practice,
-    "showGoal": showGoal
+    "showGoal": showGoal,
+    "rival": rival
   }
   CONFIGS.push(newConfig)
 }
@@ -863,6 +1047,11 @@ function logGuess(correct) {
   guess.push(config.practice);
   guess.push(trialsCheck);
   guess.push(prime);
+  guess.push(config.rival);
+  guess.push(MC1);
+  guess.push(MC2);
+  guess.push(MC3);
+  guess.push(MC4);
   return guess;
 }
 
@@ -892,6 +1081,11 @@ function logTimeout() {
   guess.push(config.practice);
   guess.push(trialsCheck);
   guess.push(prime);
+  guess.push(config.rival);
+  guess.push(MC1);
+  guess.push(MC2);
+  guess.push(MC3);
+  guess.push(MC4);
   return guess;
 }
 
@@ -943,13 +1137,17 @@ function keyPress(event) {
     /* Restart the trials */
     if (event.keyCode == 82) {
       if (CONFIGS.length > 1) {
+        if (getCurrentConfig().rival == true && trialsCheck == (trialRepetitions - 1)){
+          showManipulationCheck();
+        } else {
         console.log(CONFIGS.length);
         TRIAL_COUNT++;
         nextConfig();
 
 
         main();
-      } else if (CONFIGS.length == 1) {
+      }
+    } else if (CONFIGS.length == 1) {
         if (trialsCheck < (trialRepetitions - 1)){
           console.log(CONFIGS.length);
           TRIAL_COUNT++;
@@ -958,6 +1156,10 @@ function keyPress(event) {
   
           main();
         } else if (trialsCheck == (trialRepetitions - 1)){
+
+          if (getCurrentConfig().rival == true && trialsCheck == (trialRepetitions - 1)){
+          showManipulationCheck();
+          } else {
         // Removed in favour of server side saves via uqpsychExportData()
         // console.log(CONFIGS.length);
         // csvLogs.unshift(CSV_HEADER);
@@ -968,6 +1170,7 @@ function keyPress(event) {
       }
     }
   }
+}
 }
 
 function code() {
@@ -1038,6 +1241,7 @@ instructions = drawInstructions();
 trial = drawTrial();
 iti = drawITI();
 debrief = drawDebrief();
+manipulationCheck = drawManipulationCheck();
 
 /* Start the trials */
 document.addEventListener('keydown', keyPress);
