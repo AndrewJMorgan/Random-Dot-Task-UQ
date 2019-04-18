@@ -806,8 +806,6 @@ Press any key to continue. <br /> <br />
   } else {
     instructions.innerHTML = `
 This trial will be the same as the previous one. <br /><br />
-If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
-Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
 Press any key to continue. <br /> <br />
 `
   }
