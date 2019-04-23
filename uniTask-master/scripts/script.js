@@ -436,7 +436,7 @@ function exportCSV(values, filename) {
      - assumes data in 'values' columns match 'CSV_HEADER'
      - will warn if there is a problem saving the data (and data will be lost)
  */
-function logMC(){
+/*function logMC(){
 console.log("test");
   var guess = [];
     guess.push("NA")
@@ -463,7 +463,7 @@ console.log("test");
     guess.push(MC4);
     console.log("test");
     return guess;
-   }
+   }*/
 
 
  function uqpsychExportData(values) {
@@ -523,8 +523,12 @@ Press any key to continue.
 function savePrime() {
   prime = document.getElementById("myText").value;
   console.log(prime);
+  if (getCurrentConfig().rival == true){
+    showManipulationCheck();
+  } else {
   showInstructions();
   }
+}
 
 function updateSurvey(survey) {
   var config = getCurrentConfig();
@@ -602,27 +606,15 @@ function saveMC() {
   console.log(MC3);
   MC4 = ((document.getElementById("MC4").value));
   console.log(MC4);
-  csvLogs.push(logMC());
-  if (CONFIGS.length > 1) {
-    console.log(CONFIGS.length);
-    TRIAL_COUNT++;
-    nextConfig();
-    main();
-  } else if (CONFIGS.length == 1){
-  // Removed in favour of server side saves via uqpsychExportData()
-  // console.log(CONFIGS.length);
-  // csvLogs.unshift(CSV_HEADER);
-  // exportCSV(csvLogs, CSV_FILENAME);
-  uqpsychExportData(csvLogs);
-  showDebrief();
+showInstructions();
 }
-}
+
 
 function updateManipulationCheck(manipulationCheck) {
   var manipulationCheckText = document.createElement("p");
   manipulationCheckText.innerHTML = `
   1 = Strongly Disagree, 2 = Disagree, 3 = Slightly Disagree, 4 = Neutral, 5 = Slightly Agree, 6 = Agree, 7 = Strongly Agree <br />
-Check 1 <br />
+I consider this person to be a personal rival <br />
   <select id="MC1">
   <option>1</option>
   <option>2</option>
@@ -633,7 +625,7 @@ Check 1 <br />
   <option>7</option>
 </select><br />
 
-Check 2 <br />
+Competitions against this person were more important to me because of the relationship that exists(ed) between us <br />
   <select id="MC2">
   <option>1</option>
   <option>2</option>
@@ -763,7 +755,7 @@ function updateInstructions(instructions) {
   } else {
   if (COMPTYPE == 1) {
     instructions.innerHTML = `
-In this block, you will have an opponent. <br /> <br />
+In the next set of trials, you will have an opponent. <br /> <br />
 You will have ${config.duration/1000} seconds to achieve a higher score than your opponent.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
@@ -773,7 +765,7 @@ Press any key to continue. <br /> <br />
 `;
   } else if (COMPTYPE == 2) {
     instructions.innerHTML = `
-In this block, you will NOT have an opponent. <br /> <br />
+    In the next set of trials, you will NOT have an opponent. <br /> <br />
 You will have ${config.duration/1000} seconds to acheive a score of ${config.goal}.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
@@ -782,18 +774,31 @@ Press any key to continue. <br /> <br />
 <img src='\Images/COMPTYPE2.png' width= '800px'>
 `;
   } else if (COMPTYPE == 3) { 
-    instructions.innerHTML = `
-In this block, you will have an opponent. <br /> <br />    
-You have to acheive a score of ${config.goal} before your opponent does.<br /><br />
-If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
-Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
-The screen will show your score (GREEN), your opponent's score (RED), and your goal (YELLOW). <br /><br />
-Press any key to continue. <br /> <br />
-<img src='\Images/COMPTYPE3.png' width= '800px'>
-`;
+    if (getCurrentConfig().rival == false){
+      instructions.innerHTML = `
+      In the next set of trials, you will have an opponent. <br /> <br /> 
+      In these trials, imagine your opponent is the person you just described, and perform the task as if you are competing against this person. <br /><br />   
+  You have to acheive a score of ${config.goal} before your opponent does.<br /><br />
+  If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
+  Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
+  The screen will show your score (GREEN), your opponent's score (RED), and your goal (YELLOW). <br /><br />
+  Press any key to continue. <br /> <br />
+  <img src='\Images/COMPTYPE3.png' width= '800px'>
+  `;
+    } else if (getCurrentConfig().rival == true){
+      instructions.innerHTML = `
+      In the next set of trials, you will have an opponent. <br /> <br />    
+      In these trials, imagine your opponent is the person you just described, and perform the task as if you are competing against this rival. <br /><br />  
+  You have to acheive a score of ${config.goal} before your opponent does.<br /><br />
+  If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
+  Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
+  The screen will show your score (GREEN), your opponent's score (RED), and your goal (YELLOW). <br /><br />
+  Press any key to continue. <br /> <br />
+  <img src='\Images/COMPTYPE3.png' width= '800px'>)
+ `;
   } else if (COMPTYPE == 4)  {
   instructions.innerHTML = `
-In this block, you will NOT have an opponent. <br /> <br />
+  In the next set of trials, you will NOT have an opponent. <br /> <br />
 You will have ${config.duration/1000} seconds to score as many points as possible.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
@@ -802,7 +807,7 @@ Press any key to continue. <br /> <br />
 <img src='\Images/COMPTYPE4.png' width= '800px'>
 `;
   };
-}
+  }}
   } else {
     instructions.innerHTML = `
 This trial will be the same as the previous one. <br /><br />
@@ -1144,9 +1149,7 @@ function keyPress(event) {
     /* Restart the trials */
     if (event.keyCode == 82) {
       if (CONFIGS.length > 1) {
-        if (getCurrentConfig().rival == true && trialsCheck == (trialRepetitions - 1)){
-          showManipulationCheck();
-        } else {
+        
         console.log(CONFIGS.length);
         TRIAL_COUNT++;
         nextConfig();
@@ -1164,9 +1167,7 @@ function keyPress(event) {
           main();
         } else if (trialsCheck == (trialRepetitions - 1)){
 
-          if (getCurrentConfig().rival == true && trialsCheck == (trialRepetitions - 1)){
-          showManipulationCheck();
-          } else {
+          
         // Removed in favour of server side saves via uqpsychExportData()
         // console.log(CONFIGS.length);
         // csvLogs.unshift(CSV_HEADER);
@@ -1177,8 +1178,8 @@ function keyPress(event) {
       }
     }
   }
-}
-}
+
+
 
 function code() {
   do{
