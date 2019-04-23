@@ -51,7 +51,8 @@ var CSV_HEADER = ["unique code", "trial number", "direction", "input", "correct"
 var CSV_FILENAME = "testSave.csv"
 var TRIAL_COUNT = 1;
 //var DOT_COHERENCE = 1;
-var OPPONENT_SCORE = 0;
+var OPPONENT_SCORE_ARRAY = null;
+var OPPONENT_TIME_ARRAY = null;
 
 /* Resources */
 var FAIL_SOUND = new sound("./Sounds/trial-fail.mp3");
@@ -809,7 +810,147 @@ function nextConfig() {
 
 function getOpponentScore() {
   var config = getCurrentConfig();
-  return Math.floor((1 - (timer.remaining/config.duration)) * config.goal);
+
+    
+  var opponents_score_array = OPPONENT_EPISODE_ARRAY.slice(0,OPPONENT_EPISODE_ARRAY.length/2);
+  var opponents_time_array = OPPONENT_EPISODE_ARRAY.slice(OPPONENT_EPISODE_ARRAY.length/2 , OPPONENT_EPISODE_ARRAY.length  );
+
+  var time_used = config.duration - timer.remaining;
+  var ind = 0;
+
+  do{
+    ind++;
+  } while ( opponents_time_array[ind] < time_used);
+
+    
+  return opponents_score_array[ind - 1];
+}
+
+//Generate random number from standard normal distribution using the Marsaglia polar method
+        //var spareRandom = null;
+        function normalRandom() {
+            var val, u, v, s, mul;
+
+            //if(spareRandom !== null){
+            //  val = spareRandom;
+            //  spareRandom = null;
+            //}
+            //else{
+            do {
+                u = Math.random() * 2 - 1;
+                v = Math.random() * 2 - 1;
+
+                s = u * u + v * v;
+            } while (s === 0 || s >= 1);
+
+            mul = Math.sqrt(-2 * Math.log(s) / s);
+
+            val = u * mul;
+            //spareRandom = v * mul;
+            //  }       
+
+            return val;
+        }
+
+function simulate_opponent_trial(max_start_point,mean_drift_rates,sd_drift_rates,thresholds,non_decision_time) {
+  //sample starting point
+  var start_point_correct = Math.random() * max_start_point;
+  var start_point_incorrect = Math.random() * max_start_point;
+  
+  //sample drift rate ensuring that at least one is positive
+  var drift_rate_correct = -1
+  var drift_rate_incorrect = -1
+  do {
+    var drift_rate_correct = normalRandom() * sd_drift_rates[0] + mean_drift_rates[0]
+    var drift_rate_incorrect = normalRandom() * sd_drift_rates[1] + mean_drift_rates[1]
+  } while (drift_rate_correct <= 0 && drift_rate_incorrect <= 0);
+
+  var evidence_required_correct = thresholds[0] - start_point_correct
+  var evidence_required_incorrect = thresholds[1] - start_point_incorrect
+
+  //calculate time required for each acculator to reach threshold
+  var time_required_correct = evidence_required_correct / drift_rate_correct
+  var time_required_incorrect = evidence_required_incorrect / drift_rate_incorrect
+
+  //if both times are positive (which means both rates are positive)
+  if(time_required_correct > 0 && time_required_incorrect > 0){
+    //decision time is determined by shorter time required
+    if(time_required_correct < time_required_incorrect){
+      var decision_time = time_required_correct;
+      var change_in_opponent_score = 1; 
+    }
+    if(time_required_correct > time_required_incorrect){
+      var decision_time = time_required_incorrect;
+      var change_in_opponent_score = -1; 
+    }
+    //if one time required is negative, the corresponding drift rate would have bene negative
+    //so this accumulator is disregarded. The decision time is determined by the positive time required
+  } else {
+    if(time_required_correct < time_required_incorrect){
+      var decision_time = time_required_incorrect;
+      var change_in_opponent_score = -1; 
+    }
+    if(time_required_correct > time_required_incorrect){
+      var decision_time = time_required_correct;
+      var change_in_opponent_score = 1; 
+    }
+  }
+
+  var opponent_response_time = decision_time + non_decision_time;
+
+  //store choice and RT in object
+  var opponent_trial = [];
+  opponent_trial.push(change_in_opponent_score);
+  opponent_trial.push(opponent_response_time);
+
+  return opponent_trial;
+}
+
+function simulate_opponent_episode(){
+
+  //get config
+  var config = getCurrentConfig();
+
+  //initialize opponent episode array
+  OPPONENT_SCORE_ARRAY = [];
+  var opponent_score = 0;
+  OPPONENT_SCORE_ARRAY.push(opponent_score );
+  
+  OPPONENT_TIME_ARRAY = [];
+  var opponent_time = 0;
+  OPPONENT_TIME_ARRAY.push(opponent_time);
+
+  //tournament
+  if(getCompType() == 1){
+    do {
+      var opponent_trial = simulate_opponent_trial(max_start_point,mean_drift_rates,sd_drift_rates,thresholds,non_decision_time);
+      //increment score and time used
+      opponent_score = opponent_score + opponent_trial[0];
+      opponent_time = opponent_time + opponent_trial[1];
+      //store increment in array
+      OPPONENT_SCORE_ARRAY.push(opponent_score );
+      OPPONENT_TIME_ARRAY.push(opponent_time);
+
+    } while ( opponent_time < config.duration );    
+  }
+  //race
+  if(getCompType() == 3){
+    do {
+      var opponent_trial = simulate_opponent_trial(max_start_point,mean_drift_rates,sd_drift_rates,thresholds,non_decision_time);
+      //increment score and time used
+      opponent_score = opponent_score + opponent_trial[0];
+      opponent_time = opponent_time + opponent_trial[1];
+      //store increment in array
+      OPPONENT_SCORE_ARRAY.push(opponent_score );
+      OPPONENT_TIME_ARRAY.push(opponent_time);
+
+    } while ( opponent_score < config.goal );    
+  }
+  OPPONENT_EPISODE_ARRAY = [];
+  OPPONENT_EPISODE_ARRAY.push(OPPONENT_SCORE_ARRAY);
+  OPPONENT_EPISODE_ARRAY.push(OPPONENT_TIME_ARRAY);
+
+  return OPPONENT_EPISODE_ARRAY;
 }
 
 function logGuess(correct) {
@@ -885,6 +1026,11 @@ function keyPress(event) {
     showInstructions();
   }
   else if (uiState == uiStates.INSTRUCTIONS) {
+    
+    //simulate opponents choices
+    var OPPONENT_EPISODE_ARRAY = simulate_opponent_episode(max_start_point,mean_drift_rates,sd_drift_rates,thresholds,non_decision_time);
+
+
     showTrial();
   } else if (uiState == uiStates.TRIAL) {
     if (event.keyCode == LEFT_KEY || event.keyCode == RIGHT_KEY) {
