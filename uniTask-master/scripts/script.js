@@ -24,6 +24,9 @@ const uiStates = {
 }
 
 var uniqueCode = null;
+var prevScore = null;
+var trialCount = 1;
+
 
 /* ITI Configuration */
 var CONFIGS = []
@@ -47,7 +50,7 @@ var CLOCK_INTERVAL_MS = 50;
 var ITI_DURATION_MS = 1000;
 var LEFT_KEY = 65;
 var RIGHT_KEY = 76;
-var CSV_HEADER = ["unique code", "trial number", "direction", "input", "correct", "reaction_time", "score", "goal", "distance", "time limit", "coherence", "show timer", "show opponent", "competition type", "practice"];
+var CSV_HEADER = ["unique code", "block number", "trial count", "direction", "input", "correct", "reaction_time", "previous score", "score", "goal", "distance", "time limit", "coherence", "show timer", "show opponent", "competition type", "practice"];
 var CSV_FILENAME = "testSave.csv"
 var TRIAL_COUNT = 1;
 //var DOT_COHERENCE = 1;
@@ -702,6 +705,7 @@ function showInstructions() {
 function showTrial() {
   /* Reset state */
   removeBody();
+  prevScore = score;
   uiState = uiStates.TRIAL;
   document.body.style.backgroundColor = "gray";
   document.body.appendChild(trial);
@@ -964,10 +968,12 @@ function logGuess(correct) {
   var config = getCurrentConfig();
   guess.push(uniqueCode)
   guess.push(TRIAL_COUNT);
+  guess.push(trialCount);
   guess.push(correctKey == LEFT_KEY ? "left" : "right");
   guess.push(event.keyCode);
   guess.push(correct);
   guess.push(reaction);
+  guess.push(prevScore);
   guess.push(score);
   guess.push(config.goal);
   guess.push(config.goal - (score));
@@ -991,10 +997,12 @@ function logTimeout() {
   var config = getCurrentConfig();
   guess.push(uniqueCode)
   guess.push(TRIAL_COUNT);
+  guess.push(trialCount);
   guess.push(correctKey == LEFT_KEY ? "left" : "right");
   guess.push("NA");
   guess.push("NA");
   guess.push(reaction);
+  guess.push(prevScore);
   guess.push(score);
   guess.push(config.goal);
   guess.push(config.goal - (score));
@@ -1047,6 +1055,7 @@ function keyPress(event) {
         FAIL_SOUND.play();
       }
       csvLogs.push(logGuess(correct));
+      trialCount++;
 
       if (getCompType() == 3 && score >= getCurrentConfig().goal) {
         showResults();
@@ -1061,6 +1070,7 @@ function keyPress(event) {
       if (CONFIGS.length > 1) {
         console.log(CONFIGS.length);
         TRIAL_COUNT++;
+        trialCount = 1;
         nextConfig();
 
 
