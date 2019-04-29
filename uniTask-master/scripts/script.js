@@ -25,6 +25,9 @@ const uiStates = {
 }
 
 var uniqueCode = null;
+var prevScore = null;
+var trialCount = 1;
+
 
 var prime = null;
 
@@ -34,7 +37,7 @@ var MC3 = null;
 var MC4 = null;
 
 var trialsCheck = 0;
-var trialRepetitions = 5; /*how many times the trials repeat*/
+var trialRepetitions = 2; /*how many times the trials repeat*/
 
 /* ITI Configuration */
 var CONFIGS = []
@@ -43,7 +46,8 @@ addConfig(10000, 5, 0.5, true, false, true, true, false); /*practice*/
 addConfig(10000, 5, 0.5, true, true, false, false, false); /*COMPTYPE 1*/
 addConfig(10000, 5, 0.5, true, true, false, false, true); /*COMPTYPE 1 with rival*/
 addConfig(10000, 5, 0.5, true, false, false, true, false); /*COMPTYPE 2*/
-/*addConfig(1000, 1, 1, false, true, false, true);*/ /*COMPTYPE 3*/
+/*addConfig(10000, 5, 0.5, false, true, false, true, false); /*COMPTYPE 3*/
+/*addConfig(10000, 5, 0.5, false, true, false, true, true); /*COMPTYPE 3 with rival*/
 addConfig(10000, 0, 0.5, false, false, false, false, false);/*COMPTYPE 4 is a special case where showTimer must be false, even though a timer is shown - goal is 0 as there is no goal*/
 var totalTrials = CONFIGS.length;
 var CONFIG_RANDOM = Math.floor((Math.random() * CONFIGS.length));
@@ -63,8 +67,7 @@ var CSV_HEADER = ["unique code", "trial number", "direction", "input", "correct"
 var CSV_FILENAME = "testSave.csv"
 var TRIAL_COUNT = 1;
 //var DOT_COHERENCE = 1;
-var OPPONENT_SCORE_ARRAY = null;
-var OPPONENT_TIME_ARRAY = null;
+
 
 /* Resources */
 var FAIL_SOUND = new sound("./Sounds/trial-fail.mp3");
@@ -532,7 +535,6 @@ function savePrime() {
 }
 
 function updateSurvey(survey) {
-  var config = getCurrentConfig();
   var COMPTYPE = getCompType();
   var surveyText = document.createElement("p");
   if (COMPTYPE == 4) {
@@ -544,8 +546,7 @@ function updateSurvey(survey) {
   <textarea id="myText" rows="20" cols="60"></textarea>
   <p>Click on the button to proceed. </p>
   <button onclick="savePrime()">Proceed</button>
-  
-  `
+    `;
   return surveyText;
   } else if (COMPTYPE == 2) {
     surveyText.innerHTML = `
@@ -557,7 +558,7 @@ function updateSurvey(survey) {
     <p>Click on the button to proceed. </p>
     <button onclick="savePrime()">Proceed</button>
     
-    `
+    `;
     return surveyText;
     } else if (COMPTYPE == 1) {
       if (getCurrentConfig().rival == false) {
@@ -570,7 +571,7 @@ function updateSurvey(survey) {
         <p>Click on the button to proceed. </p>
         <button onclick="savePrime()">Proceed</button>
         
-        `
+        `;
         return surveyText;
       } else if (getCurrentConfig().rival == true){
       surveyText.innerHTML = `
@@ -582,7 +583,7 @@ function updateSurvey(survey) {
       <p>Click on the button to proceed. </p>
       <button onclick="savePrime()">Proceed</button>
       
-      `
+      `;
       return surveyText;
       }
     }
@@ -599,6 +600,9 @@ function updateDebrief(debrief) {
 }
 
 function saveMC() {
+  if (document.getElementById("MC1").value == "" || document.getElementById("MC2").value == "" || document.getElementById("MC3").value == "" || document.getElementById("MC4").value == ""){
+window.alert("Please complete the questions")
+  } else if (document.getElementById("MC1").value != "" && document.getElementById("MC2").value != "" && document.getElementById("MC3").value != "" && document.getElementById("MC4").value != ""){
   MC1 = ((document.getElementById("MC1").value));
   console.log(MC1);
   MC2 = ((document.getElementById("MC2").value));
@@ -608,15 +612,40 @@ function saveMC() {
   MC4 = ((document.getElementById("MC4").value));
   console.log(MC4);
 showInstructions();
-}
+}}
 
 
 function updateManipulationCheck(manipulationCheck) {
   var manipulationCheckText = document.createElement("p");
   manipulationCheckText.innerHTML = `
   1 = Strongly Disagree, 2 = Disagree, 3 = Slightly Disagree, 4 = Neutral, 5 = Slightly Agree, 6 = Agree, 7 = Strongly Agree <br />
-I consider this person to be a personal rival <br />
+  I feel rivalry towards this person <br />
   <select id="MC1">
+  <option disabled selected value> -- select an option -- </option>
+  <option>1</option>
+  <option>2</option>
+  <option>3</option>
+  <option>4</option>
+  <option>5</option>
+  <option>6</option>
+  <option>7</option>
+</select><br />
+
+I have a history with this person that makes competitions against him or her more significant than competitions against other people <br />
+  <select id="MC2">
+  <option disabled selected value> -- select an option -- </option>
+  <option>1</option>
+  <option>2</option>
+  <option>3</option>
+  <option>4</option>
+  <option>5</option>
+  <option>6</option>
+  <option>7</option>
+</select><br />
+
+I consider this person to be a personal rival <br />
+  <select id="MC3">
+  <option disabled selected value> -- select an option -- </option>
   <option>1</option>
   <option>2</option>
   <option>3</option>
@@ -627,29 +656,8 @@ I consider this person to be a personal rival <br />
 </select><br />
 
 Competitions against this person were more important to me because of the relationship that exists(ed) between us <br />
-  <select id="MC2">
-  <option>1</option>
-  <option>2</option>
-  <option>3</option>
-  <option>4</option>
-  <option>5</option>
-  <option>6</option>
-  <option>7</option>
-</select><br />
-
-Check 3 <br />
-  <select id="MC3">
-  <option>1</option>
-  <option>2</option>
-  <option>3</option>
-  <option>4</option>
-  <option>5</option>
-  <option>6</option>
-  <option>7</option>
-</select><br />
-
-Check 4 <br />
   <select id="MC4">
+  <option disabled selected value> -- select an option -- </option>
   <option>1</option>
   <option>2</option>
   <option>3</option>
@@ -755,8 +763,10 @@ function updateInstructions(instructions) {
     `
   } else {
   if (COMPTYPE == 1) {
-    instructions.innerHTML = `
-In the next set of trials, you will have an opponent. <br /> <br />
+    if (getCurrentConfig().rival == false){
+      instructions.innerHTML = `
+      In the next set of trials, you will have an opponent. <br /> <br /> 
+      In these trials, imagine your opponent is the person you just described, and perform the task as if you are competing against this person. <br /><br /> 
 You will have ${config.duration/1000} seconds to achieve a higher score than your opponent.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
@@ -764,7 +774,19 @@ The screen will show your score (GREEN), your opponent's score (RED), and your r
 Press any key to continue. <br /> <br />
 <img src='\Images/COMPTYPE1.png' width= '800px'>
 `;
-  } else if (COMPTYPE == 2) {
+} else if (getCurrentConfig().rival == true){
+  instructions.innerHTML = `
+  In the next set of trials, you will have an opponent. <br /> <br />    
+  In these trials, imagine your opponent is the person you just described, and perform the task as if you are competing against this rival. <br /><br /> 
+  You will have ${config.duration/1000} seconds to achieve a higher score than your opponent.<br /><br />
+  If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
+  Each time you press 'A' or 'L' you will see the score. An example of this is shown below.<br /><br />
+  The screen will show your score (GREEN), your opponent's score (RED), and your remaining time (BLUE). <br /><br />
+  Press any key to continue. <br /> <br />
+  <img src='\Images/COMPTYPE1.png' width= '800px'>
+  `;
+  } 
+} else if (COMPTYPE == 2) {
     instructions.innerHTML = `
     In the next set of trials, you will NOT have an opponent. <br /> <br />
 You will have ${config.duration/1000} seconds to acheive a score of ${config.goal}.<br /><br />
@@ -796,7 +818,7 @@ Press any key to continue. <br /> <br />
   The screen will show your score (GREEN), your opponent's score (RED), and your goal (YELLOW). <br /><br />
   Press any key to continue. <br /> <br />
   <img src='\Images/COMPTYPE3.png' width= '800px'>)
- `;
+ `;}
   } else if (COMPTYPE == 4)  {
   instructions.innerHTML = `
   In the next set of trials, you will NOT have an opponent. <br /> <br />
@@ -808,12 +830,41 @@ Press any key to continue. <br /> <br />
 <img src='\Images/COMPTYPE4.png' width= '800px'>
 `;
   };
-  }}
+}
   } else {
+    if (COMPTYPE == 1) {
+      instructions.innerHTML = `
+  This next trial will be the same as the previous one. <br /> <br />
+  Remember, you will have ${config.duration/1000} seconds to achieve a higher score than your opponent.<br /><br />
+  Press any key to continue. <br /> <br />
+  `;
+    } else if (COMPTYPE == 2) {
+      instructions.innerHTML = `
+      This next trial will be the same as the previous one. <br /> <br />
+  Remember, you will have ${config.duration/1000} seconds to acheive a score of ${config.goal}.<br /><br />
+  Press any key to continue. <br /> <br />
+  `;
+    } else if (COMPTYPE == 3) { 
+      if (getCurrentConfig().rival == false){
+        instructions.innerHTML = `
+        This next trial will be the same as the previous one. <br /> <br /> 
+    Remember, you have to acheive a score of ${config.goal} before your opponent does.<br /><br />
+    Press any key to continue. <br /> <br />
+    `;
+      } else if (getCurrentConfig().rival == true){
+        instructions.innerHTML = `
+        This next trial will be the same as the previous one. <br /> <br />  
+    Remember, you have to acheive a score of ${config.goal} before your opponent does.<br /><br />
+    Press any key to continue. <br /> <br />
+   `;}
+    } else if (COMPTYPE == 4)  {
     instructions.innerHTML = `
-This trial will be the same as the previous one. <br /><br />
-Press any key to continue. <br /> <br />
-`
+    This next trial will be the same as the previous one. <br /> <br />  
+  Remember, you will have ${config.duration/1000} seconds to score as many points as possible.<br /><br />
+  Press any key to continue. <br /> <br />
+  `;
+    };
+  
   }
   return instructions;
 }
@@ -891,12 +942,10 @@ function showSurvey() {
 }
 
 function showDebrief() {
-  console.log("one");
   removeBody();
   uiState = uiStates.DEBRIEF;
   document.body.style.backgroundColor = "white";
   document.body.appendChild(updateDebrief(debrief));
-  console.log("two");
 }
 
 function showManipulationCheck() {
@@ -917,6 +966,7 @@ function showInstructions() {
 function showTrial() {
   /* Reset state */
   removeBody();
+  prevScore = score;
   uiState = uiStates.TRIAL;
   document.body.style.backgroundColor = "gray";
   document.body.appendChild(trial);
@@ -1031,148 +1081,10 @@ if (trialsCheck == trialRepetitions || getCurrentConfig().practice == true) {
 
 function getOpponentScore() {
   var config = getCurrentConfig();
-
-    
-  var opponents_score_array = OPPONENT_EPISODE_ARRAY.slice(0,OPPONENT_EPISODE_ARRAY.length/2);
-  var opponents_time_array = OPPONENT_EPISODE_ARRAY.slice(OPPONENT_EPISODE_ARRAY.length/2 , OPPONENT_EPISODE_ARRAY.length  );
-
-  var time_used = config.duration - timer.remaining;
-  var ind = 0;
-
-  do{
-    ind++;
-  } while ( opponents_time_array[ind] < time_used);
-
-    
-  return opponents_score_array[ind - 1];
-}
-
-//Generate random number from standard normal distribution using the Marsaglia polar method
-        //var spareRandom = null;
-        function normalRandom() {
-            var val, u, v, s, mul;
-
-            //if(spareRandom !== null){
-            //  val = spareRandom;
-            //  spareRandom = null;
-            //}
-            //else{
-            do {
-                u = Math.random() * 2 - 1;
-                v = Math.random() * 2 - 1;
-
-                s = u * u + v * v;
-            } while (s === 0 || s >= 1);
-
-            mul = Math.sqrt(-2 * Math.log(s) / s);
-
-            val = u * mul;
-            //spareRandom = v * mul;
-            //  }       
-
-            return val;
-        }
-
-function simulate_opponent_trial(max_start_point,mean_drift_rates,sd_drift_rates,thresholds,non_decision_time) {
-  //sample starting point
-  var start_point_correct = Math.random() * max_start_point;
-  var start_point_incorrect = Math.random() * max_start_point;
+  return Math.floor((1 - (timer.remaining/config.duration)) * config.goal);
+};
   
-  //sample drift rate ensuring that at least one is positive
-  var drift_rate_correct = -1
-  var drift_rate_incorrect = -1
-  do {
-    var drift_rate_correct = normalRandom() * sd_drift_rates[0] + mean_drift_rates[0]
-    var drift_rate_incorrect = normalRandom() * sd_drift_rates[1] + mean_drift_rates[1]
-  } while (drift_rate_correct <= 0 && drift_rate_incorrect <= 0);
 
-  var evidence_required_correct = thresholds[0] - start_point_correct
-  var evidence_required_incorrect = thresholds[1] - start_point_incorrect
-
-  //calculate time required for each acculator to reach threshold
-  var time_required_correct = evidence_required_correct / drift_rate_correct
-  var time_required_incorrect = evidence_required_incorrect / drift_rate_incorrect
-
-  //if both times are positive (which means both rates are positive)
-  if(time_required_correct > 0 && time_required_incorrect > 0){
-    //decision time is determined by shorter time required
-    if(time_required_correct < time_required_incorrect){
-      var decision_time = time_required_correct;
-      var change_in_opponent_score = 1; 
-    }
-    if(time_required_correct > time_required_incorrect){
-      var decision_time = time_required_incorrect;
-      var change_in_opponent_score = -1; 
-    }
-    //if one time required is negative, the corresponding drift rate would have bene negative
-    //so this accumulator is disregarded. The decision time is determined by the positive time required
-  } else {
-    if(time_required_correct < time_required_incorrect){
-      var decision_time = time_required_incorrect;
-      var change_in_opponent_score = -1; 
-    }
-    if(time_required_correct > time_required_incorrect){
-      var decision_time = time_required_correct;
-      var change_in_opponent_score = 1; 
-    }
-  }
-
-  var opponent_response_time = decision_time + non_decision_time;
-
-  //store choice and RT in object
-  var opponent_trial = [];
-  opponent_trial.push(change_in_opponent_score);
-  opponent_trial.push(opponent_response_time);
-
-  return opponent_trial;
-}
-
-function simulate_opponent_episode(){
-
-  //get config
-  var config = getCurrentConfig();
-
-  //initialize opponent episode array
-  OPPONENT_SCORE_ARRAY = [];
-  var opponent_score = 0;
-  OPPONENT_SCORE_ARRAY.push(opponent_score );
-  
-  OPPONENT_TIME_ARRAY = [];
-  var opponent_time = 0;
-  OPPONENT_TIME_ARRAY.push(opponent_time);
-
-  //tournament
-  if(getCompType() == 1){
-    do {
-      var opponent_trial = simulate_opponent_trial(max_start_point,mean_drift_rates,sd_drift_rates,thresholds,non_decision_time);
-      //increment score and time used
-      opponent_score = opponent_score + opponent_trial[0];
-      opponent_time = opponent_time + opponent_trial[1];
-      //store increment in array
-      OPPONENT_SCORE_ARRAY.push(opponent_score );
-      OPPONENT_TIME_ARRAY.push(opponent_time);
-
-    } while ( opponent_time < config.duration );    
-  }
-  //race
-  if(getCompType() == 3){
-    do {
-      var opponent_trial = simulate_opponent_trial(max_start_point,mean_drift_rates,sd_drift_rates,thresholds,non_decision_time);
-      //increment score and time used
-      opponent_score = opponent_score + opponent_trial[0];
-      opponent_time = opponent_time + opponent_trial[1];
-      //store increment in array
-      OPPONENT_SCORE_ARRAY.push(opponent_score );
-      OPPONENT_TIME_ARRAY.push(opponent_time);
-
-    } while ( opponent_score < config.goal );    
-  }
-  OPPONENT_EPISODE_ARRAY = [];
-  OPPONENT_EPISODE_ARRAY.push(OPPONENT_SCORE_ARRAY);
-  OPPONENT_EPISODE_ARRAY.push(OPPONENT_TIME_ARRAY);
-
-  return OPPONENT_EPISODE_ARRAY;
-}
 
 function logGuess(correct) {
   /* Determine the trial time */
@@ -1185,10 +1097,12 @@ function logGuess(correct) {
   var config = getCurrentConfig();
   guess.push(uniqueCode)
   guess.push(TRIAL_COUNT);
+  guess.push(trialCount);
   guess.push(correctKey == LEFT_KEY ? "left" : "right");
   guess.push(event.keyCode);
   guess.push(correct);
   guess.push(reaction);
+  guess.push(prevScore);
   guess.push(score);
   guess.push(config.goal);
   guess.push(config.goal - (score));
@@ -1219,10 +1133,12 @@ function logTimeout() {
   var config = getCurrentConfig();
   guess.push(uniqueCode)
   guess.push(TRIAL_COUNT);
+  guess.push(trialCount);
   guess.push(correctKey == LEFT_KEY ? "left" : "right");
   guess.push("NA");
   guess.push("NA");
   guess.push(reaction);
+  guess.push(prevScore);
   guess.push(score);
   guess.push(config.goal);
   guess.push(config.goal - (score));
@@ -1263,8 +1179,7 @@ function keyPress(event) {
   
   else if (uiState == uiStates.INSTRUCTIONS) {
     
-    //simulate opponents choices
-    var OPPONENT_EPISODE_ARRAY = simulate_opponent_episode(max_start_point,mean_drift_rates,sd_drift_rates,thresholds,non_decision_time);
+    
 
 
     showTrial();
@@ -1283,6 +1198,7 @@ function keyPress(event) {
         FAIL_SOUND.play();
       }
       csvLogs.push(logGuess(correct));
+      trialCount++;
 
       if (getCompType() == 3 && score >= getCurrentConfig().goal) {
         showResults();
@@ -1298,12 +1214,13 @@ function keyPress(event) {
         
         console.log(CONFIGS.length);
         TRIAL_COUNT++;
+        trialCount = 1;
         nextConfig();
 
 
         main();
       }
-    } else if (CONFIGS.length == 1) {
+     else if (CONFIGS.length == 1) {
         if (trialsCheck < (trialRepetitions - 1)){
           console.log(CONFIGS.length);
           TRIAL_COUNT++;
@@ -1324,12 +1241,12 @@ function keyPress(event) {
       }
     }
   }
-
+}
 
 
 function code() {
   do{
-    uniqueCode = prompt("Please enter your unique code. It should consist of the first two letters of your mother's name, the first two letters of your fathers name, and the day and month of your birthday (e.g. Mary, David, 22nd of November becomes MADA2211)", "");
+    uniqueCode = prompt("Please enter your unique code. It should consist of the first two letters of your mother's name (lowercase), the first two letters of your fathers name (lowercase), and the day and month of your birthday (numerals) (e.g. Mary, David, 22nd of November becomes mada2211)", "");
   } while (uniqueCode == null || uniqueCode == "" || uniqueCode.length != 8)
 };
 
