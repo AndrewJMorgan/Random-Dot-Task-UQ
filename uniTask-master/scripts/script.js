@@ -42,13 +42,13 @@ var trialRepetitions = 5; /*how many times the trials repeat*/
 /* ITI Configuration */
 var CONFIGS = []
 /* Duration in MS, Goal, dot coherence, Show Timer, Show Opponent, practice, show goal, rival*/
-addConfig(20000, 10, 0.5, true, false, true, true, false); /*practice*/
-addConfig(20000, 10, 0.5, true, true, false, false, false); /*COMPTYPE 1*/
-addConfig(20000, 10, 0.5, true, true, false, false, true); /*COMPTYPE 1 with rival*/
-addConfig(20000, 10, 0.5, true, false, false, true, false); /*COMPTYPE 2*/
+addConfig(15000, 10, 0.5, true, false, true, true, false); /*practice*/
+addConfig(15000, 10, 0.5, true, true, false, false, false); /*COMPTYPE 1*/
+addConfig(15000, 10, 0.5, true, true, false, false, true); /*COMPTYPE 1 with rival*/
+addConfig(15000, 10, 0.5, true, false, false, true, false); /*COMPTYPE 2*/
 /*addConfig(20000, 10, 0.5, false, true, false, true, false); /*COMPTYPE 3*/
 /*addConfig(20000, 10, 0.5, false, true, false, true, true); /*COMPTYPE 3 with rival*/
-addConfig(20000, 0, 0.5, false, false, false, false, false);/*COMPTYPE 4 is a special case where showTimer must be false, even though a timer is shown - goal is 0 as there is no goal*/
+addConfig(15000, 0, 0.5, false, false, false, false, false);/*COMPTYPE 4 is a special case where showTimer must be false, even though a timer is shown - goal is 0 as there is no goal*/
 var totalTrials = CONFIGS.length;
 var CONFIG_RANDOM = Math.floor((Math.random() * CONFIGS.length));
 var FIRST_ITI = true;
