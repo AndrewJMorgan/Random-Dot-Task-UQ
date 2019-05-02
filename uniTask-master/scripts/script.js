@@ -26,6 +26,11 @@ const uiStates = {
 
 var uniqueCode = null;
 var prevScore = null;
+var timeUsed = null;
+var prevTimeUsed = null;
+var remaining = null;
+var prevRemaining = null;
+var prevScoreDistance = null;
 var trialCount = 1;
 
 
@@ -63,7 +68,7 @@ var CLOCK_INTERVAL_MS = 50;
 var ITI_DURATION_MS = 1000;
 var LEFT_KEY = 65;
 var RIGHT_KEY = 76;
-var CSV_HEADER = ["unique code", "trial number", "within trial number", "direction", "input", "correct", "reaction_time", "previous score", "score", "goal", "distance", "time limit", "coherence", "show timer", "show opponent", "competition type", "practice", "repetition", "prime", "rival", "MC1", "MC2", "MC3", "MC4"];
+var CSV_HEADER = ["unique code", "trial number", "within trial number", "direction", "input", "correct", "reaction_time", "previous score", "score", "goal", "previous distance", "distance", "previous time used", "time used", "previous time remaining", "time remaining", "time limit", "coherence", "show timer", "show opponent", "competition type", "practice", "repetition", "prime", "rival", "MC1", "MC2", "MC3", "MC4"];
 var CSV_FILENAME = "testSave.csv"
 var TRIAL_COUNT = 1;
 //var DOT_COHERENCE = 1;
@@ -541,7 +546,7 @@ function updateSurvey(survey) {
   surveyText.innerHTML = `
   Please think of a time you have had to do your best. <br /><br />
   By do your best, we mean a situation or task where you did not have an explicit performance target, but simply had to achieve the most you could within certain amount of time. <br /><br />
-  Please briefly describe the nature of this situation and how you approached it. <br /><br />
+  Please briefly describe in one paragraph the nature of this situation and how you approached it. <br /><br />
   
   <textarea id="myText" rows="20" cols="60"></textarea>
   <p>Click on the button to proceed. </p>
@@ -552,7 +557,7 @@ function updateSurvey(survey) {
     surveyText.innerHTML = `
     Please think of a time you have had to achieve a goal. <br /><br />
     By goal, we mean a desired state or performance that you aspire to achieve within a certain amount of time. <br /><br />
-    Please briefly describe the nature of the goal and how you attempted to achieve it.<br /><br />
+    Please briefly describe in one paragraph the nature of the goal and how you attempted to achieve it.<br /><br />
     
     <textarea id="myText" rows="20" cols="60"></textarea>
     <p>Click on the button to proceed. </p>
@@ -565,7 +570,7 @@ function updateSurvey(survey) {
         surveyText.innerHTML = `
 	
         Please think of a person you have recently completed against. <br /><br />
-        Please briefly describe the person and the time you first had to compete against them.<br /><br />
+        Please briefly describe in one paragraph the person and the time you first had to compete against them.<br /><br />
         
         <textarea id="myText" rows="20" cols="60"></textarea>
         <p>Click on the button to proceed. </p>
@@ -577,7 +582,7 @@ function updateSurvey(survey) {
       surveyText.innerHTML = `
       Please think of someone that you have competed against who you consider(ed) to be a personal rival. <br /><br />
       By a personal rival, we mean someone against whom competitions are of greater importance or significance to you, due to the relationship or past history that you have with this person. <br /><br />
-      Please briefly describe this personal rival and the things you have competed on.<br /><br />
+      Please briefly describe in one paragraph this personal rival and the things you have competed on.<br /><br />
       
       <textarea id="myText" rows="20" cols="60"></textarea>
       <p>Click on the button to proceed. </p>
@@ -967,6 +972,9 @@ function showTrial() {
   /* Reset state */
   removeBody();
   prevScore = score;
+  prevRemaining = timer.remaining;
+  prevTimeUsed = timeUsed;
+  prevScoreDistance = (getCurrentConfig().goal - score)
   uiState = uiStates.TRIAL;
   document.body.style.backgroundColor = "gray";
   document.body.appendChild(trial);
@@ -1105,7 +1113,12 @@ function logGuess(correct) {
   guess.push(prevScore);
   guess.push(score);
   guess.push(config.goal);
+  guess.push(prevScoreDistance);
   guess.push(config.goal - (score));
+  guess.push(prevTimeUsed);
+  guess.push(timeUsed);
+  guess.push(prevRemaining);
+  guess.push(timer.remaining);
   guess.push(config.duration);
   guess.push(config.dotCoherence);
   guess.push(config.showOpponent);
@@ -1141,7 +1154,12 @@ function logTimeout() {
   guess.push(prevScore);
   guess.push(score);
   guess.push(config.goal);
+  guess.push(prevScoreDistance);
   guess.push(config.goal - (score));
+  guess.push(prevTimeUsed);
+  guess.push(timeUsed);
+  guess.push(prevRemaining);
+  guess.push(timer.remaining);
   guess.push(config.duration);
   guess.push(config.dotCoherence);
   guess.push(config.showOpponent);
@@ -1186,6 +1204,7 @@ function keyPress(event) {
   } else if (uiState == uiStates.TRIAL) {
     if (event.keyCode == LEFT_KEY || event.keyCode == RIGHT_KEY) {
       timer.pause();
+      timeUsed = (getCurrentConfig().duration - timer.remaining)
 
       /* Update score state and play sound */
       var correct = event.keyCode == correctKey;
