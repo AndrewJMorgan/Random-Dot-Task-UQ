@@ -1230,7 +1230,7 @@ function keyPress(event) {
     /* Restart the trials */
     if (event.keyCode == 82) {
       if (CONFIGS.length > 1) {
-        
+        prevTimeUsed = 0;
         console.log(CONFIGS.length);
         TRIAL_COUNT++;
         trialCount = 1;
@@ -1241,6 +1241,7 @@ function keyPress(event) {
       }
      else if (CONFIGS.length == 1) {
         if (trialsCheck < (trialRepetitions - 1)){
+		prevTimeUsed = 0;
           console.log(CONFIGS.length);
           TRIAL_COUNT++;
           nextConfig();
