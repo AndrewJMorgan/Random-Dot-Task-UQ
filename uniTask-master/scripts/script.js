@@ -32,6 +32,8 @@ var remaining = null;
 var prevRemaining = null;
 var prevScoreDistance = null;
 var trialCount = 1;
+var opponentScore = null;
+var prevOpponentScore = null;
 
 
 var prime = null;
@@ -47,13 +49,13 @@ var trialRepetitions = 5; /*how many times the trials repeat*/
 /* ITI Configuration */
 var CONFIGS = []
 /* Duration in MS, Goal, dot coherence, Show Timer, Show Opponent, practice, show goal, rival*/
-addConfig(15000, 10, 0.5, true, false, true, true, false); /*practice*/
-addConfig(15000, 10, 0.5, true, true, false, false, false); /*COMPTYPE 1*/
-addConfig(15000, 10, 0.5, true, true, false, false, true); /*COMPTYPE 1 with rival*/
-addConfig(15000, 10, 0.5, true, false, false, true, false); /*COMPTYPE 2*/
+addConfig(15000, 10, 0.3, true, false, true, true, false); /*practice*/
+addConfig(15000, 10, 0.1, true, true, false, false, false); /*COMPTYPE 1*/
+addConfig(15000, 10, 0.1, true, true, false, false, true); /*COMPTYPE 1 with rival*/
+addConfig(15000, 10, 0.1, true, false, false, true, false); /*COMPTYPE 2*/
 /*addConfig(20000, 10, 0.5, false, true, false, true, false); /*COMPTYPE 3*/
 /*addConfig(20000, 10, 0.5, false, true, false, true, true); /*COMPTYPE 3 with rival*/
-addConfig(15000, 0, 0.5, false, false, false, false, false);/*COMPTYPE 4 is a special case where showTimer must be false, even though a timer is shown - goal is 0 as there is no goal*/
+addConfig(15000, 0, 0.1, false, false, false, false, false);/*COMPTYPE 4 is a special case where showTimer must be false, even though a timer is shown - goal is 0 as there is no goal*/
 var totalTrials = CONFIGS.length;
 var CONFIG_RANDOM = Math.floor((Math.random() * CONFIGS.length));
 var FIRST_ITI = true;
@@ -68,7 +70,7 @@ var CLOCK_INTERVAL_MS = 50;
 var ITI_DURATION_MS = 1000;
 var LEFT_KEY = 65;
 var RIGHT_KEY = 76;
-var CSV_HEADER = ["unique code", "trial number", "within trial number", "direction", "input", "correct", "reaction_time", "previous score", "score", "goal", "previous distance", "distance", "previous time used", "time used", "previous time remaining", "time remaining", "time limit", "coherence", "show timer", "show opponent", "competition type", "practice", "repetition", "prime", "rival", "MC1", "MC2", "MC3", "MC4"];
+var CSV_HEADER = ["unique code", "trial number", "within trial number", "direction", "input", "correct", "reaction_time", "previous score", "score", "goal", "previous distance", "distance", "previous oppenent score", "opponent score", "previous time used", "time used", "previous time remaining", "time remaining", "time limit", "coherence", "show timer", "show opponent", "competition type", "practice", "repetition", "prime", "rival", "MC1", "MC2", "MC3", "MC4"];
 var CSV_FILENAME = "testSave.csv"
 var TRIAL_COUNT = 1;
 //var DOT_COHERENCE = 1;
@@ -517,7 +519,7 @@ function drawIntroduction() {
   var introText = document.createElement("p");
   introText.innerHTML = `
   This is a random dot task. Your screen will show a group of dots that are moving in many directions.<br /><br />
-On each trial, 30% of the dots will be moving in a coherent direction (left or right) and the other 70% will move randomly.<br /><br />
+On each trial, a certain amount of the dots will be moving in a coherent direction (left or right) and the others will move randomly.<br /><br />
 You need to determine if the dots are moving left or right.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
 You will have a separate objective for each block of trials. In some trials, you will have an opponent, while in others, you will not.<br /><br />
@@ -757,7 +759,7 @@ function updateInstructions(instructions) {
   if (config.practice == true){
     instructions.innerHTML = `
     THIS IS A PRACTICE ROUND.<br /> <br />
-    Please use this round to familiarise yourself with the task. <br /> <br />
+    Please use this round to familiarise yourself with the task. It will be easier than the rest of the rounds. <br /> <br />
     In this block, you will NOT have an opponent. <br /> <br />
     You will have ${config.duration/1000} seconds to acheive a score of ${config.goal}.<br /><br />
     If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
@@ -975,6 +977,7 @@ function showTrial() {
   prevRemaining = timer.remaining;
   prevTimeUsed = timeUsed;
   prevScoreDistance = (getCurrentConfig().goal - score)
+  prevOpponentScore = opponentScore;
   uiState = uiStates.TRIAL;
   document.body.style.backgroundColor = "gray";
   document.body.appendChild(trial);
@@ -989,6 +992,7 @@ function showTrial() {
   correctKey = ran ? LEFT_KEY : RIGHT_KEY;
   timer.resume();
   trialStart = new Date().getTime();
+  var opponentTimer = window.setInterval(updateOpponentScore, 500);
 }
 
 function showITI() {
@@ -1088,11 +1092,14 @@ if (trialsCheck == trialRepetitions || getCurrentConfig().practice == true) {
 }
 
 function getOpponentScore() {
-  var config = getCurrentConfig();
-  return Math.floor((1 - (timer.remaining/config.duration)) * config.goal);
+  
+  return opponentScore;
 };
   
-
+function updateOpponentScore() {
+  var config = getCurrentConfig();
+  opponentScore = ((Math.floor((1 - (timer.remaining/config.duration)) * config.goal)+ (Math.floor(Math.random()*(Math.floor(1)- Math.ceil(-1)+1) +Math.ceil(-1)))))
+};
 
 function logGuess(correct) {
   /* Determine the trial time */
@@ -1115,6 +1122,8 @@ function logGuess(correct) {
   guess.push(config.goal);
   guess.push(prevScoreDistance);
   guess.push(config.goal - (score));
+  guess.push(prevOpponentScore);
+  guess.push(opponentScore);
   guess.push(prevTimeUsed);
   guess.push(timeUsed);
   guess.push(prevRemaining);
@@ -1156,6 +1165,8 @@ function logTimeout() {
   guess.push(config.goal);
   guess.push(prevScoreDistance);
   guess.push(config.goal - (score));
+  guess.push(prevOpponentScore);
+  guess.push(opponentScore);
   guess.push(prevTimeUsed);
   guess.push(timeUsed);
   guess.push(prevRemaining);
@@ -1221,7 +1232,9 @@ function keyPress(event) {
 
       if (getCompType() == 3 && score >= getCurrentConfig().goal) {
         showResults();
-      } else {
+      } else if (getCompType() == 3 && opponentScore >= getCurrentConfig().goal){
+        showResults();
+    }else {
         showITI();
       };
     };
@@ -1234,6 +1247,8 @@ function keyPress(event) {
         console.log(CONFIGS.length);
         TRIAL_COUNT++;
         trialCount = 1;
+        opponentScore = 0;
+        prevOpponentScore = 0;
         nextConfig();
 
 
@@ -1244,6 +1259,8 @@ function keyPress(event) {
 		prevTimeUsed = 0;
           console.log(CONFIGS.length);
           TRIAL_COUNT++;
+          opponentScore = 0;
+          prevOpponentScore = 0;
           nextConfig();
   
   
@@ -1279,6 +1296,7 @@ function main() {
   
   correctKey = null;
   timer = new clock(getCurrentConfig().duration, showResults);
+  
 
   //csv should be saved to the experiment webspace https://staff.psy.uq.edu.au/tools/webfiles/manage/?v=files/5c5fcb4c6e78e
   if (csvLogs.length == 0) {
