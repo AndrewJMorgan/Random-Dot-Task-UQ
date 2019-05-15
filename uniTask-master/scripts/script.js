@@ -915,18 +915,25 @@ function updateResults(itiScreen) {
   var txt = itiScreen.querySelector(`#${RESULTS_TXT_ID}`);
 
   /* Customize based on score */
-  if (score >= getCurrentConfig().goal) {
-    if (score == getCurrentConfig().goal && getCompType() == 1) {
-      img.setAttribute("src", "./Images/face2.png");
-      var message = 'You have tied.';
-    } else {
+  if (getCompType() != 1){
+  if (score >= getCurrentConfig().goal)  {
     img.setAttribute("src", "./Images/face0.png");
     var message = 'You achieved your goal!'; }
-  } else {
+     else if (score < getCurrentConfig().goal) {
     img.setAttribute("src", "./Images/face1.png");
     var message = 'You did not achieve your goal.';
+  } } else if (getCompType() == 1) {
+    if (score == opponentScore){
+      img.setAttribute("src", "./Images/face2.png");
+      var message = 'You have tied.';
+    } else if (score > opponentScore){
+      img.setAttribute("src", "./Images/face0.png");
+      var message = 'You achieved your goal!'; 
+    } else if (score < opponentScore){
+      img.setAttribute("src", "./Images/face0.png");
+      var message = 'You did not achieve your goal.'; }
   }
-  txt.innerHTML = message + '</br> </br> Please press R to continue';
+    txt.innerHTML = message + '</br> </br> Please press R to continue';
 
   /* Show the results elements */
   itiScreen.querySelector(`#${RESULTS_DIV_ID}`).style.visibility = "visible";
