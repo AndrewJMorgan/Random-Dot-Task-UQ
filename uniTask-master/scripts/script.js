@@ -34,7 +34,11 @@ var prevScoreDistance = null;
 var trialCount = 1;
 var opponentScore = null;
 var prevOpponentScore = null;
-
+var RT = 1419;
+var avgRT = RT;
+var avgAcc = .739;
+var opponentTimer = null;
+var first = true;
 
 var prime = null;
 
@@ -49,13 +53,13 @@ var trialRepetitions = 5; /*how many times the trials repeat*/
 /* ITI Configuration */
 var CONFIGS = []
 /* Duration in MS, Goal, dot coherence, Show Timer, Show Opponent, practice, show goal, rival*/
-addConfig(15000, 10, 0.3, true, false, true, true, false); /*practice*/
-addConfig(15000, 10, 0.1, true, true, false, false, false); /*COMPTYPE 1*/
-addConfig(15000, 10, 0.1, true, true, false, false, true); /*COMPTYPE 1 with rival*/
-addConfig(15000, 10, 0.1, true, false, false, true, false); /*COMPTYPE 2*/
+addConfig(20000, 8, 0.3, true, false, true, true, false); /*practice*/
+addConfig(20000, 8, 0.1, true, true, false, false, false); /*COMPTYPE 1*/
+addConfig(20000, 8, 0.1, true, true, false, false, true); /*COMPTYPE 1 with rival*/
+addConfig(20000, 8, 0.1, true, false, false, true, false); /*COMPTYPE 2*/
 /*addConfig(20000, 10, 0.5, false, true, false, true, false); /*COMPTYPE 3*/
 /*addConfig(20000, 10, 0.5, false, true, false, true, true); /*COMPTYPE 3 with rival*/
-addConfig(15000, 0, 0.1, false, false, false, false, false);/*COMPTYPE 4 is a special case where showTimer must be false, even though a timer is shown - goal is 0 as there is no goal*/
+addConfig(20000, 0, 0.1, false, false, false, false, false);/*COMPTYPE 4 is a special case where showTimer must be false, even though a timer is shown - goal is 0 as there is no goal*/
 var totalTrials = CONFIGS.length;
 var CONFIG_RANDOM = Math.floor((Math.random() * CONFIGS.length));
 var FIRST_ITI = true;
@@ -479,7 +483,7 @@ console.log("test");
 
  function uqpsychExportData(values) {
     // Server receiver
-    var url = 'https://exp.psy.uq.edu.au/s4322866/bin/record.htm';    // Change this if not on the www2.psy.uq.edu.au domain
+    var url = 'https://exp.psy.uq.edu.au/uqtballa/bin/record.htm';    // Change this if not on the www2.psy.uq.edu.au domain
 
     // Prepare data as json
     var jsonValues = JSON.stringify(values);
@@ -522,7 +526,7 @@ function drawIntroduction() {
 On each trial, a certain amount of the dots will be moving in a coherent direction (left or right) and the others will move randomly.<br /><br />
 You need to determine if the dots are moving left or right.<br /><br />
 If the dots are moving left, press the 'A' key. If the dots are moving right, press the 'L' key.<br /><br />
-You will have a separate objective for each block of trials. In some trials, you will have an opponent, while in others, you will not.<br /><br />
+You will have a separate objective for each block of trials. In some trials, you will have an opponent, while in others, you will not. The opponent will be based on prerecorded data from other participants. <br /><br />
 In some trials, you will have to reach a certain score before your opponent, while in others you will need to have more points than them by the end of the time limit. <br /><br />
 For each correct response, you will gain a point. For each incorrect response, you will lose a point. Points can go into the negatives.<br /><br />
 PLEASE MAKE SURE YOU ARE USING GOOGLE CHROME | THE EXPERIMENT MAY NOT WORK ON MICROSOFT EDGE<br /><br />
@@ -601,7 +605,7 @@ function updateDebrief(debrief) {
   debriefText.innerHTML = `
   Thank you for completing the experiment. <br /><br />
   Please follow this link and answer a few more questions <br /><br />
-  <a href="http://qualtrics.com">www.qualtrics.com</a>
+  <a href="https://uqpsych.qualtrics.com/jfe/form/SV_1AnV6HkYvxppQiN">www.qualtrics.com</a>
   `
   return debriefText;
 }
@@ -930,7 +934,7 @@ function updateResults(itiScreen) {
       img.setAttribute("src", "./Images/face0.png");
       var message = 'You achieved your goal!'; 
     } else if (score < opponentScore){
-      img.setAttribute("src", "./Images/face0.png");
+      img.setAttribute("src", "./Images/face1.png");
       var message = 'You did not achieve your goal.'; }
   }
     txt.innerHTML = message + '</br> </br> Please press R to continue';
@@ -999,7 +1003,7 @@ function showTrial() {
   correctKey = ran ? LEFT_KEY : RIGHT_KEY;
   timer.resume();
   trialStart = new Date().getTime();
-  var opponentTimer = window.setInterval(updateOpponentScore, 500);
+  
 }
 
 function showITI() {
@@ -1016,7 +1020,7 @@ function showITI() {
 }
 
 function showResults() {
-  
+  window.clearInterval(opponentTimer);
     csvLogs.push(logTimeout());
 
     /* Reset state, stop drawing */
@@ -1104,8 +1108,29 @@ function getOpponentScore() {
 };
   
 function updateOpponentScore() {
+  if (first = true){
   var config = getCurrentConfig();
-  opponentScore = ((Math.floor((1 - (timer.remaining/config.duration)) * config.goal)+ (Math.floor(Math.random()*(Math.floor(1)- Math.ceil(-1)+1) +Math.ceil(-1)))))
+  console.log("time");
+  var randomAcc = Math.random();
+  if(randomAcc < avgAcc){
+  opponentScore++;
+  } else {
+    opponentScore--;
+  };
+  avgRT = RT + 1000;
+  first = false;
+  window.clearInterval(opponentTimer);
+  opponentTimer = window.setInterval(updateOpponentScore, avgRT);
+} else {
+  var config = getCurrentConfig();
+  console.log("time");
+  var randomAcc = Math.random();
+  if(randomAcc < avgAcc){
+  opponentScore++;
+  } else {
+    opponentScore--;
+  };
+};
 };
 
 function logGuess(correct) {
@@ -1214,8 +1239,9 @@ function keyPress(event) {
     }
   
   else if (uiState == uiStates.INSTRUCTIONS) {
-    
-    
+
+      opponentTimer = window.setInterval(updateOpponentScore, avgRT);
+
 
 
     showTrial();
@@ -1256,6 +1282,8 @@ function keyPress(event) {
         trialCount = 1;
         opponentScore = 0;
         prevOpponentScore = 0;
+        avgRT = RT;
+        first = true;
         nextConfig();
 
 
@@ -1268,6 +1296,8 @@ function keyPress(event) {
           TRIAL_COUNT++;
           opponentScore = 0;
           prevOpponentScore = 0;
+          avgRT = RT;
+          first = true;
           nextConfig();
   
   
