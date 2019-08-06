@@ -1146,7 +1146,7 @@ function simulate_opponent_episode(max_start_point,mean_drift_rates,sd_drift_rat
       OPPONENT_SCORE_ARRAY.push(opponent_score );
       OPPONENT_TIME_ARRAY.push(opponent_time);
 
-    } while ( opponent_score < config.goal );    
+    } while ( opponent_score < config.goal & opponent_time < 120000); //added condition to stop trial after 2 minutes (120,000 ms).    
   }
   OPPONENT_EPISODE_ARRAY = [];
   OPPONENT_EPISODE_ARRAY.push(OPPONENT_SCORE_ARRAY);
