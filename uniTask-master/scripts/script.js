@@ -1358,7 +1358,7 @@ function main() {
   var max_start_point = A[trialsCheck]; //new episode count variable will be index here. Index is variable - 1.
   var mean_drift_rates = [v_true[trialsCheck],v_false[trialsCheck]];
   var sd_drift_rates = [s,s]; 
-  var thresholds = [B[trialsCheck],B[trialsCheck]];
+  var thresholds = [B[trialsCheck] + max_start_point, B[trialsCheck] + max_start_point];
   var non_decision_time = tau[trialsCheck];
 
 
